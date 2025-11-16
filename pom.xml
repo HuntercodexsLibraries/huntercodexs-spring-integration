@@ -206,15 +206,15 @@
 
                     <!--OPENAPI Sample-->
                     <execution>
-                        <id>security-group-management</id>
+                        <id>users</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>src/main/resources/openapi/BUSINESS-GROUPS.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
                             <generatorName>spring</generatorName>
-                            <modelPackage>com.huntercodexs.api.businessgroup.model</modelPackage>
-                            <apiPackage>com.huntercodexs.api.businessgroup.api</apiPackage>
+                            <modelPackage>com.huntercodexs.api.users.model</modelPackage>
+                            <apiPackage>com.huntercodexs.api.users.api</apiPackage>
                             <configOptions>
                                 <useJakartaEe>true</useJakartaEe>
                                 <useSpringBoot3>true</useSpringBoot3>
@@ -225,27 +225,24 @@
                                 <java21>true</java21>
                                 <serializableModel>true</serializableModel>
                             </configOptions>
-                            <templateDirectory>
-                                ${project.basedir}/src/main/resources/openapi/templates
-                            </templateDirectory>
                             <generateModelTests>false</generateModelTests>
                             <generateApiTests>false</generateApiTests>
+                            <templateDirectory>${project.basedir}/src/main/resources/openapi/templates</templateDirectory>
                         </configuration>
                     </execution>
 
                     <!--FEIGN Sample-->
                     <execution>
-                        <id>organizational</id>
+                        <id>users-data</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>src/main/resources/feign/openapi/ORGANIZATIONAL.yaml</inputSpec>
-                            <modelPackage>com.huntercodexs.api.organizational.model</modelPackage>
-                            <apiPackage>com.huntercodexs.api.organizational.api</apiPackage>
+                            <inputSpec>${project.basedir}/src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
                             <generatorName>spring</generatorName>
                             <library>spring-cloud</library>
-                            <templateDirectory>src/main/resources/feign/templates</templateDirectory>
                             <configHelp/>
                             <configOptions>
                                 <useJakartaEe>true</useJakartaEe>
@@ -254,8 +251,9 @@
                                 <sourceFolder>gen</sourceFolder>
                                 <java8>true</java8>
                                 <useTags>true</useTags>
-                                <title>organizational</title> <!-- Used for feign bean name and uri property-->
+                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
                             </configOptions>
+                            <templateDirectory>${project.basedir}/src/main/resources/feign/templates</templateDirectory>
                         </configuration>
                     </execution>
 
