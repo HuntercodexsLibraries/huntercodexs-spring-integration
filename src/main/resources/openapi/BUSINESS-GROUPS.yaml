@@ -1,0 +1,3420 @@
+openapi: 3.0.0
+
+info:
+  title: BUSINESS-GROUPS-API
+  version: 1.0.0
+  description: API for managing Business Groups and related operations
+
+servers:
+  - url: http://localhost:35004/huntercodexs/business-groups/v1
+    description: STG
+  - url: http://localhost:35004/huntercodexs/business-groups/v1
+    description: QA
+  - url: http://localhost:35004/huntercodexs/business-groups/v1
+    description: UAT
+  - url: http://localhost:35004/huntercodexs/business-groups/v1
+    description: PROD
+
+paths:
+  /business-groups:
+    post:
+      tags:
+        - Business Groups Management
+      summary: Create a new Business Group
+      operationId: createNewBusinessGroups
+      description: |
+        ## Responsibilities
+        * Creates a new Business Group entity in the system.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBusinessGroupRequest'
+      responses:
+        '201':
+          description: Business Group successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessGroupCreatedResponse'
+
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "400", "message": "name is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "businessNameOfGroupOwner is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "businessAccounts is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "controllerUsers is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "controllerUsers[].userId is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "controllerUsers[].type is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy.organizationId is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy.businessUnitId is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "tags[].key is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "tags[].value is required."}]
+            ```
+            
+            ```
+            [{"code": "1000", "message": "Has duplicated userIds in the request."}]
+            ```
+
+            ```
+            [{"code": "1002", "message": "The business group name should not be empty or blank."}]
+            ```
+
+            ```
+            [{"code": "1003", "message": "The business name of group owner should not be empty or blank."}]
+            ```
+
+            ```
+            [{"code": "1017", "message": "At least one controller user must be a manager."}]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{ "code": "1004", "message": "The Business Group name already exists." }]
+            ```
+            
+            ```
+            [{ "code": "1005", "message": "The businessIds: {0} does not exist." }]
+            ```
+            
+            ```
+            [{ "code": "1006", "message": "The userIds {0} does not exist." }]
+            ```
+            
+            ```
+            [{ "code": "1007", "message": "The businessUnitId and organizationId are invalid or does not exist." }]
+            ```
+
+            ```
+            [{ "code": "1016", "message": "Failed to generate business group identity." }]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: |
+            Internal Server Error
+            
+            This endpoint can throw the following errors:
+
+            ```
+            [{ "code": "2003", "message": "Failed to integrate with Organization." }]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    get:
+      tags:
+        - Business Groups Management
+      summary: List all Business Groups
+      operationId: getAllBusinessGroups
+      description: |
+        ## Responsibilities
+        * Retrieves a paginated list of all Business Groups available to the authenticated admin user.
+        * Supports filtering and pagination to optimize performance and usability.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by Business Group name
+        - name: businessNameOfGroupOwner
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter (Contains) by business Name of Group Owner
+        - name: tag
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by an existing Tag value
+      responses:
+        '200':
+          description: Business Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessGroupResponsePagination'
+        "206":
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessGroupResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}:
+    get:
+      tags:
+        - Business Groups Management
+      summary: Get details of a Business Group
+      operationId: getBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Retrieves a unique Business Groups by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: BusinessGroupId
+      responses:
+        '200':
+          description: Business Group details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessGroupResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    delete:
+      tags:
+        - Business Groups Management
+      summary: Delete a Business Group
+      operationId: deleteBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Delete a unique Business Groups by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: BusinessGroupId
+      responses:
+        '204':
+          description: Business Group deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    patch:
+      tags:
+        - Business Groups Management
+      summary: Update partial data of Business Groups
+      operationId: patchBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Update a partial data of a unique Business Groups by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: BusinessGroupId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBusinessGroupRequest'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "400", "message": "Bad Request"}]
+            [{"code": "1011", "message": "At least one attribute is required to perform the update."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{ "code": "1004", "message": "The Business Group name already exists." }]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/business-accounts/attach:
+    post:
+      tags:
+        - Business Accounts inside Business Groups
+      operationId: attachBusinessAccountsToBusinessGroup
+      summary: Attach multiple business accounts to a Business Group (Alternatives associate/dissociate, link/unlink, add/remove)
+      description: |
+        ## Responsibilities
+        * Attaches one or more business accounts to the specified Business Group.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the Business Group
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachBusinessAccountsRequest'
+        required: true
+      responses: &id001
+        '204':
+          description: Operation successful
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors for missing required fields:
+            
+            ```
+            [{"code": "400", "message": "businessAccounts is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy.organizationId is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy.businessUnitId is required."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1005", "message": "The businessIds: {0} does not exist."}]
+            ```
+            
+            ```
+            [{"code": "1007", "message": "The businessUnitId and organizationId are invalid or does not exist."}]
+            ```
+            
+            ```
+            [{"code": "1019", "message": "The requested organization and business unit do not match the business group ownership."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/business-accounts/detach:
+    post:
+      tags:
+        - Business Accounts inside Business Groups
+      summary: Detach multiple business accounts from a Business Group
+      operationId: detachBusinessAccountsToBusinessGroup
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+      description: |
+        ## Responsibilities
+        * Removes one or more business accounts from the specified Business Group.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetachBusinessAccountsRequest'
+        required: true
+      responses:
+        '204':
+          description: Operation successful
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors for missing required fields:
+            
+            ```
+            [{"code": "400", "message": "businessAccounts is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy.organizationId is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "requestedBy.businessUnitId is required."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1019", "message": "The requested organization and business unit do not match the business group ownership."}]
+            ```
+
+            ```
+            [{"code": "1020", "message": "Business group must have at least one business account."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/business-accounts:
+    get:
+      tags:
+        - Business Accounts inside Business Groups
+      summary: List business accounts linked to a Business Group
+      operationId: listBusinessAccountsInBusinessGroup
+      description: |
+        ## Responsibilities
+        * Retrieves a paginated list of business accounts linked to a Business Group.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nationalRegistrationId
+          in: query
+          description: National Registration Id to filter by
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+        - name: businessIds
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: businessIds with comma separated values
+      responses:
+        '200':
+          description: Business accounts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessAccountsLinkedToBusinessGroupResponsePagination'
+        '206':
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessAccountsLinkedToBusinessGroupResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "BG-004", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/business-accounts/users:
+    get:
+      tags:
+        - Business Accounts inside Business Groups
+      summary: List users of all business accounts in a Business Group
+      operationId: listUsersFromBusinessGroupAdmin
+      description: |
+        ## Responsibilities
+        * Retrieves a paginated list of all users across business accounts in a Business Group.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: email to filter by
+          schema:
+            type: string
+        - name: regionCode
+          in: query
+          description: region code to filter by
+          schema:
+            type: integer
+            format: int32
+        - name: areaCode
+          in: query
+          description: area code to filter by
+          schema:
+            type: integer
+            format: int32
+        - name: mobile
+          in: query
+          description: mobile to filter by
+          schema:
+            type: integer
+            format: int64
+        - name: documentId
+          in: query
+          description: document id to filter by
+          schema:
+            type: string
+        - name: companyAlias
+          in: query
+          description: company alias to filter by
+          schema:
+            type: string
+        - name: companyName
+          in: query
+          description: company name to filter by
+          schema:
+            type: string
+        - name: nationalRegistrationId
+          in: query
+          description: company Document id to filter by
+          schema:
+            type: string
+        - name: businessIds
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: businessIds with comma separated values
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersInBusinessGroupResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/controller-users:
+    get:
+      tags:
+        - Business Groups Controller Users
+      summary: List controller users of a Business Group
+      operationId: listControllerUsersInBusinessGroupAdmin
+      description: |
+        ## Responsibilities
+        * Retrieves all controller users associated with a specific Business Group.
+        * Controller users are users with administrative privileges within the group context.
+        
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the Business Group
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+      responses:
+        '200':
+          description: Controller users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControllerUsersResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "BG-004", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/controller-users/attach:
+    post:
+      tags:
+        - Business Groups Controller Users
+      summary: Add controller users to a specific Business Group
+      operationId: attachControllerUserInBusinessGroupAdmin
+      description: |
+        ## Responsibilities
+        * Allows existing users to be elevated to group controller users
+
+        ---
+
+        ## Requirements
+        * The client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachControllerUserRequest'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "400", "message": "controllerUsers is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "controllerUsers[].userId is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "controllerUsers[].type is required."}]
+            ```
+
+            ```
+            [{"code": "1014", "message": "Duplicated userIds {0} with different types in the request."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{ "code": "1006", "message": "The userIds {0} does not exist." }]
+            ```
+            
+            ```
+            [{"code": "1013", "message": "UserIds {0} already registered as controller users of the business group with another type."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/controller-users/{userId}/type:
+    patch:
+      tags:
+        - Business Groups Controller Users
+      summary: Update the type of a controller user in a specific Business Group
+      operationId: patchControllerUserTypeInBusinessGroupByIdAdmin
+      description: |
+        ## Responsibilities
+        * Allows existing users to be elevated to group controller users
+
+        ---
+
+        ## Requirements
+        * The client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchControllerUserTypeRequest'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "400", "message": "type is required."}]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+            ```
+            [{"code": "1015", "message": "Controller user not found in this Business Group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1018", "message": "Cannot remove the last manager of the business group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /business-groups/{businessGroupId}/controller-users/{userId}:
+    get:
+      tags:
+        - Business Groups Controller Users
+      summary: Get details of a controller user
+      operationId: getControllerUserInBusinessGroupByIdAdmin
+      description: |
+        ## Responsibilities
+        * Retrieves detailed information about a specific controller user within a
+        Business Group.
+        
+        * Controller users are users with administrative privileges within the group
+        context.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the Business Group
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the controller user
+      responses:
+        '200':
+          description: Controller user details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControllerUsersResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "BG-004", "message": "Business Group not found."}]
+            ```
+            ```
+            [{"code": "CU-001", "message": "Controller user not found in this Business Group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-004
+                      message: Business Group not found.
+                Controller User Not Found:
+                  value:
+                    - code: CU-001
+                      message: Controller user not found in this Business Group.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    delete:
+      tags:
+        - Business Groups Controller Users
+      summary: Remove a controller user from a Business Group
+      operationId: deleteControllerUserInBusinessGroupByIdAdmin
+      description: |
+        ## Responsibilities
+        * Remove a controller user from a Business Group.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the controller user
+      responses:
+        '204':
+          description: Controller user successfully removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+            ```
+            [{"code": "1015", "message": "Controller user not found in this Business Group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1018", "message": "Cannot remove the last manager of the business group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups:
+    get:
+      tags:
+        - My Business Groups
+      summary: Get details of a current Business Groups
+      operationId: getAllMyCurrentBusinessGroup
+      description: |
+        ## Responsibilities
+        * Retrieves a list of current Business Groups available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupIds
+          in: query
+          required: false
+          description: Filter business groups by list of businessGroupIds
+          schema:
+            type: array
+            items:
+              type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by Business Group name
+        - name: businessNameOfGroupOwner
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter (Contains) by business Name of Group Owner
+      responses:
+        '200':
+          description: Business Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessGroupResponsePagination'
+        '206':
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessGroupResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}:
+    get:
+      tags:
+        - My Business Groups
+      summary: Get details of a Business Group
+      operationId: getMyCurrentBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Retrieves a unique Business Groups by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: BusinessGroupId
+      responses:
+        '200':
+          description: Business Group details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessGroupResponse'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    patch:
+      tags:
+        - My Business Groups
+      summary: Update partial data of Business Groups
+      operationId: patchMyBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Update a partial data of a unique Business Groups by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+        
+        ---
+        
+        ## Usage
+        * The user must be a controller user of type `MANAGER` to use this endpoint
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: BusinessGroupId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBusinessGroupRequest'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{ "code": "1004", "message": "The Business Group name already exists." }]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/business-accounts/detach:
+    post:
+      tags:
+        - Business Accounts inside My Business Groups
+      operationId: detachCurrentBusinessAccountInMyBusinessGroup
+      summary: Detach business accounts of the current Business Group (Alternatives associate/dissociate, link/unlink, add/remove)
+      description: |
+        ## Responsibilities
+        * Removes one or more business accounts from current Business Groups.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+        
+        ---
+        
+        ## Usage
+        * The user must be a controller user of type `MANAGER` to use this endpoint
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetachBusinessAccountsOwnRequest'
+        required: true
+      responses:
+        '204':
+          description: Operation successful
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "400", "message": "Bad Request"}]
+            ```
+            ```
+            [{"code": "400", "message": "businessAccounts is required."}]
+            ```
+            ```
+            [{"code": "400", "message": "businessAccounts[0].businessId is required."}]
+            ```
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: 404
+                      message: Business Group not found.
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following error:
+            
+            ```
+            [{"code": "1020", "message": "Business group must have at least one business account."}]
+            ```
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+          description: Internal Server Error
+  /my-business-groups/{businessGroupId}/business-accounts:
+    post:
+      tags:
+        - Business Accounts inside My Business Groups
+      summary: Create business accounts from the current Business Group (Check if need)
+      operationId: createBusinessAccountInMyBusinessGroup
+      description: |
+        ## Responsibilities
+        * Create a business accounts from current Business Groups.
+        * The Business Account created is automatically attached to the Business Group.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+        
+        ---
+        
+        ## Usage
+        * The user must be a controller user of type `MANAGER` to use this endpoint
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: TODO
+    get:
+      tags:
+        - Business Accounts inside My Business Groups
+      summary: List business accounts of the current Business Groups with Business Group Info
+      operationId: listBusinessAccountsInMyCurrentBusinessGroup
+      description: |
+        ## Responsibilities
+        * Retrieves a paginated list of business accounts linked to a current Business Groups.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: nationalRegistrationId
+          in: query
+          description: National Registration Id to filter by
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+        - name: businessAccounts
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: list of businessAccountsId with comma separeted values
+      responses:
+        '200':
+          description: Business accounts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessAccountsLinkedToBusinessGroupResponsePagination'
+        '206':
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessAccountsLinkedToBusinessGroupResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/business-accounts/users:
+    get:
+      tags:
+        - Business Accounts inside My Business Groups
+      summary: List users of all business accounts in current Business Group with BusinessAccount and BusinessGroup info.
+      operationId: listAllUsersInMyBusinessGroup
+      description: |
+        ## Responsibilities
+        * Retrieves a paginated list of all users across business accounts in a Business Group.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: email to filter by
+          schema:
+            type: string
+        - name: regionCode
+          in: query
+          description: region code to filter by
+          schema:
+            type: integer
+            format: int32
+        - name: areaCode
+          in: query
+          description: area code to filter by
+          schema:
+            type: integer
+            format: int32
+        - name: mobile
+          in: query
+          description: mobile to filter by
+          schema:
+            type: integer
+            format: int64
+        - name: documentId
+          in: query
+          description: document id to filter by
+          schema:
+            type: string
+        - name: companyAlias
+          in: query
+          description: company alias to filter by
+          schema:
+            type: string
+        - name: companyName
+          in: query
+          description: company name to filter by
+          schema:
+            type: string
+        - name: nationalRegistrationId
+          in: query
+          description: company Document id to filter by
+          schema:
+            type: string
+        - name: businessIds
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: businessIds with comma separated values
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersInBusinessGroupResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/controller-users/me:
+    get:
+      tags:
+        - My Business Groups Controller Users
+      summary: Get details of a logged controller user of a current Business groups
+      operationId: getControllerUserInMyCurrentBusinessGroupMe
+      description: |
+        ## Responsibilities
+        * Retrieves detailed information about a logged controller user within a current Business Groups.
+        * Controller users are users with administrative privileges within the group context.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Controller user details retrieved successfully (Me)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControllerUsersResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+
+            This endpoint can throw the following errors:
+
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+
+            This endpoint can throw the following errors:
+
+            ```
+            [{"code": "1008", "message": "User account not found."}]
+            ```
+
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+
+            ```
+            [{"code": "1015", "message": "Controller user not found in this Business Group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-004
+                      message: Business Group not found.
+                Controller User Not Found:
+                  value:
+                    - code: CU-001
+                      message: Controller user not found in this Business Group.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/controller-users:
+    get:
+      tags:
+        - My Business Groups Controller Users
+      summary: List controller users of the current Business Group with Business Group Info
+      operationId: listControllerUsersInMyCurrentBusinessGroup
+      description: |
+        ## Responsibilities
+        * Retrieves all controller users associated with a current Business Group.
+        * Controller users are users with administrative privileges within the group context.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+      responses:
+        '200':
+          description: Controller users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControllerUsersResponsePagination'
+        '206':
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControllerUsersResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/controller-users/{userId}:
+    get:
+      tags:
+        - My Business Groups Controller Users
+      summary: Get details of a controller user of a current Business groups
+      operationId: getControllerUserInMyCurrentBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Retrieves detailed information about a specific controller user within a current Business Groups.
+        
+        * Controller users are users with administrative privileges within the group context.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the controller user
+      responses:
+        '200':
+          description: Controller user details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControllerUsersResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1008", "message": "User account not found."}]
+            ```
+
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+
+            ```
+            [{"code": "1015", "message": "Controller user not found in this Business Group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-004
+                      message: Business Group not found.
+                Controller User Not Found:
+                  value:
+                    - code: CU-001
+                      message: Controller user not found in this Business Group.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    delete:
+      tags:
+        - My Business Groups Controller Users
+      summary: Remove a controller user from a current Business Group
+      operationId: deleteControllerUserInMyCurrentBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Removes a controller user from a current Business Groups.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+        
+        ---
+        
+        ## Usage
+        * The user must be a controller user of type `MANAGER` to use this endpoint
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the controller user
+      responses:
+        '204':
+          description: Controller user successfully removed
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+            ```
+            [{"code": "1015", "message": "Controller user not found in this Business Group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1018", "message": "Cannot remove the last manager of the business group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/controller-users/attach:
+    post:
+      tags:
+        - My Business Groups Controller Users
+      summary: Add controller users to a specific Business Group
+      operationId: attachControllerUserInMyCurrentBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Allows existing users to be elevated to group controller users
+        * Only existing users can be invited at this stage.
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+        
+        ---
+        
+        ## Usage
+        * The user must be a controller user of type `MANAGER` to use this endpoint
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachControllerUserRequest'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            
+            ```
+            [{"code": "400", "message": "controllerUsers is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "controllerUsers[].userId is required."}]
+            ```
+            
+            ```
+            [{"code": "400", "message": "controllerUsers[].type is required."}]
+            ```
+
+            ```
+            [{"code": "1014", "message": "Duplicated userIds {0} with different types in the request."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{ "code": "1006", "message": "The userIds {0} does not exist." }]
+            ```
+            
+            ```
+            [{"code": "1013", "message": "UserIds {0} already registered as controller users of the business group with another type."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/controller-users/{userId}/type:
+    patch:
+      tags:
+        - My Business Groups Controller Users
+      summary: Update the type of a controller user in a specific Business Group
+      operationId: patchControllerUserTypeInMyCurrentBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Allows manager controller users to update the type of controller users in the business group
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+        
+        ---
+        
+        ## Usage
+        * The user must be a controller user of type `MANAGER` to use this endpoint
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchControllerUserTypeRequest'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            
+            ```
+            [{"code": "400", "message": "type is required."}]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1010", "message": "Business Group not found."}]
+            ```
+            ```
+            [{"code": "1015", "message": "Controller user not found in this Business Group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1018", "message": "Cannot remove the last manager of the business group."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /my-business-groups/{businessGroupId}/controller-users/create:
+    post:
+      tags:
+        - My Business Groups Controller Users
+      summary: Add a new controller users to a specific Business Group (check if need)
+      operationId: createControllerUserInMyCurrentBusinessGroupById
+      description: |
+        ## Responsibilities
+        * Allows a new users to be elevated to group controller users
+
+        ---
+
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+        
+        ---
+        
+        ## Usage
+        * The user must be a controller user of type `MANAGER` to use this endpoint
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: businessGroupId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttachControllerUserRequest'
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: |
+            Forbidden
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "1012", "message": "You do not have permission to access the business group"}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "BG-004", "message": "Business Group not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+              examples:
+                Business Group Not Found:
+                  value:
+                    - code: BU-001
+                      message: Business Group not found.
+        '422':
+          description: |
+            Unprocessable entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "BG-004", "message": "user with login [] not found"}]
+            ```
+             ```
+            [{"code": "BG-004", "message": "userLogin.email and userLogin.mobile sent together"}]
+            ```
+          content:
+            application/json:
+              examples:
+                UserNotFound:
+                  value:
+                    - code: CI-001
+                      message: user with login [] not found.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+components:
+  schemas:
+    CreateBusinessGroupRequest:
+      type: object
+      required:
+        - name
+        - businessAccounts
+        - businessNameOfGroupOwner
+        - controllerUsers
+        - requestedBy
+      properties:
+        name:
+          type: string
+          example: Example Group
+          minLength: 3
+        description:
+          type: string
+          example: Group responsible for Southeast operations
+        businessNameOfGroupOwner:
+          type: string
+          description: Main name of the company that owns the business group
+          example: BusinessPartner
+          minLength: 3
+        businessAccounts:
+          type: array
+          description: List of Account BusinessId
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: object
+            required:
+              - businessId
+            properties:
+              businessId:
+                type: string
+                pattern: '^[a-f0-9]+$'
+                example: '5b2d6db58b9a2900088177e8'
+        controllerUsers:
+          type: array
+          description: List of user candidates for controllers
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/ControllerUserBodyRequest'
+        requestedBy:
+          $ref: '#/components/schemas/RequestedByRequest'
+        tags:
+          $ref: '#/components/schemas/TagsRequest'
+
+    ControllerUserBodyRequest:
+      type: object
+      description: userId and type of controller user
+      required:
+        - userId
+        - type
+      properties:
+        userId:
+          type: string
+          pattern: '^[a-f0-9]+$'
+          example: '5b2d6db58b9a2900088177e8'
+        type:
+          type: string
+          enum:
+            - BASIC
+            - MANAGER
+
+    BusinessAccountsResponse:
+      type: object
+      properties:
+        businessId:
+          type: string
+          example: '5a2d6db58b9a2900088237f1'
+
+    ControllerUserResponse:
+      allOf:
+        - $ref: '#/components/schemas/ControllerUserBodyRequest'
+
+    BusinessGroupCreatedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '5a2d6db58b9a2900088237f1'
+
+    BusinessGroupResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        businessNameOfGroupOwner:
+          type: string
+          description: Main name of the company that owns the business group
+          example: BusinessPartner
+        createdAt:
+          type: string
+        businessAccounts:
+          type: array
+          description: List of Account BusinessId
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/BusinessAccountsResponse'
+        controllerUsers:
+          type: array
+          description: List of Account UserId
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ControllerUserResponse'
+        requestedBy:
+          $ref: '#/components/schemas/RequestedByRequest'
+        tags:
+          $ref: '#/components/schemas/TagsRequest'
+
+    BusinessAccountsLinkedToBusinessGroupResponsePagination:
+      required:
+        - businessAccounts
+        - pagination
+      type: object
+      properties:
+        businessAccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessAccountResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    BusinessGroupResponsePagination:
+      required:
+        - businessGroups
+        - pagination
+      type: object
+      properties:
+        businessGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessGroupResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    UpdateBusinessGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Updated Group Name
+        description:
+          type: string
+          example: Updated description of the group
+        businessNameOfGroupOwner:
+          type: string
+          description: Main name of the company that owns the business group
+          example: BusinessPartner
+
+    RequestedByRequest:
+      type: object
+      required:
+        - organizationId
+        - businessUnitId
+      properties:
+        organizationId:
+          type: string
+          pattern: '^[a-f0-9]+$'
+          example: '5b2d6db58b9a2900088177e8'
+        businessUnitId:
+          type: string
+          pattern: '^[a-f0-9]+$'
+          example: '5b2d6db58b9a2900088177e9'
+
+    UserDocument:
+      required:
+        - documentCountry
+        - documentId
+      type: object
+      properties:
+        documentId:
+          pattern: ^(?!\s*$).+
+          type: string
+          example: "29312377611"
+        documentCountry:
+          pattern: ^(?!\s*$).+
+          type: string
+          example: BRA
+        documentType:
+          maxLength: 255
+          pattern: ^(?!\s*$).+
+          type: string
+          example: CPF
+
+    UserEmail:
+      required:
+        - email
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        authenticationFactor:
+          type: boolean
+          default: false
+        tags:
+          type: array
+          description: When a tag is applied to an authentication factor, associated
+            rules can be executed to change tags from another authentication factors.
+            These tags are also used on parameters to filter results when retrieve
+            the contacts.
+          example: '["MARKED_RESOURCES"]'
+          items:
+            $ref: '#/components/schemas/AuthenticationFactorSettings'
+        main:
+          type: boolean
+          default: false
+
+    AuthenticationFactorSettings:
+      type: string
+      description: A value to tag an authentication factor. MARKED_RESOURCES can only
+        be applied by email and by mobile
+      enum:
+        - MARKED_RESOURCES
+
+    UserMainEmail:
+      required:
+        - email
+      type: object
+      properties:
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        validatedStatus:
+          type: string
+          enum:
+            - NOT_VALIDATED
+            - INVALID
+            - VALID
+
+    UserMainPhone:
+      required:
+        - areaCode
+        - phoneNumber
+        - regionCode
+      type: object
+      properties:
+        regionCode:
+          type: integer
+          format: int32
+        areaCode:
+          type: integer
+          format: int32
+        phoneNumber:
+          type: integer
+          format: int64
+        phoneVerified:
+          type: boolean
+
+    UserPhone:
+      required:
+        - areaCode
+        - id
+        - phoneNumber
+        - regionCode
+      type: object
+      properties:
+        id:
+          type: string
+        regionCode:
+          type: integer
+          format: int32
+        areaCode:
+          type: integer
+          format: int32
+        phoneNumber:
+          type: integer
+          format: int64
+        phoneVerified:
+          type: boolean
+        authenticationFactor:
+          type: boolean
+        tags:
+          type: array
+          description: When a tag is applied to an authentication factor, associated
+            rules can be executed to change tags from another authentication factors.
+            These tags are also used on parameters to filter results when retrieve
+            the contacts.
+          example: '["MARKED_RESOURCES"]'
+          items:
+            $ref: '#/components/schemas/AuthenticationFactorSettings'
+        main:
+          type: boolean
+          default: false
+
+    AttachBusinessAccountsRequest:
+      type: object
+      required:
+        - businessAccounts
+        - requestedBy
+      properties:
+        businessAccounts:
+          type: array
+          description: List of Business Account to attach
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/BusinessAccountRequest'
+        tags:
+          $ref: '#/components/schemas/TagsRequest'
+        requestedBy:
+          $ref: '#/components/schemas/RequestedByRequest'
+
+    DetachBusinessAccountsRequest:
+      type: object
+      required:
+        - businessAccounts
+        - requestedBy
+      properties:
+        businessAccounts:
+          type: array
+          description: List of Business Account to detach
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/BusinessAccountRequest'
+        tags:
+          $ref: '#/components/schemas/TagsRequest'
+        requestedBy:
+          $ref: '#/components/schemas/RequestedByRequest'
+
+    DetachBusinessAccountsOwnRequest:
+      type: object
+      required:
+        - businessAccounts
+      properties:
+        businessAccounts:
+          type: array
+          description: List of Business Account to detach
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/BusinessAccountRequest'
+
+    BusinessAccountRequest:
+      type: object
+      required:
+        - businessId
+      properties:
+        businessId:
+          minLength: 1
+          type: string
+
+    AttachControllerUserRequest:
+      type: object
+      required:
+        - controllerUsers
+      properties:
+        controllerUsers:
+          type: array
+          description: List of Account userIds to Attach
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ControllerUserBodyRequest'
+
+    PatchControllerUserTypeRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - BASIC
+            - MANAGER
+
+    BusinessAccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        companyName:
+          type: string
+        companyAlias:
+          type: string
+        companyDocument:
+          $ref: '#/components/schemas/BusinessDocumentResponse'
+        activityArea:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityAreaResponse'
+        employeeQtt:
+          type: string
+        address:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessAddressResponse'
+        phone:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessPhoneResponse'
+        contactEmails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactEmailResponse'
+        companySite:
+          type: string
+        owners:
+          type: array
+          items:
+            $ref: '#/components/schemas/OwnerNameResponse'
+        companySize:
+          $ref: '#/components/schemas/CompanySizeResponse'
+
+    BusinessDocumentResponse:
+      required:
+        - nationalRegistrationCountry
+        - nationalRegistrationId
+      type: object
+      properties:
+        nationalRegistrationId:
+          pattern: ^(?!\s*$).+
+          type: string
+        nationalRegistrationCountry:
+          pattern: ^(?!\s*$).+
+          type: string
+        stateRegistrationId:
+          type: string
+        state:
+          type: string
+        municipalRegistrationId:
+          type: string
+        city:
+          type: string
+
+    ActivityAreaResponse:
+      required:
+        - activityCode
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        activityCode:
+          type: string
+        activity:
+          type: string
+
+    BusinessAddressResponse:
+      required:
+        - zipCode
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        zipCode:
+          type: string
+        addressLine1:
+          type: string
+        number:
+          type: string
+        addressLine2:
+          type: string
+        complement:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        countryCode:
+          type: string
+        addressAlias:
+          type: string
+
+    BusinessPhoneResponse:
+      required:
+        - areaCode
+        - phoneNumber
+        - regionCode
+      type: object
+      properties:
+        id:
+          type: string
+        regionCode:
+          type: integer
+          format: int32
+        areaCode:
+          type: integer
+          format: int32
+        phoneNumber:
+          type: integer
+          format: int64
+
+    ContactEmailResponse:
+      required:
+        - id
+        - contactEmail
+      type: object
+      properties:
+        id:
+          type: string
+        contactEmail:
+          type: string
+
+    OwnerNameResponse:
+      required:
+        - fullName
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        fullName:
+          type: string
+        verified:
+          type: boolean
+
+    CompanySizeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+
+    BusinessAccountSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        companyName:
+          type: string
+          example: Example Company Name
+        companyAlias:
+          type: string
+          example: Success Business
+        nationalRegistrationId:
+          type: string
+          example: 33.002.012/0001-00
+
+    BusinessAccountsSummary:
+      type: array
+      items:
+        $ref: '#/components/schemas/BusinessAccountSummary'
+
+    ControllerUsersResponse:
+      required:
+        - document
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        fullName:
+          type: string
+        document:
+          $ref: '#/components/schemas/UserDocument'
+        alternativeDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDocument'
+        birthDate:
+          type: string
+        email:
+          $ref: '#/components/schemas/UserMainEmail'
+        alternativeEmails:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserEmail'
+        mobile:
+          $ref: '#/components/schemas/UserMainPhone'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserPhone'
+        gender:
+          type: string
+        registrationDate:
+          type: string
+        lastUpdate:
+          type: string
+        type:
+          type: string
+
+    UserAccountResponse:
+      required:
+        - document
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+        fullName:
+          type: string
+        document:
+          $ref: '#/components/schemas/UserDocument'
+        alternativeDocuments:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDocument'
+        birthDate:
+          type: string
+        email:
+          $ref: '#/components/schemas/UserMainEmail'
+        alternativeEmails:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserEmail'
+        mobile:
+          $ref: '#/components/schemas/UserMainPhone'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserPhone'
+        gender:
+          type: string
+        registrationDate:
+          type: string
+        lastUpdate:
+          type: string
+        businessAccountsSummary:
+          $ref: '#/components/schemas/BusinessAccountsSummary'
+
+    UsersInBusinessGroupResponsePagination:
+      required:
+        - users
+        - pagination
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccountResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ControllerUsersResponsePagination:
+      required:
+        - controllerUsers
+        - pagination
+      type: object
+      properties:
+        controllerUsers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ControllerUsersResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ErrorModel:
+      type: array
+      items:
+        type: object
+        required:
+          - code
+          - message
+        properties:
+          code:
+            type: string
+            example: "code"
+          message:
+            type: string
+            example: "message"
+
+    Pagination:
+      type: object
+      properties:
+        offset:
+          type: number
+        limit:
+          type: number
+        totalCount:
+          type: number
+        totalPages:
+          type: number
+        links:
+          type: array
+          description: Links for next page, previous page, first page and last page
+          items:
+            $ref: '#/components/schemas/PaginationLink'
+
+    PaginationLink:
+      required:
+        - href
+        - rel
+      type: object
+      properties:
+        href:
+          type: string
+          example: 'http://localhost:8080/pagination-sample/v1/resource?limit=1&offset=0'
+        rel:
+          type: string
+          description: Expected values are **Last**, **Previous**, **Next** or **First**
+
+    TagRequest:
+      required:
+        - key
+        - value
+      type: object
+      description: Information of interest that can enrich the context; names, requirements, requisition numbers, etc.
+      properties:
+        key:
+          type: string
+          minLength: 3
+          description: Expected identifier of a Tag. No space is allowed between words
+          example: Company_Name
+          pattern: ^\S+$
+        value:
+          type: string
+          minLength: 3
+          description: Expected value of Tag identifier
+          example: My Company
+
+    TagsRequest:
+      type: array
+      uniqueItems: true
+      items:
+        $ref: '#/components/schemas/TagRequest'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

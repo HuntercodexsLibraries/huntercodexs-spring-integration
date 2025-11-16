@@ -1,0 +1,1529 @@
+openapi: 3.0.2
+
+info:
+  title: ORGANIZATIONAL-API
+  description: |
+    Expose all services to manage the organizational applications. 
+    The hierarch is Organization -> BUs -> Apps
+  contact:
+    name: Huntercodexs API team
+    email: support@huntercodexs.com
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:35002/huntercodexs/organizational/v1
+    description: STG
+  - url: http://localhost:35002/huntercodexs/organizational/v1
+    description: QA
+  - url: http://localhost:35002/huntercodexs/organizational/v1
+    description: UAT
+  - url: http://localhost:35002/huntercodexs/organizational/v1
+    description: PROD
+
+security:
+  - OauthSecurityUser:
+      - write
+  - BearerAuth: []
+
+paths:
+  /organizations:
+    post:
+      tags:
+        - Organization
+      summary: Creates an Organization
+      description: |
+        ## Responsibilities
+        Creates an Organization
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: createOrganization
+      requestBody:
+        description: Organization to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/OrganizationCreated'
+        400:
+          $ref: '#/components/responses/OrganizationBadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: createOrganizationRequest
+    get:
+      tags:
+        - Organization
+      summary: Retrieves a list of Organizations
+      description: |
+        ## Responsibilities
+        Retrieves a list of Organizations
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getOrganizations
+      parameters:
+        - $ref: '#/components/parameters/QueryLimit'
+        - $ref: '#/components/parameters/QueryOffset'
+        - $ref: '#/components/parameters/QuerySort'
+      responses:
+        200:
+          $ref: '#/components/responses/OrganizationsPaginatedList'
+        206:
+          $ref: '#/components/responses/OrganizationsPaginatedList'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /organizations/{organizationId}:
+    get:
+      tags:
+        - Organization
+      summary: Retrieves a single Organization
+      description: |
+        ## Responsibilities
+        Retrieves the information about a single Organization given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getOrganizationById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+      responses:
+        200:
+          $ref: '#/components/responses/OrganizationRetrieved'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+    put:
+      tags:
+        - Organization
+      summary: Updates an Organization
+      description: |
+        ## Responsibilities
+        Updates the information about an Organization given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: updateOrganizationById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+      requestBody:
+        description: Organization to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+        required: true
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/OrganizationBadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: updateOrganizationRequest
+    delete:
+      tags:
+        - Organization
+      summary: Deletes an Organization
+      description: |
+        ## Responsibilities
+        Deletes an Organization based on a single ID, **ONLY if there is none BU associated with it**.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: deleteOrganizationById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/OrganizationUnprocessableError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /organizations/{organizationId}/business-units:
+    post:
+      tags:
+        - Business Units
+      summary: Creates a Business Unit
+      description: |
+        ## Responsibilities
+        Creates a Business Unit and associates it with the Organization
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: createBusinessUnit
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+      requestBody:
+        description: Business Unit to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessUnitRequest'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/BusinessUnitCreated'
+        400:
+          $ref: '#/components/responses/BusinessUnitBadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          description: |
+            Unprocessable Entity - Return when the server understands, but was unable to process the request.
+
+            This endpoint can throw the following errors:
+
+            `[{"code": "4224", "message": "This Alias Name is already in use"}]`
+            
+            `[{"code": "4225", "message": "Alias name must have at least one letter or number"}]`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: createBusinessUnitRequest
+    get:
+      tags:
+        - Business Units
+      summary: Retrieves a list of Business Units
+      description: |
+        ## Responsibilities
+        Retrieves a list of Business Units associated with an Organization
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getBusinessUnits
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/AliasName'
+        - $ref: '#/components/parameters/Name'
+        - $ref: '#/components/parameters/QueryLimit'
+        - $ref: '#/components/parameters/QueryOffset'
+        - $ref: '#/components/parameters/QuerySort'
+      responses:
+        200:
+          $ref: '#/components/responses/BusinessUnitsPaginatedList'
+        206:
+          $ref: '#/components/responses/BusinessUnitsPaginatedList'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /organizations/{organizationId}/business-units/{businessUnitId}:
+    get:
+      tags:
+        - Business Units
+      summary: Retrieves a single Business Unit
+      description: |
+        ## Responsibilities
+        Retrieves the information about a single Business Unit given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getBusinessUnitById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+      responses:
+        200:
+          $ref: '#/components/responses/BusinessUnitRetrieved'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+    put:
+      tags:
+        - Business Units
+      summary: Updates a Business Unit
+      description: |
+        ## Responsibilities
+        Updates the information about a Business Unit given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: updateBusinessUnitById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+      requestBody:
+        description: Business Unit to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessUnitRequest'
+        required: true
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/BusinessUnitBadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          description: |
+            Unprocessable Entity - Return when the server understands, but was unable to process the request.
+
+            This endpoint can throw the following errors:
+
+            `[{"code": "4224", "message": "This Alias Name is already in use"}]`
+            
+            `[{"code": "4225", "message": "Alias name must have at least one letter or number"}]`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: updateBusinessUnitRequest
+    delete:
+      tags:
+        - Business Units
+      summary: Deletes a Business Unit
+      description: |
+        ## Responsibilities
+        Deletes a Business Units based on a single ID, **ONLY if there is none Apps associated with it**.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: deleteBusinessUnitsById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/BusinessUnitUnprocessableError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /organizations/{organizationId}/business-units/{businessUnitId}/apps:
+    post:
+      tags:
+        - Applications
+      summary: Creates an application
+      description: |
+        ## Responsibilities
+        Create an Application by Admin
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: createApplication
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+      requestBody:
+        description: Business Unit to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRequest'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/ApplicationCreated'
+        400:
+          $ref: '#/components/responses/ApplicationBadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: createApplicationRequest
+    get:
+      tags:
+        - Applications
+      summary: List all applications accounts of an Business Unit
+      description: |
+        ## Responsibilities
+        Returns all applications accounts from an Business Unit.
+        
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getApplications
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+        - $ref: '#/components/parameters/AppName'
+        - $ref: '#/components/parameters/AppStatus'
+        - $ref: '#/components/parameters/QueryLimit'
+        - $ref: '#/components/parameters/QueryOffset'
+        - $ref: '#/components/parameters/QuerySortList'
+      responses:
+        200:
+          $ref: '#/components/responses/ApplicationsAccountsPaginatedList'
+        204:
+          $ref: '#/components/responses/NoContent'
+        206:
+          $ref: '#/components/responses/ApplicationsAccountsPaginatedList'
+        400:
+          $ref: '#/components/responses/PaginationBadRequest'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/PaginationUnprocessableEntity'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /organizations/{organizationId}/business-units/{businessUnitId}/apps/{appId}:
+    get:
+      tags:
+        - Applications
+      summary: Retrieves a single Application
+      description: |
+        ## Responsibilities
+        Retrieves the information about a single Application given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getApplicationById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        200:
+          $ref: '#/components/responses/ApplicationRetrieved'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+    put:
+      tags:
+        - Applications
+      summary: Updates an Application
+      description: |
+        ## Responsibilities
+        Updates the information about an Application given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: updateApplicationById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        description: Application Unit to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationUpdateRequest'
+        required: true
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/ApplicationBadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: updateApplicationRequest
+    delete:
+      tags:
+        - Applications
+      summary: Deletes an Application
+      description: |
+        ## Responsibilities
+        Deletes an Application based on a single ID.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: deleteApplicationById
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /my-apps:
+    post:
+      tags:
+        - Applications by User
+      summary: Creates an application by User
+      description: |
+        ## Responsibilities
+        Create an Application by Admin
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: createApplicationByUser
+      requestBody:
+        description: Business Unit to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyApplicationRequest'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/ApplicationCreated'
+        400:
+          $ref: '#/components/responses/ApplicationBadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: createApplicationRequest
+    get:
+      tags:
+        - Applications by User
+      summary: List all applications accounts of an Business Unit by User
+      description: |
+        ## Responsibilities
+        Returns all applications accounts from an Business Unit.
+        
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getApplicationByUser
+      parameters:
+        - $ref: '#/components/parameters/AppName'
+        - $ref: '#/components/parameters/AppStatus'
+        - $ref: '#/components/parameters/QueryLimit'
+        - $ref: '#/components/parameters/QueryOffset'
+        - $ref: '#/components/parameters/QuerySortList'
+      responses:
+        200:
+          $ref: '#/components/responses/ApplicationsAccountsPaginatedList'
+        204:
+          $ref: '#/components/responses/NoContent'
+        206:
+          $ref: '#/components/responses/ApplicationsAccountsPaginatedList'
+        400:
+          $ref: '#/components/responses/PaginationBadRequest'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/PaginationUnprocessableEntity'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /my-apps/{appId}:
+    get:
+      tags:
+        - Applications by User
+      summary: Retrieves a single Application by User
+      description: |
+        ## Responsibilities
+        Retrieves the information about a single Application given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: getApplicationByUserById
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        200:
+          $ref: '#/components/responses/ApplicationRetrieved'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+    put:
+      tags:
+        - Applications by User
+      summary: Updates an Application by User
+      description: |
+        ## Responsibilities
+        Updates the information about an Application given his ID
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: updateApplicationByUserById
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        description: Application Unit to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationUpdateRequest'
+        required: true
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        400:
+          $ref: '#/components/responses/ApplicationBadRequestError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: updateApplicationRequest
+    delete:
+      tags:
+        - Applications by User
+      summary: Deletes an Application by USer
+      description: |
+        ## Responsibilities
+        Deletes an Application based on a single ID.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: deleteApplicationByUserById
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+  /organizations/{organizationId}/business-units/{businessUnitId}/import-apps:
+    post:
+      tags:
+        - Migrations
+      summary: Import applications BUs
+      description: |
+        ## Responsibilities
+        Migrates the BU of the applications. The applications will be removed from the old BU (if any) and imported into the new one
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      operationId: importApplicationsIntoBu
+      parameters:
+        - $ref: '#/components/parameters/OrganizationId'
+        - $ref: '#/components/parameters/BusinessUnitId'
+      requestBody:
+        description: Business Unit with imported applications
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportApplicationRequest'
+        required: true
+      responses:
+        204:
+          $ref: '#/components/responses/NoContent'
+        422:
+          $ref: '#/components/responses/ImportApplicationUnprocessableError'
+        400:
+          $ref: '#/components/responses/ImportApplicationBadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+        default:
+          $ref: '#/components/responses/UnmappedError'
+      security:
+        - BearerAuth: []
+        - OauthSecurityUser:
+            - write
+            - read
+      x-codegen-request-body-name: importApplicationsRequest
+
+components:
+
+  parameters:
+
+    QueryLimit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+      description: Total count of registries to fetch.
+
+    QueryOffset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+      description: From which index to seek for registries.
+
+    QuerySort:
+      name: sort
+      in: query
+      schema:
+        type: string
+        example: name
+        default: id
+      description: Named field to sort results by
+
+    QuerySortList:
+      name: sort
+      in: query
+      description: |
+        The property name you want to filter and the sort direction separeted by semicolon `;`
+        The direction can assume two values `asc` and `desc`
+        Possible fields:
+        * `appName;desc`: Service name descending
+      required: false
+      x-example: legacyData.logon;desc
+      schema:
+        type: array
+        items:
+          type: string
+
+    OrganizationId:
+      name: organizationId
+      in: path
+      description: Unique Organization identifier
+      required: true
+      schema:
+        type: string
+        example: 620eb80e0f9f7c26ba190dfc
+
+    AliasName:
+      name: aliasName
+      in: query
+      description: Search for the business unit alias name. The research does not consider uppercase or lowercase letters, bringing all possibilities.
+      required: false
+      schema:
+        type: string
+        example: Business unit alias name
+
+    Name:
+      name: name
+      in: query
+      description: Search for business unit name. The research does not consider uppercase or lowercase letters, bringing all possibilities.
+      required: false
+      schema:
+        type: string
+        example: Business unit name
+
+    BusinessUnitId:
+      name: businessUnitId
+      in: path
+      description: Unique Business Unit identifier
+      required: true
+      schema:
+        type: string
+        example: 5d1b99c5b8ee800009144481
+
+    AppId:
+      name: appId
+      in: path
+      description: Unique Application identifier
+      required: true
+      schema:
+        type: string
+        example: 12289e106619c9250bc9cd62
+
+    AppName:
+      name: appName
+      in: query
+      description: The app name that contains this string
+      schema:
+        type: string
+        example: SECURITY
+
+    AppStatus:
+      name: appStatus
+      in: query
+      description: App Status to fetch
+      schema:
+        type: boolean
+        example: true
+        default: true
+
+  schemas:
+
+    ####### Error Model #######
+    ErrorModel:
+      type: array
+      items:
+        required:
+          - code
+          - message
+        type: object
+        properties:
+          code:
+            type: string
+            example: 999
+          message:
+            type: string
+            example: Some error occurred!
+
+    ####### Pagination #######
+    Pagination:
+      type: object
+      properties:
+        offset:
+          type: integer
+          example: 0
+        limit:
+          type: integer
+          example: 20
+        totalCount:
+          type: integer
+          example: 99
+        totalPages:
+          type: integer
+          example: 5
+        links:
+          description: 'links for next page, previous page, first page and last page'
+          type: array
+          items:
+            $ref: '#/components/schemas/PaginationLinks'
+    PaginationLinks:
+      type: object
+      required:
+        - href
+        - rel
+      properties:
+        href:
+          type: string
+          example: 'http://localhost:8080/pagination-sample/v1/resource?limit=1&offset=0'
+        rel:
+          type: string
+          enum:
+            - LAST
+            - PREVIOUS
+            - NEXT
+            - FIRST
+          description: Describe what kind of pagination this page is.
+          example: NEXT
+
+    ####### Organization #######
+    OrganizationRequest:
+      required:
+        - name
+        - description
+        - type
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: Huntercodexs
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+          example: Example description about the organization
+        type:
+          type: string
+          enum:
+            - 1ST-PARTY
+            - 3RD-PARTY
+            - CONSUMER
+          example: 1ST-PARTY
+    OrganizationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 620eb80e0f9f7c26ba190dfc
+        name:
+          type: string
+          example: Huntercodexs
+        description:
+          type: string
+          example: Example description about the organization
+        type:
+          type: string
+          example: 3RD-PARTY
+    OrganizationsPaginatedListResponse:
+      type: object
+      properties:
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ####### Business Units #######
+    BusinessUnitRequest:
+      required:
+        - name
+        - description
+        - aliasName
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 200
+          type: string
+          example: Customer Services
+        description:
+          minLength: 1
+          maxLength: 500
+          type: string
+          example: Example description about the business unit
+        aliasName:
+          minLength: 1
+          maxLength: 50
+          type: string
+          example: CS
+    BusinessUnitResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5d1b99c5b8ee800009144481
+        name:
+          type: string
+          example: Customer Services
+        description:
+          type: string
+          example: Customer Services Huntercodexs
+        aliasName:
+          type: string
+          example: CS
+        organization:
+          $ref: '#/components/schemas/OrganizationResponse'
+    BusinessUnitListResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5d1b99c5b8ee800009144481
+        name:
+          type: string
+          example: Customer Services
+        description:
+          type: string
+          example: Example description about the business unit
+        aliasName:
+          type: string
+          example: CS
+    BusinessUnitsPaginatedListResponse:
+      type: object
+      properties:
+        businessUnits:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessUnitListResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ####### Applications #######
+    ApplicationRequest:
+      required:
+        - appName
+      type: object
+      properties:
+        appName:
+          type: string
+          example: SECURITY-APPLICATION
+          pattern: ^(?!\s*$).+
+          maxLength: 200
+        userId:
+          type: string
+          example: 2e2f206e66b32a00098b1222
+        url:
+          type: string
+          example: http://localhost:8080/example/api/v1
+        businessId:
+          type: string
+          example: 5ff6001df0f743614e312ae5
+    MyApplicationRequest:
+      required:
+        - appName
+      type: object
+      properties:
+        appName:
+          type: string
+          example: MY-SECURITY-APPLICATION
+          pattern: ^(?!\s*$).+
+          maxLength: 200
+        url:
+          type: string
+          example: http://localhost:8080/example/api/v1
+        businessId:
+          type: string
+          example: 5ff6001df0f743614e312ae5
+    ApplicationUpdateRequest:
+      type: object
+      required:
+        - appName
+      properties:
+        appName:
+          type: string
+          example: SECURITY
+          pattern: ^(?!\s*$).+
+          maxLength: 200
+        url:
+          type: string
+          example: http://localhost:8080/example/api/v1
+        active:
+          type: boolean
+          example: true
+    AppResponse:
+      type: object
+      properties:
+        appId:
+          type: string
+          example: 7d1e99d5b8ef578809188547
+        appName:
+          type: string
+          example: SECURITY
+        userId:
+          type: string
+          example: 2e2f206e66b32a00098b1222
+        url:
+          type: string
+          example: http://localhost:8080/example/api/v1
+        businessId:
+          type: string
+          example: 5ff6001df0f743614e312ae5
+        active:
+          type: boolean
+          example: true
+        updatedByUser:
+          type: string
+          example: 5ff6001df0f743614e312ae5
+        updatedAt:
+          type: string
+          example: "2022-06-09T16:04Z"
+        businessUnit:
+          $ref: '#/components/schemas/BusinessUnitResponse'
+    AppPaginatedResponse:
+      type: object
+      properties:
+        appId:
+          type: string
+          example: 7d1e99d5b8ef578809188547
+        appName:
+          type: string
+          example: SECURITY
+        userId:
+          type: string
+          example: 2e2f206e66b32a00098b1222
+        url:
+          type: string
+          example: http://localhost:8080/example/api/v1
+        businessId:
+          type: string
+          example: 5ff6001df0f743614e312ae5
+        active:
+          type: boolean
+          example: true
+    ApplicationsAccountsPaginatedListResponse:
+      type: object
+      properties:
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppPaginatedResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ####### Migrations #######
+    ImportApplicationRequest:
+      required:
+        - appIds
+      properties:
+        appIds:
+          type: array
+          minItems: 1
+          maxItems: 100000
+          items:
+            type: string
+          example: [12289e106619c9250bc9cd62, 31289e106619c9250bc9cd62]
+    ImportApplicationError:
+      type: array
+      items:
+        required:
+          - appId
+          - error
+        properties:
+          appId:
+            type: string
+            example: 12289e106619c9250bc9cd62
+          errors:
+            $ref: '#/components/schemas/ErrorModel'
+
+  responses:
+
+    ####### Organization #######
+    OrganizationCreated:
+      description: Created Organization Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrganizationResponse'
+    OrganizationRetrieved:
+      description: Returned Organization with attributes values
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrganizationResponse'
+    OrganizationsPaginatedList:
+      description: Returned paginated list with the Organizations attributes values
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrganizationsPaginatedListResponse'
+    OrganizationBadRequestError:
+      description: |
+        Bad Request - Return when the request is incorrect
+
+        This endpoint can throw the following errors:
+
+        `[{"code": "4001", "message": "name is required."}]`
+
+        `[{"code": "4002", "message": "description is required."}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    OrganizationUnprocessableError:
+      description: |
+        Unprocessable Entity - Return when the server understands, but was unable to process the request.
+
+        This endpoint can throw the following errors:
+
+        `[{"code": "4221", "message": "There are one or more BUs associated with the Organization"}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+
+    ####### Business Units #######
+    BusinessUnitCreated:
+      description: Created Business Unit
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BusinessUnitResponse'
+    BusinessUnitRetrieved:
+      description: Returned Business Unit with attributes values
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BusinessUnitResponse'
+    BusinessUnitsPaginatedList:
+      description: Returned paginated list with the Business Units attributes values
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BusinessUnitsPaginatedListResponse'
+    BusinessUnitBadRequestError:
+      description: |
+        Bad Request - Return when the request is incorrect
+
+        This endpoint can throw the following errors:
+
+        `[{"code": "4001", "message": "name is required."}]`
+
+        `[{"code": "4002", "message": "description is required."}]`
+
+        `[{"code": "4003", "message": "organizationId is required."}]`
+        
+        `[{"code": "4008", "message": "aliasName is required."}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    BusinessUnitUnprocessableError:
+      description: |
+        Unprocessable Entity - Return when the server understands, but was unable to process the request.
+
+        This endpoint can throw the following errors:
+
+        `[{"code": "4222", "message": "There are one or more Apps associated with the Business Unit"}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+
+    ####### Applications #######
+    ApplicationCreated:
+      description: Application Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AppResponse'
+    ApplicationRetrieved:
+      description: Returned Application with attributes values
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AppResponse'
+    ApplicationsAccountsPaginatedList:
+      description: Returned paginated list with the Application Accounts attributes values
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApplicationsAccountsPaginatedListResponse'
+    ApplicationBadRequestError:
+      description: |
+        Bad Request - Return when the request is incorrect
+
+        This endpoint can throw the following errors:
+
+        `[{"code": "4004", "message": "appName is required."}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+
+    ####### Migrations #######
+    ImportApplicationBadRequestError:
+      description: |
+        Bad Request - Return when the request is incorrect
+
+        This endpoint can throw the following errors:
+
+        `[{"code": "4006", "message": "appIds is required."}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    ImportApplicationUnprocessableError:
+      description: |
+        Unprocessable Entity - Return when the server understands, but was unable to process the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ImportApplicationError'
+
+    ####### Default Responses #######
+    NoContent:
+      description: No-content
+      content: { }
+
+    ####### Default Errors #######
+    UnauthorizedError:
+      description: |
+        Unauthorized - Return when a unauthorized error occurred
+
+        This endpoint can throw the following errors:
+
+        `[{"code": "401", "message": "Unauthorized."}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    InternalServerError:
+      description: |
+        Internal Server Error - Return when an **unexpected** server error occurs
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    UnmappedError:
+      description: Return when **unmapped** errors occur
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    NotFoundError:
+      description: |
+        Not Found - Return when the resource does not exists or couldn't be found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    PaginationUnprocessableEntity:
+      description: |
+        Unprocessable Entity - Return when the server understands, but was unable to process the request.
+        
+        This endpoint can throw the following errors:
+        
+        `[{"code": "4223", "message": "Invalid offset."}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+    PaginationBadRequest:
+      description: |
+        Bad Request - Return when the request is incorrect
+        
+        This endpoint can throw the following errors:
+        
+        `[{"code": "4006", "message": "Invalid limit or offset."}]`
+        
+        `[{"code": "4007", "message": "Invalid sort."}]`
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+
+  securitySchemes:
+    OauthSecurityUser:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: http://localhost:35000/huntercodexs/security/v1/user/login
+          scopes:
+            read: User read scope
+            write: User write scope
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
