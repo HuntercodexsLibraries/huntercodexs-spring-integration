@@ -252,6 +252,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
     delete:
+      x-rate-limit-enabled: true
+      x-rate-limit-limit: 5
+      x-rate-limit-duration: 60
+      x-rate-limit-unit: seconds
       tags:
         - Users Management
       summary: Delete a User by Id
@@ -446,6 +450,8 @@ components:
           type: string
         email:
           type: string
+          x-field-extra-annotation: '@JsonInclude(JsonInclude.Include.NON_NULL)'
+          #x-field-extra-annotation: '@JsonProperty("id")'
         createdAt:
           type: string
 

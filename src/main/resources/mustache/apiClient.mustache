@@ -79,7 +79,7 @@ import jakarta.annotation.Generated;
   @Controller
 {{/useSpringController}}
 {{#swagger2AnnotationLibrary}}
-@Tag(name = "{{{baseName}}}", description = {{#tagDescription}}"{{{.}}}"{{/tagDescription}}{{^tagDescription}}"the {{{baseName}}} API"{{/tagDescription}})
+  @Tag(name = "{{{baseName}}}", description = {{#tagDescription}}"{{{.}}}"{{/tagDescription}}{{^tagDescription}}"the {{{baseName}}} API"{{/tagDescription}})
 {{/swagger2AnnotationLibrary}}
 {{#swagger1AnnotationLibrary}}
   @Api(value = "{{{baseName}}}", description = {{#tagDescription}}"{{{.}}}"{{/tagDescription}}{{^tagDescription}}"the {{{baseName}}} API"{{/tagDescription}})
@@ -89,81 +89,81 @@ import jakarta.annotation.Generated;
 <%={{ }}=%>
 {{#operations}}
   {{#virtualService}}
-@VirtualService
+    @VirtualService
   {{/virtualService}}
-public interface {{classname}}Client {
+  public interface {{classname}}Client {
   {{#jdk8-default-interface}}
     {{^isDelegate}}
       {{^reactive}}
 
-    default Optional<NativeWebRequest> getRequest() {
-        return Optional.empty();
-    }
+        default Optional<NativeWebRequest> getRequest() {
+          return Optional.empty();
+          }
       {{/reactive}}
     {{/isDelegate}}
     {{#isDelegate}}
 
-    default {{classname}}Delegate getDelegate() {
+        default {{classname}}Delegate getDelegate() {
         return new {{classname}}Delegate() {};
-    }
+        }
     {{/isDelegate}}
   {{/jdk8-default-interface}}
   {{#operation}}
 
-    /**
-    * {{httpMethod}} {{{path}}}{{#summary}} : {{.}}{{/summary}}
+      /**
+      * {{httpMethod}} {{{path}}}{{#summary}} : {{.}}{{/summary}}
     {{#notes}}
-    * {{.}}
+        * {{.}}
     {{/notes}}
-    *
+      *
     {{#allParams}}
-    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
+        * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
     {{/allParams}}
-    * @return {{#responses}}{{message}} (status code {{code}}){{^-last}}
-    *         or {{/-last}}{{/responses}}
+      * @return {{#responses}}{{message}} (status code {{code}}){{^-last}}
+        *         or {{/-last}}{{/responses}}
     {{#isDeprecated}}
-    * @deprecated
+        * @deprecated
     {{/isDeprecated}}
     {{#externalDocs}}
-    * {{description}}
-    * @see <a href="{{url}}">{{summary}} Documentation</a>
+        * {{description}}
+        * @see <a href="{{url}}">{{summary}} Documentation</a>
     {{/externalDocs}}
-    */
+      */
     {{#virtualService}}
-    @ApiVirtual
+        @ApiVirtual
     {{/virtualService}}
     {{#swagger2AnnotationLibrary}}
-    @Operation(
+        @Operation(
         operationId = "{{{operationId}}}",
       {{#summary}}
-        summary = "{{{.}}}",
+          summary = "{{{.}}}",
       {{/summary}}
       {{#description}}
-        description= "{{{.}}}",
+          description= "{{{.}}}",
       {{/description}}
       {{#vendorExtensions.x-tags.size}}
-        tags = { {{#vendorExtensions.x-tags}}"{{tag}}"{{^-last}}, {{/-last}}{{/vendorExtensions.x-tags}} },
+          tags = { {{#vendorExtensions.x-tags}}"{{tag}}"{{^-last}}, {{/-last}}{{/vendorExtensions.x-tags}} },
       {{/vendorExtensions.x-tags.size}}
         responses = {
       {{#responses}}
-            @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{#baseType}}, content = {
+          @ApiResponse(responseCode = "{{{code}}}", description = "{{{message}}}"{{#baseType}}, content = {
         {{#produces}}
-                @Content(mediaType = "{{{mediaType}}}", schema = @Schema(implementation = {{{baseType}}}.class)){{^-last}},{{/-last}}
+            @Content(mediaType = "{{{mediaType}}}", schema = @Schema(implementation = {{{baseType}}}.class)){{^-last}},{{/-last}}
         {{/produces}}
           }{{/baseType}}){{^-last}},{{/-last}}
       {{/responses}}
         }{{#hasAuthMethods}},
         security = {
       {{#authMethods}}
-            @SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes={ {{#scopes}}"{{scope}}"{{^-last}}, {{/-last}}{{/scopes}} }{{/isOAuth}}){{^-last}},{{/-last}}
+          @SecurityRequirement(name = "{{name}}"{{#isOAuth}}, scopes={ {{#scopes}}"{{scope}}"{{^-last}}, {{/-last}}{{/scopes}} }{{/isOAuth}}){{^-last}},{{/-last}}
       {{/authMethods}}
         }{{/hasAuthMethods}}
         )
     {{/swagger2AnnotationLibrary}}
     {{#swagger1AnnotationLibrary}}
-    @ApiOperation(
+        @ApiOperation(
       {{#vendorExtensions.x-tags.size}}
-        tags = { {{#vendorExtensions.x-tags}}"{{tag}}"{{^-last}}, {{/-last}}{{/vendorExtensions.x-tags}} },
+          tags = { {{#vendorExtensions.x-tags}}"{{tag}}"{{^-last}}, {{/-last}}{{/vendorExtensions.x-tags}} },
       {{/vendorExtensions.x-tags.size}}
         value = "{{{summary}}}",
         nickname = "{{{operationId}}}",
@@ -173,32 +173,32 @@ public interface {{classname}}Client {
         authorizations = {
       {{#authMethods}}
         {{#isOAuth}}
-    @Authorization(value = "{{name}}", scopes = {
+            @Authorization(value = "{{name}}", scopes = {
           {{#scopes}}
-    @AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{^-last}},{{/-last}}
+              @AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{^-last}},{{/-last}}
           {{/scopes}}
             }){{^-last}},{{/-last}}
         {{/isOAuth}}
         {{^isOAuth}}
-    @Authorization(value = "{{name}}"){{^-last}},{{/-last}}
+            @Authorization(value = "{{name}}"){{^-last}},{{/-last}}
         {{/isOAuth}}
       {{/authMethods}} }{{/hasAuthMethods}}
         )
-    @ApiResponses({
+        @ApiResponses({
       {{#responses}}
-        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{.}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{.}}}"{{/containerType}}){{^-last}},{{/-last}}
+          @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{.}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{.}}}"{{/containerType}}){{^-last}},{{/-last}}
       {{/responses}}
         })
     {{/swagger1AnnotationLibrary}}
     {{#implicitHeadersParams.0}}
       {{#swagger2AnnotationLibrary}}
-    @Parameters({
+          @Parameters({
         {{#implicitHeadersParams}}
           {{>paramDoc}}{{^-last}},{{/-last}}
         {{/implicitHeadersParams}}
       {{/swagger2AnnotationLibrary}}
       {{#swagger1AnnotationLibrary}}
-    @ApiImplicitParams({
+          @ApiImplicitParams({
         {{#implicitHeadersParams}}
           {{>implicitHeader}}{{^-last}},{{/-last}}
         {{/implicitHeadersParams}}
@@ -206,27 +206,28 @@ public interface {{classname}}Client {
         })
     {{/implicitHeadersParams.0}}
         {{=<% %>=}}
-    @CircuitBreaker(name = "<%title%>Client")
+        @CircuitBreaker(name = "<%title%>Client")
         <%={{ }}=%>
-    @RequestMapping(
-        method = RequestMethod.{{httpMethod}},
-        value = "{{{path}}}"{{#singleContentTypes}}{{#hasProduces}},
-        produces = "{{{vendorExtensions.x-content-type}}}"{{/hasProduces}}{{#hasConsumes}},
-        consumes = "{{{vendorExtensions.x-content-type}}}"{{/hasConsumes}}{{/singleContentTypes}}{{^singleContentTypes}}{{#hasProduces}},
-        produces = { {{#produces}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/produces}} }{{/hasProduces}}{{#hasConsumes}},
-        consumes = { {{#consumes}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/consumes}} }{{/hasConsumes}}{{/singleContentTypes}}
-    )
+      @RequestMapping(
+      method = RequestMethod.{{httpMethod}},
+      value = "{{{path}}}"{{#singleContentTypes}}{{#hasProduces}},
+      produces = "{{{vendorExtensions.x-accepts}}}"{{/hasProduces}}{{#hasConsumes}},
+      consumes = "{{{vendorExtensions.x-content-type}}}"{{/hasConsumes}}{{/singleContentTypes}}{{^singleContentTypes}}{{#hasProduces}},
+      produces = { {{#produces}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/produces}} }{{/hasProduces}}{{#hasConsumes}},
+      consumes = { {{#consumes}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/consumes}} }{{/hasConsumes}}{{/singleContentTypes}}
+      )
     {{#jdk8-default-interface}}default {{/jdk8-default-interface}}{{#responseWrapper}}{{.}}<{{/responseWrapper}}{{>returnTypes}}{{#responseWrapper}}>{{/responseWrapper}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}(
-        {{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{^-last}},
-        {{/-last}}{{/allParams}}{{#reactive}}{{#hasParams}},
-        {{/hasParams}}{{#swagger2AnnotationLibrary}}@Parameter(hidden = true){{/swagger2AnnotationLibrary}}{{#springFoxDocumentationProvider}}@ApiIgnore{{/springFoxDocumentationProvider}} final ServerWebExchange exchange{{/reactive}}{{#vendorExtensions.x-spring-paginated}}{{#hasParams}},
-        {{/hasParams}}{{#springFoxDocumentationProvider}}@ApiIgnore {{/springFoxDocumentationProvider}}{{#springDocDocumentationProvider}}@ParameterObject {{/springDocDocumentationProvider}}final Pageable pageable{{/vendorExtensions.x-spring-paginated}}
-    ){{#unhandledException}} throws Exception{{/unhandledException}}{{^jdk8-default-interface}};{{/jdk8-default-interface}}{{#jdk8-default-interface}} {
+    {{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{^-last}},
+    {{/-last}}{{/allParams}}{{#reactive}}{{#hasParams}},
+    {{/hasParams}}{{#swagger2AnnotationLibrary}}@Parameter(hidden = true){{/swagger2AnnotationLibrary}}{{#springFoxDocumentationProvider}}@ApiIgnore{{/springFoxDocumentationProvider}} final ServerWebExchange exchange{{/reactive}}{{#vendorExtensions.x-spring-paginated}}{{#hasParams}},
+    {{/hasParams}}{{#springFoxDocumentationProvider}}@ApiIgnore {{/springFoxDocumentationProvider}}{{#springDocDocumentationProvider}}@ParameterObject {{/springDocDocumentationProvider}}final Pageable pageable{{/vendorExtensions.x-spring-paginated}}
+      ){{#unhandledException}} throws Exception{{/unhandledException}}{{^jdk8-default-interface}};{{/jdk8-default-interface}}{{#jdk8-default-interface}} {
     {{#delegate-method}}
         return {{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#reactive}}{{#hasParams}}, {{/hasParams}}exchange{{/reactive}}{{#vendorExtensions.x-spring-paginated}}, pageable{{/vendorExtensions.x-spring-paginated}});
-    }
-    // Override this method
-    {{#jdk8-default-interface}}default {{/jdk8-default-interface}} {{#responseWrapper}}{{.}}<{{/responseWrapper}}{{>returnTypes}}{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#allParams}}{{^isFile}}{{^isBodyParam}}{{>optionalDataType}}{{/isBodyParam}}{{#isBodyParam}}{{^reactive}}{{{dataType}}}{{/reactive}}{{#reactive}}{{^isArray}}Mono<{{{dataType}}}>{{/isArray}}{{#isArray}}Flux<{{{baseType}}}>{{/isArray}}{{/reactive}}{{/isBodyParam}}{{/isFile}}{{#isFile}}{{#reactive}}Flux<Part>{{/reactive}}{{^reactive}}MultipartFile{{/reactive}}{{/isFile}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#reactive}}{{#hasParams}}, {{/hasParams}}{{#springFoxDocumentationProvider}}@ApiIgnore{{/springFoxDocumentationProvider}} final ServerWebExchange exchange{{/reactive}}{{#vendorExtensions.x-spring-paginated}}, {{#springFoxDocumentationProvider}}@ApiIgnore{{/springFoxDocumentationProvider}} final Pageable pageable{{/vendorExtensions.x-spring-paginated}}){{#unhandledException}} throws Exception{{/unhandledException}} {
+        }
+
+        // Override this method
+      {{#jdk8-default-interface}}default {{/jdk8-default-interface}} {{#responseWrapper}}{{.}}<{{/responseWrapper}}{{>returnTypes}}{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}({{#allParams}}{{^isFile}}{{^isBodyParam}}{{>optionalDataType}}{{/isBodyParam}}{{#isBodyParam}}{{^reactive}}{{{dataType}}}{{/reactive}}{{#reactive}}{{^isArray}}Mono<{{{dataType}}}>{{/isArray}}{{#isArray}}Flux<{{{baseType}}}>{{/isArray}}{{/reactive}}{{/isBodyParam}}{{/isFile}}{{#isFile}}{{#reactive}}Flux<Part>{{/reactive}}{{^reactive}}MultipartFile{{/reactive}}{{/isFile}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#reactive}}{{#hasParams}}, {{/hasParams}}{{#springFoxDocumentationProvider}}@ApiIgnore{{/springFoxDocumentationProvider}} final ServerWebExchange exchange{{/reactive}}{{#vendorExtensions.x-spring-paginated}}, {{#springFoxDocumentationProvider}}@ApiIgnore{{/springFoxDocumentationProvider}} final Pageable pageable{{/vendorExtensions.x-spring-paginated}}){{#unhandledException}} throws Exception{{/unhandledException}} {
     {{/delegate-method}}
     {{^isDelegate}}
       {{>methodBody}}
@@ -234,8 +235,8 @@ public interface {{classname}}Client {
     {{#isDelegate}}
         return getDelegate().{{operationId}}({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#reactive}}{{#hasParams}}, {{/hasParams}}exchange{{/reactive}}{{#vendorExtensions.x-spring-paginated}}, pageable{{/vendorExtensions.x-spring-paginated}});
     {{/isDelegate}}
-    }{{/jdk8-default-interface}}
+      }{{/jdk8-default-interface}}
 
   {{/operation}}
-}
+    }
 {{/operations}}
