@@ -270,7 +270,7 @@ public interface {{classname}} {
         {{/vendorExtensions.x-sse}}
         {{#vendorExtensions.x-rate-limit-enabled}}
     @RateLimit
-    {{/vendorExtensions.x-rate-limit-enabled}}
+        {{/vendorExtensions.x-rate-limit-enabled}}
     {{#jdk8-default-interface}}default {{/jdk8-default-interface}}{{>responseType}} {{#delegate-method}}_{{/delegate-method}}{{operationId}}(
         {{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{>cookieParams}}{{^-last}},
         {{/-last}}{{/allParams}}{{#reactive}}{{#hasParams}},
