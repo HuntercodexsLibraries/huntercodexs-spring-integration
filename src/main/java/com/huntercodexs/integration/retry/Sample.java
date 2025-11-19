@@ -1,14 +1,14 @@
 package com.huntercodexs.integration.retry;
 
-import br.com.bradesco.cnsg.persisteposvenda.adapter.database.entity.TabelaMongoDbEntity;
-import br.com.bradesco.cnsg.persisteposvenda.adapter.database.repository.BasePosVendaRepository;
-import br.com.bradesco.cnsg.persisteposvenda.api.model.CnsgPosVendaAtualizacaoRequisicao;
-import br.com.bradesco.cnsg.persisteposvenda.api.model.CnsgPosVendaContratoPorIdResposta;
-import br.com.bradesco.cnsg.persisteposvenda.api.model.CnsgPosVendaIncluirRegistroRequisicao;
-import br.com.bradesco.cnsg.persisteposvenda.api.model.CnsgPosVendaIncluirRegistroResposta;
-import br.com.bradesco.cnsg.persisteposvenda.application.config.mongo.RetryTemplateMongoConfig;
-import br.com.bradesco.cnsg.persisteposvenda.application.domain.exception.PosVendaException;
-import br.com.bradesco.cnsg.persisteposvenda.application.usecase.BasePosVendaUseCase;
+import com.huntercodexs.persisteposvenda.adapter.database.entity.TabelaMongoDbEntity;
+import com.huntercodexs.persisteposvenda.adapter.database.repository.BasePosVendaRepository;
+import com.huntercodexs.persisteposvenda.api.model.CnsgPosVendaAtualizacaoRequisicao;
+import com.huntercodexs.persisteposvenda.api.model.CnsgPosVendaContratoPorIdResposta;
+import com.huntercodexs.persisteposvenda.api.model.CnsgPosVendaIncluirRegistroRequisicao;
+import com.huntercodexs.persisteposvenda.api.model.CnsgPosVendaIncluirRegistroResposta;
+import com.huntercodexs.persisteposvenda.application.config.mongo.RetryTemplateMongoConfig;
+import com.huntercodexs.persisteposvenda.application.domain.exception.PosVendaException;
+import com.huntercodexs.persisteposvenda.application.usecase.BasePosVendaUseCase;
 import lombok.RequiredArgsConstructor;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.slf4j.Logger;

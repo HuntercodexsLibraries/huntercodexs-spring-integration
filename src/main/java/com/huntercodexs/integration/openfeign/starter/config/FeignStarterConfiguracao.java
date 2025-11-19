@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.openfeign.starter.config;
 
-import br.com.bradesco.core.lib.feignstarter.configuracoes.decoder.FeignStarterErroCustomizadoDecoder;
+import com.huntercodexs.core.lib.feignstarter.configuracoes.decoder.FeignStarterErroCustomizadoDecoder;
 import feign.Logger;
 import feign.Retryer;
 import feign.Logger.Level;
