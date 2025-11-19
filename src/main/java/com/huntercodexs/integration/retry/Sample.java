@@ -1,5 +1,5 @@
 package com.huntercodexs.integration.retry;
-
+//DEV
 import com.huntercodexs.persisteposvenda.adapter.database.entity.TabelaMongoDbEntity;
 import com.huntercodexs.persisteposvenda.adapter.database.repository.BasePosVendaRepository;
 import com.huntercodexs.persisteposvenda.api.model.CnsgPosVendaAtualizacaoRequisicao;
