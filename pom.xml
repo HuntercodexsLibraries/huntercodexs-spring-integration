@@ -20,6 +20,10 @@
     <name>huntercodexs-spring-integration</name>
     <description>huntercodexs-spring-integration</description>
 
+    <organization>
+        <name>Huntercodexs</name>
+    </organization>
+
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -209,115 +213,6 @@
 
             <!--CODEGEN FOR OPENAPI: Implement these configurations in the consumer application-->
 
-            <!--openapi-generator-maven-plugin-->
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.16.0</version>
-                <executions>
-
-                    <!--OPENAPI Sample-->
-                    <execution>
-                        <id>users</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
-                            <generatorName>spring</generatorName>
-                            <modelPackage>com.huntercodexs.api.users.model</modelPackage>
-                            <apiPackage>com.huntercodexs.api.users.api</apiPackage>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <generateSupportingFiles>false</generateSupportingFiles>
-                                <sourceFolder>gen</sourceFolder>
-                                <interfaceOnly>true</interfaceOnly>
-                                <skipDefaultInterface>true</skipDefaultInterface>
-                                <java21>true</java21>
-                                <serializableModel>true</serializableModel>
-                            </configOptions>
-                            <generateModelTests>false</generateModelTests>
-                            <generateApiTests>false</generateApiTests>
-                            <templateDirectory>${project.basedir}/src/main/resources/openapi/templates</templateDirectory>
-                        </configuration>
-                    </execution>
-
-                    <!--FEIGN Sample-->
-                    <execution>
-                        <id>users-data</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
-                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
-                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
-                            <generatorName>spring</generatorName>
-                            <library>spring-cloud</library>
-                            <configHelp/>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <performBeanValidation>true</performBeanValidation>
-                                <sourceFolder>gen</sourceFolder>
-                                <java8>true</java8>
-                                <useTags>true</useTags>
-                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
-
-                                <!--<generateSupportingFiles>true</generateSupportingFiles>
-                                <interfaceOnly>true</interfaceOnly>
-                                <skipDefaultInterface>true</skipDefaultInterface>-->
-                                <!--<java21>true</java21>
-                                <serializableModel>true</serializableModel>
-                                <feign>false</feign>-->
-
-                                <!--<retrofit2>false</retrofit2>
-                                <okhttp-gson>false</okhttp-gson>
-                                <resttemplate>false</resttemplate>
-                                <webclient>false</webclient>
-                                <jersey2>false</jersey2>
-                                <resteasy>false</resteasy>
-                                <resteasy-jackson>false</resteasy-jackson>
-                                <micronaut>false</micronaut>
-                                <vertx>false</vertx>
-                                <rxjava>false</rxjava>
-                                <rxjava2>false</rxjava2>
-                                <rxjava3>false</rxjava3>
-                                <native>false</native>
-                                <spring-cloud>false</spring-cloud>
-                                <openfeign>true</openfeign>-->
-                                <useFeignClient>true</useFeignClient>
-                                <feignInterfaceOnly>true</feignInterfaceOnly>
-                                <feignSkipDefaultInterface>true</feignSkipDefaultInterface>
-                                <!--<feignClientName>usersDataClient</feignClientName>
-                                <feignClientPackage>com.huntercodexs.integration.users_data.client</feignClientPackage>
-                                <feignClientConfigurationPackage>com.huntercodexs.integration.users_data.config</feignClientConfigurationPackage>
-                                <feignClientTargetPackage>com.huntercodexs.integration.users_data.target</feignClientTargetPackage>
-                                <feignUseTags>true</feignUseTags>
-                                <feignTitle>usersData</feignTitle>
-                                <feignClientReactive>false</feignClientReactive>
-                                <feignUseJakartaEe>true</feignUseJakartaEe>
-                                <feignUseSpringBoot3>true</feignUseSpringBoot3>
-                                <feignPerformBeanValidation>true</feignPerformBeanValidation>
-                                <feignSerializableModel>true</feignSerializableModel>
-                                <feignJava21>true</feignJava21>
-                                <feignGenerateSupportingFiles>false</feignGenerateSupportingFiles>
-                                <feignSourceFolder>gen</feignSourceFolder>
-                                <feignInterfaceOnly>true</feignInterfaceOnly>-->
-
-                            </configOptions>
-                            <templateDirectory>${project.basedir}/src/main/resources/feign/templates</templateDirectory>
-                            <generateApis>true</generateApis>
-                            <generateApiTests>false</generateApiTests>
-                            <generateApiDocumentation>false</generateApiDocumentation>
-                            <generateModels>true</generateModels>
-                        </configuration>
-                    </execution>
-
-                </executions>
-            </plugin>
-
             <!--build-helper-maven-plugin-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -338,7 +233,12 @@
                 </executions>
             </plugin>
 
+            <!--openapi-generator-maven-plugin-->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.16.0</version>
+            </plugin>
         </plugins>
     </build>
-
 </project>

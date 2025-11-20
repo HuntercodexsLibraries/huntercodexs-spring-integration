@@ -1,9 +1,8 @@
 package com.huntercodexs.integration.v2;
 
-import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
-import com.huntercodexs.api.ratelimit.annotation.RateLimitServiceBus;
-import com.huntercodexs.api.ratelimit.aspect.RateLimitServiceBusAspect;
-import com.huntercodexs.api.ratelimit.handler.exception.RateLimitExceededException;
+import com.huntercodexs.integration.ratelimit.v2.annotation.RateLimitServiceBusV2;
+import com.huntercodexs.integration.ratelimit.v2.aspect.RateLimitServiceBusAspectV2;
+import com.huntercodexs.integration.ratelimit.v2.handler.exception.RateLimitExceededExceptionV2;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -39,13 +36,10 @@ class RateLimitServiceBusAspectTest {
     private MethodSignature methodSignature;
 
     @Mock
-    private RateLimitServiceBus rateLimitServiceBus;
-
-    @Mock
-    private ServiceBusReceivedMessageContext serviceBusContext;
+    private RateLimitServiceBusV2 rateLimitServiceBus;
 
     @InjectMocks
-    private RateLimitServiceBusAspect rateLimitServiceBusAspect;
+    private RateLimitServiceBusAspectV2 rateLimitServiceBusAspect;
 
     private static final String KEY_PARAM_NAME = "message";
     private static final String EXPECTED_KEY_PREFIX = "rateLimitServiceBusDefaultKeyName:consumer:processMessage:" + KEY_PARAM_NAME;
@@ -62,7 +56,6 @@ class RateLimitServiceBusAspectTest {
 
     @Test
     void should_allowRequest_when_underLimit() throws Throwable {
-        makeWay();
         when(valueOperations.increment(eq(EXPECTED_KEY_PREFIX))).thenReturn(1L);
 
         rateLimitServiceBusAspect.rateLimit(joinPoint, rateLimitServiceBus);
@@ -74,10 +67,9 @@ class RateLimitServiceBusAspectTest {
 
     @Test
     void should_throwException_when_limitExceeded() throws Throwable {
-        makeWay();
         when(valueOperations.increment(eq(EXPECTED_KEY_PREFIX))).thenReturn(3L);
 
-        assertThrows(RateLimitExceededException.class,
+        assertThrows(RateLimitExceededExceptionV2.class,
                 () -> rateLimitServiceBusAspect.rateLimit(joinPoint, rateLimitServiceBus));
 
         verify(joinPoint, never()).proceed();
@@ -85,7 +77,6 @@ class RateLimitServiceBusAspectTest {
 
     @Test
     void should_notSetExpiration_onSubsequentCalls() throws Throwable {
-        makeWay();
         when(valueOperations.increment(eq(EXPECTED_KEY_PREFIX))).thenReturn(2L);
 
         rateLimitServiceBusAspect.rateLimit(joinPoint, rateLimitServiceBus);
@@ -97,12 +88,11 @@ class RateLimitServiceBusAspectTest {
 
     @Test
     void should_useCustomLimit_when_customLimitIsSet() throws Throwable {
-        makeWay();
         ReflectionTestUtils.setField(rateLimitServiceBusAspect, "customLimit", 1);
 
         when(valueOperations.increment(eq(EXPECTED_KEY_PREFIX))).thenReturn(2L);
 
-        assertThrows(RateLimitExceededException.class,
+        assertThrows(RateLimitExceededExceptionV2.class,
                 () -> rateLimitServiceBusAspect.rateLimit(joinPoint, rateLimitServiceBus));
 
         verify(valueOperations, times(1)).increment(anyString());
@@ -111,7 +101,6 @@ class RateLimitServiceBusAspectTest {
 
     @Test
     void should_useCustomDurationAndUnit_when_customUnitIsMINUTES() throws Throwable {
-        makeWay();
         ReflectionTestUtils.setField(rateLimitServiceBusAspect, "customDuration", 5);
         ReflectionTestUtils.setField(rateLimitServiceBusAspect, "customUnit", "MINUTES");
 
@@ -124,7 +113,6 @@ class RateLimitServiceBusAspectTest {
 
     @Test
     void should_useCustomPrefix_when_customPrefixIsSet() throws Throwable {
-        makeWay();
         String customPrefix = "CustomRedisPrefix";
         ReflectionTestUtils.setField(rateLimitServiceBusAspect, "customPrefix", customPrefix);
 
@@ -144,24 +132,5 @@ class RateLimitServiceBusAspectTest {
 
         verify(valueOperations, never()).increment(anyString());
         verify(joinPoint, times(1)).proceed();
-    }
-
-    private static class TestConsumer {
-        @RateLimitServiceBus(limit = 2, duration = 10, unit = TimeUnit.SECONDS, keyParameterName = KEY_PARAM_NAME)
-        public void processMessage(ServiceBusReceivedMessageContext message) {}
-    }
-
-    private void makeWay() throws NoSuchMethodException {
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-
-        when(joinPoint.getSignature()).thenReturn(methodSignature);
-        Method method = TestConsumer.class.getMethod("processMessage", ServiceBusReceivedMessageContext.class);
-        when(methodSignature.getMethod()).thenReturn(method);
-        when(joinPoint.getArgs()).thenReturn(new Object[]{serviceBusContext});
-
-        when(rateLimitServiceBus.limit()).thenReturn(2);
-        when(rateLimitServiceBus.duration()).thenReturn(10);
-        when(rateLimitServiceBus.unit()).thenReturn(TimeUnit.SECONDS);
-        when(rateLimitServiceBus.keyParameterName()).thenReturn(KEY_PARAM_NAME);
     }
 }
