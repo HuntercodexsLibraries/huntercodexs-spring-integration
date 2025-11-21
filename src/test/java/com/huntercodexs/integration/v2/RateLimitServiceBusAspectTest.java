@@ -1,8 +1,8 @@
 package com.huntercodexs.integration.v2;
 
-import com.huntercodexs.integration.ratelimit.v2.annotation.RateLimitServiceBusV2;
-import com.huntercodexs.integration.ratelimit.v2.aspect.RateLimitServiceBusAspectV2;
-import com.huntercodexs.integration.ratelimit.v2.handler.exception.RateLimitExceededExceptionV2;
+import com.huntercodexs.integration.ratelimit.annotation.RateLimitServiceBus;
+import com.huntercodexs.integration.ratelimit.aspect.RateLimitServiceBusAspect;
+import com.huntercodexs.integration.ratelimit.handler.exception.RateLimitExceededException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +36,10 @@ class RateLimitServiceBusAspectTest {
     private MethodSignature methodSignature;
 
     @Mock
-    private RateLimitServiceBusV2 rateLimitServiceBus;
+    private RateLimitServiceBus rateLimitServiceBus;
 
     @InjectMocks
-    private RateLimitServiceBusAspectV2 rateLimitServiceBusAspect;
+    private RateLimitServiceBusAspect rateLimitServiceBusAspect;
 
     private static final String KEY_PARAM_NAME = "message";
     private static final String EXPECTED_KEY_PREFIX = "rateLimitServiceBusDefaultKeyName:consumer:processMessage:" + KEY_PARAM_NAME;
@@ -69,7 +69,7 @@ class RateLimitServiceBusAspectTest {
     void should_throwException_when_limitExceeded() throws Throwable {
         when(valueOperations.increment(eq(EXPECTED_KEY_PREFIX))).thenReturn(3L);
 
-        assertThrows(RateLimitExceededExceptionV2.class,
+        assertThrows(RateLimitExceededException.class,
                 () -> rateLimitServiceBusAspect.rateLimit(joinPoint, rateLimitServiceBus));
 
         verify(joinPoint, never()).proceed();
@@ -92,7 +92,7 @@ class RateLimitServiceBusAspectTest {
 
         when(valueOperations.increment(eq(EXPECTED_KEY_PREFIX))).thenReturn(2L);
 
-        assertThrows(RateLimitExceededExceptionV2.class,
+        assertThrows(RateLimitExceededException.class,
                 () -> rateLimitServiceBusAspect.rateLimit(joinPoint, rateLimitServiceBus));
 
         verify(valueOperations, times(1)).increment(anyString());

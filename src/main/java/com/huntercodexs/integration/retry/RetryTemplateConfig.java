@@ -9,16 +9,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class RetryTemplateConfig {
 
-    @Value("${spring.data.mongodb.retry.maxAttempts:3}")
+    @Value("${huntercodexs-spring-integration.mongodb.retry.maxAttempts:3}")
     int maxAttempts;
 
-    @Value("${spring.data.mongodb.retry.initialInterval:2000}")
+    @Value("${huntercodexs-spring-integration.mongodb.retry.initialInterval:2000}")
     long initialInterval;
 
-    @Value("${spring.data.mongodb.retry.maxInterval:10000}")
+    @Value("${huntercodexs-spring-integration.mongodb.retry.maxInterval:10000}")
     long maxInterval;
 
-    @Value("${spring.data.mongodb.retry.multiplier:2.0}")
+    @Value("${huntercodexs-spring-integration.mongodb.retry.multiplier:2.0}")
     double multiplier;
 
     public RetryTemplate mongoRetry() {

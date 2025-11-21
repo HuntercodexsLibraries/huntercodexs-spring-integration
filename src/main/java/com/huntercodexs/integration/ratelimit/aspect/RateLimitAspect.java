@@ -25,19 +25,22 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RateLimitAspect {
 
-    @Value("${rate-limit.enabled:true}")
+    @Value("${huntercodexs-spring-integration.rate-limit.enabled:true}")
     private boolean rateLimitEnabled;
 
-    @Value("${rate-limit.limit:0}")
+    @Value("${huntercodexs-spring-integration.redis.enabled:true}")
+    private boolean redisOn;
+
+    @Value("${huntercodexs-spring-integration.rate-limit.limit:0}")
     private int overrideLimit;
 
-    @Value("${rate-limit.duration:0}")
+    @Value("${huntercodexs-spring-integration.rate-limit.duration:0}")
     private int overrideDuration;
 
-    @Value("${rate-limit.unit:minutes}")
+    @Value("${huntercodexs-spring-integration.rate-limit.unit:minutes}")
     private String overrideUnit;
 
-    @Value("${rate-limit.cache-prefix:ratelimit}")
+    @Value("${huntercodexs-spring-integration.rate-limit.cache-prefix:ratelimit}")
     private String customPrefix;
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitAspect.class);
@@ -51,6 +54,11 @@ public class RateLimitAspect {
 
         if (!rateLimitEnabled) {
             log.warn("Rate limiting is disabled via configuration.");
+            return joinPoint.proceed();
+        }
+
+        if (!redisOn) {
+            log.warn("Redis is disabled via configuration. Rate limiting cannot be applied.");
             return joinPoint.proceed();
         }
 

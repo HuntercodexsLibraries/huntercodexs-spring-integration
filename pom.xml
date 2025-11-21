@@ -170,50 +170,22 @@
         </resources>
 
         <plugins>
-
-            <!--maven-compiler-plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <parameters>true</parameters><!--Required for RateLimitServiceBus-->
-                </configuration>
             </plugin>
-
-            <!--maven-surefire-plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-
-            <!--maven-dependency-plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
-
-            <!--srcclr-maven-plugin-->
             <plugin>
                 <groupId>com.srcclr</groupId>
                 <artifactId>srcclr-maven-plugin</artifactId>
             </plugin>
-
-            <!--spring-boot-maven-plugin-->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!--CODEGEN FOR OPENAPI: Implement these configurations in the consumer application-->
-
-            <!--build-helper-maven-plugin-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -232,7 +204,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--openapi-generator-maven-plugin-->
             <plugin>
                 <groupId>org.openapitools</groupId>
