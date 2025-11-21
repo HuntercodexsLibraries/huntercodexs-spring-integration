@@ -1,8 +1,8 @@
 package com.huntercodexs.integration.v2;
 
+import com.huntercodexs.integration.handler.exception.RateLimitExceededException;
 import com.huntercodexs.integration.ratelimit.annotation.RateLimitServiceBus;
 import com.huntercodexs.integration.ratelimit.aspect.RateLimitServiceBusAspect;
-import com.huntercodexs.integration.ratelimit.handler.exception.RateLimitExceededException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;

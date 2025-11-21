@@ -1,7 +1,7 @@
 package com.huntercodexs.integration.ratelimit.action.impl;
 
+import com.huntercodexs.integration.handler.exception.RateLimitExceededException;
 import com.huntercodexs.integration.ratelimit.action.RateLimitAction;
-import com.huntercodexs.integration.ratelimit.handler.exception.RateLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

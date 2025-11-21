@@ -2,7 +2,6 @@ package com.huntercodexs.integration.ratelimit.aspect;
 
 import com.huntercodexs.integration.ratelimit.action.RateLimitAction;
 import com.huntercodexs.integration.ratelimit.annotation.RateLimitServiceBus;
-import com.huntercodexs.integration.ratelimit.handler.exception.RateLimitExceededException;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
