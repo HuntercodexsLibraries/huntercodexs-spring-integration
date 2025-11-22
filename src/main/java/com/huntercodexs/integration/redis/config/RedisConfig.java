@@ -16,30 +16,33 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+import static com.huntercodexs.integration.constants.IntegrationConstants.REDIS_APP_CONFIG;
+import static com.huntercodexs.integration.constants.IntegrationConstants.REDIS_SPRING_APP_CONFIG;
+
 @Configuration
 public class RedisConfig {
 
     private static final Logger log = LoggerFactory.getLogger(RedisConfig.class);
 
-    @Value("${spring.data.redis.host}")
+    @Value("${"+REDIS_SPRING_APP_CONFIG+".host}")
     private String redisHost;
 
-    @Value("${spring.data.redis.port}")
+    @Value("${"+REDIS_SPRING_APP_CONFIG+".port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.password}")
+    @Value("${"+REDIS_SPRING_APP_CONFIG+".password}")
     private String redisPassword;
 
-    @Value("${spring.data.redis.timeout}")
+    @Value("${"+REDIS_SPRING_APP_CONFIG+".timeout}")
     private  int redisTimeout;
 
-    @Value("${spring.data.redis.ssl.enabled}")
+    @Value("${"+REDIS_SPRING_APP_CONFIG+".ssl.enabled}")
     private  boolean redisSsl;
 
-    @Value("${huntercodexs-spring-integration.redis.enabled:true}")
+    @Value("${"+REDIS_APP_CONFIG+".enabled:true}")
     private boolean redisOn;
 
-    @Value("${huntercodexs-spring-integration.redis.log.enabled:true}")
+    @Value("${"+REDIS_APP_CONFIG+".log.enabled:true}")
     private boolean redisLogOn;
 
     @Bean

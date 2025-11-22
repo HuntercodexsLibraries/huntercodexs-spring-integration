@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.feign.logger;
+package com.huntercodexs.integration.core.logger;
 
 import feign.Logger;
 import feign.Request;
@@ -13,12 +13,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.huntercodexs.integration.constants.IntegrationConstants.LOGGING_APP_CONFIG;
+
 @Configuration
-public class FeignStarterLogHttp extends Logger {
+public class IntegrationHttpLogger extends Logger {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FeignStarterLogHttp.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IntegrationHttpLogger.class);
 
-    @Value("${huntercodexs-spring-integration.client.config.logging.enabled:false}")
+    @Value("${"+LOGGING_APP_CONFIG+".enabled:false}")
     private boolean logOn;
 
     @Override
@@ -36,7 +38,7 @@ public class FeignStarterLogHttp extends Logger {
         var method = request.httpMethod().name();
         var body = request.body() != null ? new String(request.body()) : "";
 
-        if (logOn) log.info("Request sent - {} {} {} {}", method, url, headers, body);
+        if (logOn) log.info("Request sent - method: {} | url: {} | headers: {} | body: {}", method, url, headers, body);
 
     }
 
@@ -70,7 +72,7 @@ public class FeignStarterLogHttp extends Logger {
         }
 
         if (logOn) {
-            log.info("Request received - Status: {} | ElapsedTime: {}ms | headers: {} | body: {}", status, elapsedTime, headers, responseString);
+            log.info("Request received - status: {} | elapsedTime: {}ms | headers: {} | body: {}", status, elapsedTime, headers, responseString);
         }
 
         return clonedResponse;

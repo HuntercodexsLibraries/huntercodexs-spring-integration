@@ -9,15 +9,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.KEY_PARAMETER_NAME_DEFAULT;
-import static com.huntercodexs.integration.constants.IntegrationConstants.MSG_RATE_LIMIT_EXCEEDED;
+import static com.huntercodexs.integration.constants.IntegrationConstants.*;
 
 @Component
 public class RateLimitActionDefaultImpl implements RateLimitAction {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitActionDefaultImpl.class);
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.log.enabled:false}")
+    @Value("${"+ RATE_LIMIT_SERVICE_BUS_LOG_APP_CONFIG +".enabled:false}")
     private boolean rateLimitLogEnabled;
 
     @Override
@@ -33,7 +32,7 @@ public class RateLimitActionDefaultImpl implements RateLimitAction {
         }
 
         throw new RateLimitExceededException(String.format(
-                MSG_RATE_LIMIT_EXCEEDED, limit, keyName, duration, timeUnit.toString().toLowerCase()));
+                MSG_RATE_LIMIT_SERVICE_BUS_EXCEEDED, limit, keyName, duration, timeUnit.toString().toLowerCase()));
 
     }
 }

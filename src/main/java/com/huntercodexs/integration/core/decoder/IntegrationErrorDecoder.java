@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.feign.decoder;
+package com.huntercodexs.integration.core.decoder;
 
 import feign.Response;
 import feign.codec.ErrorDecoder;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @Component
-public class FeignErrorDecoder implements ErrorDecoder {
+public class IntegrationErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
@@ -25,7 +25,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
                     body = response.reason();
                 }
             } catch (IOException e) {
-                body = "unable to read body: " + e.getMessage();
+                body = "Unable to read/decode body: " + e.getMessage();
             }
         }
 

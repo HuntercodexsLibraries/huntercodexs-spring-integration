@@ -20,32 +20,32 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import static com.huntercodexs.integration.constants.IntegrationConstants.*;
+
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class RateLimitAspect {
 
-    @Value("${huntercodexs-spring-integration.rate-limit.enabled:true}")
-    private boolean rateLimitEnabled;
-
-    @Value("${huntercodexs-spring-integration.redis.enabled:true}")
+    @Value("${"+REDIS_APP_CONFIG+".enabled:true}")
     private boolean redisOn;
 
-    @Value("${huntercodexs-spring-integration.rate-limit.limit:0}")
+    @Value("${"+RATE_LIMIT_APP_CONFIG+".enabled:true}")
+    private boolean rateLimitEnabled;
+
+    @Value("${"+RATE_LIMIT_APP_CONFIG+".limit:0}")
     private int overrideLimit;
 
-    @Value("${huntercodexs-spring-integration.rate-limit.duration:0}")
+    @Value("${"+RATE_LIMIT_APP_CONFIG+".duration:0}")
     private int overrideDuration;
 
-    @Value("${huntercodexs-spring-integration.rate-limit.unit:minutes}")
+    @Value("${"+RATE_LIMIT_APP_CONFIG+".unit:minutes}")
     private String overrideUnit;
 
-    @Value("${huntercodexs-spring-integration.rate-limit.cache-prefix:ratelimit}")
+    @Value("${"+RATE_LIMIT_APP_CONFIG+".cache-prefix:rate-limit}")
     private String customPrefix;
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitAspect.class);
-
-    private static final String MSG_RATE_LIMIT_EXCEEDED = "Limit of %d requests was exceeded by %d %s.";
 
     private final RedisTemplate<String, Long> redisTemplate;
 
@@ -91,17 +91,17 @@ public class RateLimitAspect {
         // TTL Setup for the key on first increment
         TimeUnit unit = rateLimit.unit();
 
-        if (overrideUnit.equalsIgnoreCase("SECONDS")) {
+        if (overrideUnit.equalsIgnoreCase(TIME_UNIT_SECONDS)) {
             if (currentCount == 1) {
                 unit = TimeUnit.SECONDS;
                 redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
             }
-        } else if (overrideUnit.equalsIgnoreCase("MINUTES")) {
+        } else if (overrideUnit.equalsIgnoreCase(TIME_UNIT_MINUTES)) {
             if (currentCount == 1) {
                 unit = TimeUnit.MINUTES;
                 redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
             }
-        } else if (overrideUnit.equalsIgnoreCase("HOURS")) {
+        } else if (overrideUnit.equalsIgnoreCase(TIME_UNIT_HOURS)) {
             if (currentCount == 1) {
                 unit = TimeUnit.HOURS;
                 redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
@@ -112,7 +112,7 @@ public class RateLimitAspect {
             }
         }
 
-        log.info("Rate Limit Check - Key: {}, Count: {}, Limit: {}/{} {}", redisKey, currentCount, limit, duration, unit);
+        log.info("Rate Limit Check - key: {}, count: {}, limit: {}/{} {}", redisKey, currentCount, limit, duration, unit);
 
         // Limit Check
         if (currentCount > limit) {

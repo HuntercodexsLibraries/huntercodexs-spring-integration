@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.feign.resource;
+package com.huntercodexs.integration.core.resource;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -30,28 +30,28 @@ public class RateLimitServiceBusAspect {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitServiceBusAspect.class);
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.enabled:true}")
+    @Value("${huntercodexs.integration.rate-limit-service-bus.enabled:true}")
     private boolean rateLimitEnabled;
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.log.enabled:false}")
+    @Value("${huntercodexs.integration.rate-limit-service-bus.log.enabled:false}")
     private boolean rateLimitLogEnabled;
 
-    @Value("${huntercodexs-spring-integration.redis.enabled:true}")
+    @Value("${huntercodexs.integration.redis.enabled:true}")
     private boolean redisOn;
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.limit:0}")
+    @Value("${huntercodexs.integration.rate-limit-service-bus.limit:0}")
     private int customLimit;
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.duration:0}")
+    @Value("${huntercodexs.integration.rate-limit-service-bus.duration:0}")
     private int customDuration;
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.unit:seconds}")
+    @Value("${huntercodexs.integration.rate-limit-service-bus.unit:seconds}")
     private String customUnit;
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.cache-prefix:rateLimitServiceBusDefaultKeyName}")
+    @Value("${huntercodexs.integration.rate-limit-service-bus.cache-prefix:rateLimitServiceBusDefaultKeyName}")
     private String customPrefix;
 
-    @Value("${huntercodexs-spring-integration.rate-limit-service-bus.key-parameter:}")
+    @Value("${huntercodexs.integration.rate-limit-service-bus.key-parameter:}")
     private String customerKeyParameter;
 
     private final RedisTemplate<String, Long> redisTemplate;
@@ -131,7 +131,7 @@ public class RateLimitServiceBusAspect {
             }
         }
 
-        if (rateLimitLogEnabled) log.info("Rate Limit Service Bus Check - Key: {}, Count: {}, Limit: {}/{} {}", redisKey, currentCount, limit, duration, unit);
+        if (rateLimitLogEnabled) log.info("Rate Limit Service Bus Check - key: {}, count: {}, limit: {}/{} {}", redisKey, currentCount, limit, duration, unit);
 
         if (currentCount > limit) {
             limitExceededAction(args, keyParameterName, limit, duration, unit);
@@ -143,9 +143,7 @@ public class RateLimitServiceBusAspect {
 
     private void limitExceededAction(Object[] args, Object keyParameterName, int limit, int duration, TimeUnit unit) {
 
-        String exceededMessage = String.format(
-                "Rate Limit Exceeded to the key %s with limit of %d requests in %d %s.",
-                keyParameterName, limit, duration, unit.toString().toLowerCase());
+        String exceededMessage = String.format(MSG_RATE_LIMIT_SERVICE_BUS_EXCEEDED_2, keyParameterName, limit, duration, unit.toString().toLowerCase());
 
         if (rateLimitLogEnabled) log.error("429 TOO_MANY_REQUESTS - {}", exceededMessage);
 

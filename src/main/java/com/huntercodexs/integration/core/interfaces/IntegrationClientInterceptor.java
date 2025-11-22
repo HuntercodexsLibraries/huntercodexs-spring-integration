@@ -1,8 +1,8 @@
-package com.huntercodexs.integration.feign.intercept;
+package com.huntercodexs.integration.core.interfaces;
 
 import java.util.Map;
 
-public interface FeignClientInterceptor {
+public interface IntegrationClientInterceptor {
 
     boolean checkSupport(Object value);
     String getClientToken();

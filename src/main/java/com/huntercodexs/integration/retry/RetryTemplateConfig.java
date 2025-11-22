@@ -6,19 +6,21 @@ import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
+import static com.huntercodexs.integration.constants.IntegrationConstants.MONGO_DB_RETRYER_APP_CONFIG;
+
 @Component
 public class RetryTemplateConfig {
 
-    @Value("${huntercodexs-spring-integration.mongodb.retry.maxAttempts:3}")
+    @Value("${"+MONGO_DB_RETRYER_APP_CONFIG+".maxAttempts:3}")
     int maxAttempts;
 
-    @Value("${huntercodexs-spring-integration.mongodb.retry.initialInterval:2000}")
+    @Value("${"+MONGO_DB_RETRYER_APP_CONFIG+".initialInterval:2000}")
     long initialInterval;
 
-    @Value("${huntercodexs-spring-integration.mongodb.retry.maxInterval:10000}")
+    @Value("${"+MONGO_DB_RETRYER_APP_CONFIG+".maxInterval:10000}")
     long maxInterval;
 
-    @Value("${huntercodexs-spring-integration.mongodb.retry.multiplier:2.0}")
+    @Value("${"+MONGO_DB_RETRYER_APP_CONFIG+".multiplier:2.0}")
     double multiplier;
 
     public RetryTemplate mongoRetry() {

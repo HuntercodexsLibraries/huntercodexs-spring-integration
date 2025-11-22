@@ -1,6 +1,6 @@
-package com.huntercodexs.integration.feign.config;
+package com.huntercodexs.integration.core.config;
 
-import com.huntercodexs.integration.feign.intercept.FeignClientInterceptor;
+import com.huntercodexs.integration.core.interfaces.IntegrationClientInterceptor;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
@@ -12,16 +12,17 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
+import static com.huntercodexs.integration.constants.IntegrationConstants.LOGGING_APP_CONFIG;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
 @RequiredArgsConstructor
-public class FeignClientInterceptorConfig implements RequestInterceptor {
+public class IntegrationClientInterceptorConfig implements RequestInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(FeignClientInterceptorConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(IntegrationClientInterceptorConfig.class);
 
-    @Value("${huntercodexs-spring-integration.client.config.logging.enabled:false}")
+    @Value("${"+LOGGING_APP_CONFIG+".enabled:false}")
     private boolean logOn;
 
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
@@ -29,13 +30,13 @@ public class FeignClientInterceptorConfig implements RequestInterceptor {
     private static final String APPLICATION_JSON = "application/json";
 
     private String interceptor;
-    private final List<FeignClientInterceptor> interceptors;
+    private final List<IntegrationClientInterceptor> interceptors;
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
 
         if (requestTemplate == null || isEmpty(requestTemplate.feignTarget()) || isEmpty(requestTemplate.feignTarget().name())) {
-            if (logOn) log.info("RequestTemplate or Feign Target is null or empty");
+            if (logOn) log.warn("RequestTemplate or Feign Target is null or empty");
             return;
         }
 
@@ -47,7 +48,7 @@ public class FeignClientInterceptorConfig implements RequestInterceptor {
     private void retrieveClientToken(RequestTemplate requestTemplate) {
         requestTemplate.header(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 
-        FeignClientInterceptor strategy = interceptors.stream()
+        IntegrationClientInterceptor strategy = interceptors.stream()
                 .filter(interceptor -> interceptor.checkSupport(this.interceptor))
                 .findFirst()
                 .orElse(null);

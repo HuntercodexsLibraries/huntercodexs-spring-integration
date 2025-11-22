@@ -1,7 +1,7 @@
-package com.huntercodexs.integration.feign.resource;
+package com.huntercodexs.integration.core.resource;
 
-import com.huntercodexs.integration.feign.annotation.IntegrationEnable;
-import com.huntercodexs.integration.feign.config.FeignAutoConfig;
+import com.huntercodexs.integration.core.annotation.EnableIntegration;
+import com.huntercodexs.integration.core.config.IntegrationAutoConfig;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 
@@ -13,13 +13,13 @@ public class IntegrationImportSelector implements ImportSelector {
     @Override
     public String[] selectImports(AnnotationMetadata metadata) {
 
-        Map<String, Object> attrs = metadata.getAnnotationAttributes(IntegrationEnable.class.getName());
+        Map<String, Object> attrs = metadata.getAnnotationAttributes(EnableIntegration.class.getName());
 
         String[] packages = (String[]) Objects.requireNonNull(attrs).get("value");
 
         IntegrationPackageHolder.setBasePackages(packages);
 
-        return new String[]{FeignAutoConfig.class.getName()};
+        return new String[]{IntegrationAutoConfig.class.getName()};
     }
 }
 

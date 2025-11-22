@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.feign.proxy;
+package com.huntercodexs.integration.core.proxy;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Generated;
@@ -8,23 +8,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import static com.huntercodexs.integration.constants.IntegrationConstants.LOGGING_APP_CONFIG;
+import static com.huntercodexs.integration.constants.IntegrationConstants.PROXY_APP_CONFIG;
+
 @Configuration
 @Profile({"local", "dev", "default"})
-public class FeignProxyConfig {
+public class IntegrationProxyConfig {
 
     @Generated
-    private static final Logger log = LoggerFactory.getLogger(FeignProxyConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(IntegrationProxyConfig.class);
 
-    @Value("${huntercodexs-spring-integration.client.config.logging.enabled:false}")
+    @Value("${"+LOGGING_APP_CONFIG+".enabled:false}")
     private boolean enableLogging;
 
-    @Value("${huntercodexs-spring-integration.client.config.proxy.enable:false}")
+    @Value("${"+PROXY_APP_CONFIG+".enable:false}")
     private boolean enableProxy;
 
-    @Value("${huntercodexs-spring-integration.client.config.proxy.host:null}")
+    @Value("${"+PROXY_APP_CONFIG+".host:null}")
     private String proxyHost;
 
-    @Value("${huntercodexs-spring-integration.client.config.proxy.port:null}")
+    @Value("${"+PROXY_APP_CONFIG+".port:null}")
     private String proxyPort;
 
     @PostConstruct
@@ -33,7 +36,7 @@ public class FeignProxyConfig {
             System.setProperty("https.proxyHost", this.proxyHost);
             System.setProperty("https.proxyPort", this.proxyPort);
             System.setProperty("https.proxySet", "true");
-            System.setProperty("http.proxyHost", this.proxyHost);;
+            System.setProperty("http.proxyHost", this.proxyHost);
             System.setProperty("http.proxyPort", this.proxyPort);
             System.setProperty("http.proxySet", "true");
             if (enableLogging) {
