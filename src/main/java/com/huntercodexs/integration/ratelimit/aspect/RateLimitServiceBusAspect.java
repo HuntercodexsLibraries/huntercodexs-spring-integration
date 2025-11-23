@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.ratelimit.aspect;
 
-import com.huntercodexs.integration.ratelimit.action.RateLimitAction;
+import com.huntercodexs.integration.ratelimit.action.RateLimitServiceBusAction;
 import com.huntercodexs.integration.ratelimit.annotation.RateLimitServiceBus;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -30,34 +30,34 @@ public class RateLimitServiceBusAspect {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitServiceBusAspect.class);
 
-    @Value("${huntercodexs.integration.rate-limit-service-bus.enabled:true}")
+    @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".enabled:true}")
     private boolean rateLimitEnabled;
 
-    @Value("${huntercodexs.integration.rate-limit-service-bus.log.enabled:false}")
+    @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".log.enabled:false}")
     private boolean rateLimitLogEnabled;
 
-    @Value("${huntercodexs.integration.redis.enabled:true}")
-    private boolean redisOn;
-
-    @Value("${huntercodexs.integration.rate-limit-service-bus.limit:0}")
+    @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".limit:0}")
     private int customLimit;
 
-    @Value("${huntercodexs.integration.rate-limit-service-bus.duration:0}")
+    @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".duration:0}")
     private int customDuration;
 
-    @Value("${huntercodexs.integration.rate-limit-service-bus.unit:seconds}")
+    @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".unit:seconds}")
     private String customUnit;
 
-    @Value("${huntercodexs.integration.rate-limit-service-bus.cache-prefix:rateLimitServiceBusDefaultKeyName}")
+    @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".cache-prefix:rateLimitServiceBusDefaultKeyName}")
     private String customPrefix;
 
-    @Value("${huntercodexs.integration.rate-limit-service-bus.key-parameter:}")
+    @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".key-parameter:}")
     private String customerKeyParameter;
+
+    @Value("${"+REDIS_APP_CONFIG+".enabled:true}")
+    private boolean redisOn;
 
     private final RedisTemplate<String, Long> redisTemplate;
 
     private final ParameterNameDiscoverer parameterNameDiscoverer = new StandardReflectionParameterNameDiscoverer();
-    private final List<RateLimitAction> actions;
+    private final List<RateLimitServiceBusAction> actions;
 
     @Around("@annotation(rateLimitServiceBus)")
     public Object rateLimit(ProceedingJoinPoint joinPoint, RateLimitServiceBus rateLimitServiceBus) throws Throwable {
@@ -78,7 +78,9 @@ public class RateLimitServiceBusAspect {
 
         // Getting Rate Limit Key Value
         String keyParameterName = rateLimitServiceBus.keyParameterName();
-        if (customerKeyParameter != null && !customerKeyParameter.isEmpty()) keyParameterName = customerKeyParameter;
+        if (customerKeyParameter != null && !customerKeyParameter.isEmpty() && keyParameterName.equals(KEY_PARAMETER_NAME_DEFAULT)) {
+            keyParameterName = customerKeyParameter;
+        }
 
         Object rateLimitKeyValue = findParameterValue(method, args, keyParameterName);
 
@@ -101,32 +103,34 @@ public class RateLimitServiceBusAspect {
 
         // Get values from annotation
         int limit = rateLimitServiceBus.limit();
-        if (customLimit > 0) limit = customLimit;
+        if (customLimit > 0 && limit == LIMIT_RATE_LIMIT_DEFAULT) limit = customLimit;
 
         int duration = rateLimitServiceBus.duration();
-        if (customDuration > 0) duration = customDuration;
+        if (customDuration > 0 && duration == DURATION_RATE_LIMIT_DEFAULT) duration = customDuration;
 
         // TTL Setup for the key on first increment
         TimeUnit unit = rateLimitServiceBus.unit();
 
-        if (customUnit.equalsIgnoreCase(TIME_UNIT_SECONDS)) {
-            if (currentCount == 1) {
-                unit = TimeUnit.SECONDS;
-                redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
-            }
-        } else if (customUnit.equalsIgnoreCase(TIME_UNIT_MINUTES)) {
-            if (currentCount == 1) {
-                unit = TimeUnit.MINUTES;
-                redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
-            }
-        } else if (customUnit.equalsIgnoreCase(TIME_UNIT_HOURS)) {
-            if (currentCount == 1) {
-                unit = TimeUnit.HOURS;
-                redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
+        if (!unit.equals(TimeUnit.SECONDS)) { // DEFAULT IS SECONDS
+
+            if (customUnit.equalsIgnoreCase(TIME_UNIT_SECONDS)) {
+                if (currentCount == 1) {
+                    unit = TimeUnit.SECONDS;
+                    redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
+                }
+            } else if (customUnit.equalsIgnoreCase(TIME_UNIT_MINUTES)) {
+                if (currentCount == 1) {
+                    unit = TimeUnit.MINUTES;
+                    redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
+                }
+            } else if (customUnit.equalsIgnoreCase(TIME_UNIT_HOURS)) {
+                if (currentCount == 1) {
+                    unit = TimeUnit.HOURS;
+                    redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
+                }
             }
         } else {
             if (currentCount == 1) {
-                unit = TimeUnit.SECONDS;
                 redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
             }
         }

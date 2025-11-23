@@ -1,7 +1,7 @@
 package com.huntercodexs.integration.ratelimit.action.impl;
 
 import com.huntercodexs.integration.handler.exception.RateLimitExceededException;
-import com.huntercodexs.integration.ratelimit.action.RateLimitAction;
+import com.huntercodexs.integration.ratelimit.action.RateLimitServiceBusAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 import static com.huntercodexs.integration.constants.IntegrationConstants.*;
 
 @Component
-public class RateLimitActionDefaultImpl implements RateLimitAction {
+public class RateLimitServiceBusActionDefaultImpl implements RateLimitServiceBusAction {
 
-    private static final Logger log = LoggerFactory.getLogger(RateLimitActionDefaultImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(RateLimitServiceBusActionDefaultImpl.class);
 
     @Value("${"+ RATE_LIMIT_SERVICE_BUS_LOG_APP_CONFIG +".enabled:false}")
     private boolean rateLimitLogEnabled;
@@ -28,7 +28,7 @@ public class RateLimitActionDefaultImpl implements RateLimitAction {
     public void execute(Object[] args, String keyName, int limit, int duration, TimeUnit timeUnit) {
 
         if (rateLimitLogEnabled) {
-            log.error("No RateLimitAction strategy found for key parameter: {}. Throwing exception by default.", keyName);
+            log.warn("No specific RateLimitServiceBusAction strategy found, using the key parameter __DEFAULT__");
         }
 
         throw new RateLimitExceededException(String.format(

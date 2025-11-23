@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.isNull;
 
@@ -25,14 +26,14 @@ public class CustomResponseException {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> errors;
 
-    public CustomResponseException(String message, int code, String tracker, List<String> errors) {
+    public CustomResponseException(String message, String code, String tracker, List<String> errors) {
         this.message = message;
         this.tracker = tracker;
 
-        if (code == 0) {
+        if (Objects.equals(code, "0") || isNull(code) || code.isEmpty()) {
             this.code = null;
         } else {
-            this.code = String.valueOf(code);
+            this.code = code;
         }
 
         this.errors = errors;

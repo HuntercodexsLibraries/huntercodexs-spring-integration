@@ -2,6 +2,7 @@ package com.huntercodexs.integration.core.annotation;
 
 import com.huntercodexs.integration.config.IntegrationGlobalConfig;
 import com.huntercodexs.integration.core.config.IntegrationClientConfig;
+import com.huntercodexs.integration.core.config.IntegrationClientInterceptorConfig;
 import com.huntercodexs.integration.core.logger.IntegrationHttpLogger;
 import com.huntercodexs.integration.core.resource.IntegrationImportSelector;
 import com.huntercodexs.integration.handler.GlobalExceptionHandler;
@@ -15,12 +16,14 @@ import java.lang.annotation.*;
 @Documented
 @EnableFeignClients
 @Import({
-        IntegrationClientConfig.class,
-        IntegrationHttpLogger.class,
-        IntegrationImportSelector.class,
-        IntegrationGlobalConfig.class,
-        GlobalExceptionHandler.class
+        IntegrationClientConfig.class
+        , IntegrationHttpLogger.class
+        , IntegrationImportSelector.class
+        , IntegrationGlobalConfig.class
+        , GlobalExceptionHandler.class
+        , IntegrationClientInterceptorConfig.class
 })
 public @interface EnableIntegration {
     String[] value();
 }
+

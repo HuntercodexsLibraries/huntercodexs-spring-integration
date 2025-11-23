@@ -9,6 +9,7 @@ public interface IntegrationGlobalExceptionInterceptor {
     boolean supports(IntegrationGlobalEnum value);
     String message();
     String trackerId();
-    List<String> errors();
+    String code();
+    List<String> errors(Object exception);
 
 }
