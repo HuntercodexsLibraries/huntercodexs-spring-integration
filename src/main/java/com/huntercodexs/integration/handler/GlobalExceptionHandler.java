@@ -10,6 +10,7 @@ import lombok.Generated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -166,6 +167,20 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_GATEWAY,
                 null,
                 List.of(ex.getMessage()));
+    }
+
+    @ExceptionHandler(DataAccessResourceFailureException.class)
+    public ResponseEntity<CustomResponseException> handleDataAccessResourceFailureException(DataAccessResourceFailureException ex) {
+        if (getInterceptor(DATA_ACCESS_RESOURCE_FAILURE_EXCEPTION_INTERCEPTOR_500, ex)) {
+            return buildErrorResponse(this.message, HttpStatus.INTERNAL_SERVER_ERROR, this.tracker, this.errors);
+        }
+
+        log.error("Communication with the database failed", ex);
+        return buildErrorResponse(
+                "Communication with the database failed",
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                null,
+                null);
     }
 
     @ExceptionHandler(RateLimitExceededException.class)
