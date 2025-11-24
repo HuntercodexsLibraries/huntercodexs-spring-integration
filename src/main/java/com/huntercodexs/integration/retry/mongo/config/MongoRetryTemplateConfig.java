@@ -3,6 +3,8 @@ package com.huntercodexs.integration.retry.mongo.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
@@ -30,13 +32,9 @@ public class MongoRetryTemplateConfig {
     @Value("${"+MONGO_DB_RETRYER_APP_CONFIG+".multiplier:2.0}")
     double multiplier;
 
+    @Bean("mongoRetryTemplateIntegration")
+    @ConditionalOnProperty(prefix = MONGO_DB_RETRYER_APP_CONFIG, name = "enabled", havingValue = "true", matchIfMissing = true)
     public RetryTemplate mongoRetry() {
-
-        if (!mongoRetryEnabled) {
-            log.warn("MongoDB Retry Template is disabled.");
-            return null;
-        }
-
         RetryTemplate template = new RetryTemplate();
 
         SimpleRetryPolicy policy = new SimpleRetryPolicy();
@@ -54,5 +52,12 @@ public class MongoRetryTemplateConfig {
                 maxAttempts, initialInterval, maxInterval, multiplier);
 
         return template;
+    }
+
+    @Bean("mongoRetryTemplateIntegration")
+    @ConditionalOnProperty(prefix = MONGO_DB_RETRYER_APP_CONFIG, name = "enabled", havingValue = "false")
+    public RetryTemplate mongoRetryDisabled() {
+        log.warn("Mongo Retry is disabled.");
+        return RetryTemplate.builder().maxAttempts(1).build();
     }
 }

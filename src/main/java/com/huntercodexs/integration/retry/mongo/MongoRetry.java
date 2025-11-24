@@ -1,9 +1,9 @@
 package com.huntercodexs.integration.retry.mongo;
 
-import com.huntercodexs.integration.retry.mongo.config.MongoRetryTemplateConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
@@ -19,14 +19,11 @@ public class MongoRetry {
 
     private final RetryTemplate template;
 
-    public MongoRetry(MongoRetryTemplateConfig retryTemplateConfig) {
-        template = retryTemplateConfig.mongoRetry();
+    public MongoRetry(@Qualifier("mongoRetryTemplateIntegration") RetryTemplate mongoRetryTemplateIntegration) {
+        this.template = mongoRetryTemplateIntegration;
     }
 
     public <T, R extends CrudRepository<T, ?>> T add(R repository, T entity) {
-        if (template == null) {
-            return repository.save(entity);
-        }
         return template.execute(context -> {
             log.info("Trying to save entity {} attempt #{}", entity, context.getRetryCount() + 1);
             return repository.save(entity);
@@ -34,9 +31,6 @@ public class MongoRetry {
     }
 
     public <T, ID, R extends CrudRepository<T, ID>> T findById(R repository, ID id) {
-        if (template == null) {
-            return repository.findById(id).orElse(null);
-        }
         return template.execute(context -> {
             log.info("Trying to find by id {} attempt #{}", id, context.getRetryCount() + 1);
             return repository.findById(id).orElse(null);
@@ -44,9 +38,6 @@ public class MongoRetry {
     }
 
     public <T, R extends CrudRepository<T, ?>> Iterable<T> findAll(R repository) {
-        if (template == null) {
-            return repository.findAll();
-        }
         return template.execute(context -> {
             log.info("Trying to find all attempt #{}", context.getRetryCount() + 1);
             return repository.findAll();
@@ -54,13 +45,6 @@ public class MongoRetry {
     }
 
     public <T, ID, R extends CrudRepository<T, ID>> boolean deleteById(R repository, ID id) {
-        if (template == null) {
-            if (repository.existsById(id)) {
-                repository.deleteById(id);
-                return true;
-            }
-            return false;
-        }
         template.execute(context -> {
             log.info("Trying to delete by id {} attempt #{}", id, context.getRetryCount() + 1);
             repository.deleteById(id);
@@ -73,9 +57,6 @@ public class MongoRetry {
         if (newData == null) {
             log.warn("New data is null; nothing to update.");
             return false;
-        }
-        if (template == null) {
-            return doUpdate(repository, id, newData);
         }
         return template.execute(context -> {
             log.info("Trying to update id {} attempt #{}", id, context.getRetryCount() + 1);
