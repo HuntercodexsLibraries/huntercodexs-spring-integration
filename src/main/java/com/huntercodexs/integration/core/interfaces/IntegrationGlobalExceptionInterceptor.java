@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.core.interfaces;
 
-import com.huntercodexs.integration.enumerator.IntegrationGlobalEnum;
+import com.huntercodexs.integration.handler.enumerator.IntegrationGlobalEnum;
 
 import java.util.List;
 

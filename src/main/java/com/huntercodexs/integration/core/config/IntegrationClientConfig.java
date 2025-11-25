@@ -2,7 +2,7 @@ package com.huntercodexs.integration.core.config;
 
 import com.huntercodexs.integration.core.decoder.IntegrationErrorDecoder;
 import com.huntercodexs.integration.core.interfaces.IntegrationRetryInterceptor;
-import com.huntercodexs.integration.core.logger.IntegrationRetryerLogger;
+import com.huntercodexs.integration.core.retry.IntegrationLoggerRetry;
 import feign.Logger;
 import feign.Retryer;
 import feign.codec.ErrorDecoder;
@@ -13,22 +13,22 @@ import org.springframework.context.annotation.Primary;
 
 import java.util.List;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.LOGGING_APP_CONFIG;
-import static com.huntercodexs.integration.constants.IntegrationConstants.RETRYER_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_LOGGING_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_RETRYER_APP_CONFIG;
 
 @Configuration
 public class IntegrationClientConfig {
 
-    @Value("${"+RETRYER_APP_CONFIG+".period:1000}")
+    @Value("${"+ CORE_RETRYER_APP_CONFIG +".period:1000}")
     private long period;
 
-    @Value("${"+RETRYER_APP_CONFIG+".max-period:1000}")
+    @Value("${"+ CORE_RETRYER_APP_CONFIG +".max-period:1000}")
     private long maxPeriod;
 
-    @Value("${"+RETRYER_APP_CONFIG+".max-attempts:3}")
+    @Value("${"+ CORE_RETRYER_APP_CONFIG +".max-attempts:3}")
     private int maxAttempts;
 
-    @Value("${"+LOGGING_APP_CONFIG+".enabled:false}")
+    @Value("${"+ CORE_LOGGING_APP_CONFIG +".enabled:false}")
     private boolean logOn;
 
     @Bean
@@ -46,7 +46,7 @@ public class IntegrationClientConfig {
     @Bean
     @Primary
     public Retryer retryer(List<IntegrationRetryInterceptor> interceptors) {
-        return new IntegrationRetryerLogger(this.period, this.maxPeriod, this.maxAttempts, this.logOn, interceptors);
+        return new IntegrationLoggerRetry(this.period, this.maxPeriod, this.maxAttempts, this.logOn, interceptors);
     }
 
 }

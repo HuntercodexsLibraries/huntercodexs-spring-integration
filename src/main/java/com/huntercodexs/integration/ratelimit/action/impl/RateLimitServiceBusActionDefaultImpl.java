@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.*;
+import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitServiceBusConstants.*;
 
 @Component
 public class RateLimitServiceBusActionDefaultImpl implements RateLimitServiceBusAction {
@@ -21,7 +21,7 @@ public class RateLimitServiceBusActionDefaultImpl implements RateLimitServiceBus
 
     @Override
     public boolean supports(Object value) {
-        return value.toString().equals(KEY_PARAMETER_NAME_DEFAULT);
+        return value.toString().equals(RATE_LIMIT_SERVICE_BUS_KEY_PARAMETER_NAME_DEFAULT);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class RateLimitServiceBusActionDefaultImpl implements RateLimitServiceBus
         }
 
         throw new RateLimitExceededException(String.format(
-                MSG_RATE_LIMIT_SERVICE_BUS_EXCEEDED, limit, keyName, duration, timeUnit.toString().toLowerCase()));
+                RATE_LIMIT_SERVICE_BUS_MSG_EXCEEDED, limit, keyName, duration, timeUnit.toString().toLowerCase()));
 
     }
 }

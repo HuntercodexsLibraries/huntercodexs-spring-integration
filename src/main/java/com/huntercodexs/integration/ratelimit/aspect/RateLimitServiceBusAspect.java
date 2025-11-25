@@ -20,7 +20,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.*;
+import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitServiceBusConstants.*;
+import static com.huntercodexs.integration.redis.constants.IntegrationRedisConstants.REDIS_APP_CONFIG;
 
 @Aspect
 @Component
@@ -29,6 +30,9 @@ import static com.huntercodexs.integration.constants.IntegrationConstants.*;
 public class RateLimitServiceBusAspect {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitServiceBusAspect.class);
+
+    @Value("${"+REDIS_APP_CONFIG+".enabled:true}")
+    private boolean redisOn;
 
     @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".enabled:true}")
     private boolean rateLimitEnabled;
@@ -50,9 +54,6 @@ public class RateLimitServiceBusAspect {
 
     @Value("${"+RATE_LIMIT_SERVICE_BUS_APP_CONFIG+".key-parameter:}")
     private String customerKeyParameter;
-
-    @Value("${"+REDIS_APP_CONFIG+".enabled:true}")
-    private boolean redisOn;
 
     private final RedisTemplate<String, Long> redisTemplate;
 
@@ -78,13 +79,13 @@ public class RateLimitServiceBusAspect {
 
         // Getting Rate Limit Key Value
         String keyParameterName = rateLimitServiceBus.keyParameterName();
-        if (customerKeyParameter != null && !customerKeyParameter.isEmpty() && keyParameterName.equals(KEY_PARAMETER_NAME_DEFAULT)) {
+        if (customerKeyParameter != null && !customerKeyParameter.isEmpty() && keyParameterName.equals(RATE_LIMIT_SERVICE_BUS_KEY_PARAMETER_NAME_DEFAULT)) {
             keyParameterName = customerKeyParameter;
         }
 
         Object rateLimitKeyValue = findParameterValue(method, args, keyParameterName);
 
-        if (rateLimitKeyValue == null && !keyParameterName.equals(KEY_PARAMETER_NAME_DEFAULT)) {
+        if (rateLimitKeyValue == null && !keyParameterName.equals(RATE_LIMIT_SERVICE_BUS_KEY_PARAMETER_NAME_DEFAULT)) {
             // If the key parameter is not found or is null, handle accordingly.
             log.warn("Alert: Rate Limit key parameter not found or is null. Request allowed.");
             return joinPoint.proceed();
@@ -103,27 +104,27 @@ public class RateLimitServiceBusAspect {
 
         // Get values from annotation
         int limit = rateLimitServiceBus.limit();
-        if (customLimit > 0 && limit == LIMIT_RATE_LIMIT_DEFAULT) limit = customLimit;
+        if (customLimit > 0 && limit == RATE_LIMIT_SERVICE_BUS_LIMIT_DEFAULT) limit = customLimit;
 
         int duration = rateLimitServiceBus.duration();
-        if (customDuration > 0 && duration == DURATION_RATE_LIMIT_DEFAULT) duration = customDuration;
+        if (customDuration > 0 && duration == RATE_LIMIT_SERVICE_BUS_DURATION_DEFAULT) duration = customDuration;
 
         // TTL Setup for the key on first increment
         TimeUnit unit = rateLimitServiceBus.unit();
 
         if (!unit.equals(TimeUnit.SECONDS)) { // DEFAULT IS SECONDS
 
-            if (customUnit.equalsIgnoreCase(TIME_UNIT_SECONDS)) {
+            if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_SECONDS)) {
                 if (currentCount == 1) {
                     unit = TimeUnit.SECONDS;
                     redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
                 }
-            } else if (customUnit.equalsIgnoreCase(TIME_UNIT_MINUTES)) {
+            } else if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_MINUTES)) {
                 if (currentCount == 1) {
                     unit = TimeUnit.MINUTES;
                     redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
                 }
-            } else if (customUnit.equalsIgnoreCase(TIME_UNIT_HOURS)) {
+            } else if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_HOURS)) {
                 if (currentCount == 1) {
                     unit = TimeUnit.HOURS;
                     redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
@@ -147,7 +148,7 @@ public class RateLimitServiceBusAspect {
 
     private void limitExceededAction(Object[] args, Object keyParameterName, int limit, int duration, TimeUnit unit) {
 
-        String exceededMessage = String.format(MSG_RATE_LIMIT_SERVICE_BUS_EXCEEDED_2, keyParameterName, limit, duration, unit.toString().toLowerCase());
+        String exceededMessage = String.format(RATE_LIMIT_SERVICE_BUS_MSG_EXCEEDED_2, keyParameterName, limit, duration, unit.toString().toLowerCase());
 
         if (rateLimitLogEnabled) log.error("429 TOO_MANY_REQUESTS - {}", exceededMessage);
 

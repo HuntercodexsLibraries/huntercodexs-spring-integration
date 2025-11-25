@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.LOGGING_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_LOGGING_APP_CONFIG;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -22,7 +22,7 @@ public class IntegrationClientInterceptorConfig implements RequestInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(IntegrationClientInterceptorConfig.class);
 
-    @Value("${"+LOGGING_APP_CONFIG+".enabled:false}")
+    @Value("${"+ CORE_LOGGING_APP_CONFIG +".enabled:false}")
     private boolean logOn;
 
     private static final String CONTENT_TYPE_HEADER = "Content-Type";

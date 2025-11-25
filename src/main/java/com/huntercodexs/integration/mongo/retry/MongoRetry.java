@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.retry.mongo;
+package com.huntercodexs.integration.mongo.retry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

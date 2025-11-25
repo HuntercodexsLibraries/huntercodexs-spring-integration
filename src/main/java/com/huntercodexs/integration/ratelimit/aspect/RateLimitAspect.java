@@ -20,7 +20,8 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.*;
+import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitConstants.*;
+import static com.huntercodexs.integration.redis.constants.IntegrationRedisConstants.REDIS_APP_CONFIG;
 
 @Aspect
 @Component
@@ -83,27 +84,27 @@ public class RateLimitAspect {
 
         // Rate Limit Parameters
         int limit = rateLimit.limit();
-        if (overrideLimit > 0 && limit == LIMIT_RATE_LIMIT_DEFAULT) limit = overrideLimit;
+        if (overrideLimit > 0 && limit == RATE_LIMIT_LIMIT_DEFAULT) limit = overrideLimit;
 
         int duration = rateLimit.duration();
-        if (overrideDuration > 0 && duration == DURATION_RATE_LIMIT_DEFAULT) duration = overrideDuration;
+        if (overrideDuration > 0 && duration == RATE_LIMIT_DURATION_DEFAULT) duration = overrideDuration;
 
         // TTL Setup for the key on first increment
         TimeUnit unit = rateLimit.unit();
 
         if (!unit.equals(TimeUnit.SECONDS)) { // DEFAULT IS SECONDS
 
-            if (overrideUnit.equalsIgnoreCase(TIME_UNIT_SECONDS)) {
+            if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_SECONDS)) {
                 if (currentCount == 1) {
                     unit = TimeUnit.SECONDS;
                     redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
                 }
-            } else if (overrideUnit.equalsIgnoreCase(TIME_UNIT_MINUTES)) {
+            } else if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_MINUTES)) {
                 if (currentCount == 1) {
                     unit = TimeUnit.MINUTES;
                     redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
                 }
-            } else if (overrideUnit.equalsIgnoreCase(TIME_UNIT_HOURS)) {
+            } else if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_HOURS)) {
                 if (currentCount == 1) {
                     unit = TimeUnit.HOURS;
                     redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
@@ -127,6 +128,6 @@ public class RateLimitAspect {
     }
 
     private void limitExceededAction(int limit, int duration, TimeUnit unit) {
-        throw new RateLimitExceededException(String.format(MSG_RATE_LIMIT_EXCEEDED, limit, duration, unit.toString().toLowerCase()));
+        throw new RateLimitExceededException(String.format(RATE_LIMIT_MSG_EXCEEDED, limit, duration, unit.toString().toLowerCase()));
     }
 }

@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.LOGGING_APP_CONFIG;
-import static com.huntercodexs.integration.constants.IntegrationConstants.PROXY_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_LOGGING_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_PROXY_APP_CONFIG;
 
 @Configuration
 @Profile({"local", "dev", "default"})
@@ -18,16 +18,16 @@ public class IntegrationProxyConfig {
     @Generated
     private static final Logger log = LoggerFactory.getLogger(IntegrationProxyConfig.class);
 
-    @Value("${"+LOGGING_APP_CONFIG+".enabled:false}")
+    @Value("${"+ CORE_LOGGING_APP_CONFIG +".enabled:false}")
     private boolean enableLogging;
 
-    @Value("${"+PROXY_APP_CONFIG+".enable:false}")
+    @Value("${"+ CORE_PROXY_APP_CONFIG +".enable:false}")
     private boolean enableProxy;
 
-    @Value("${"+PROXY_APP_CONFIG+".host:null}")
+    @Value("${"+ CORE_PROXY_APP_CONFIG +".host:null}")
     private String proxyHost;
 
-    @Value("${"+PROXY_APP_CONFIG+".port:null}")
+    @Value("${"+ CORE_PROXY_APP_CONFIG +".port:null}")
     private String proxyPort;
 
     @PostConstruct

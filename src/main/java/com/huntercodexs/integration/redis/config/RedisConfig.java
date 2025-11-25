@@ -16,8 +16,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.REDIS_APP_CONFIG;
-import static com.huntercodexs.integration.constants.IntegrationConstants.REDIS_SPRING_APP_CONFIG;
+import static com.huntercodexs.integration.redis.constants.IntegrationRedisConstants.REDIS_APP_CONFIG;
+import static com.huntercodexs.integration.redis.constants.IntegrationRedisConstants.REDIS_SPRING_APP_CONFIG;
 
 @Configuration
 public class RedisConfig {

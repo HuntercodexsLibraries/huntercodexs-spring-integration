@@ -1,7 +1,7 @@
 package com.huntercodexs.integration.handler;
 
 import com.huntercodexs.integration.core.interfaces.IntegrationGlobalExceptionInterceptor;
-import com.huntercodexs.integration.enumerator.IntegrationGlobalEnum;
+import com.huntercodexs.integration.handler.enumerator.IntegrationGlobalEnum;
 import com.huntercodexs.integration.handler.exception.IntegrationRetryAttemptsExceededException;
 import com.huntercodexs.integration.handler.exception.RateLimitExceededException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.huntercodexs.integration.enumerator.IntegrationGlobalEnum.*;
+import static com.huntercodexs.integration.handler.enumerator.IntegrationGlobalEnum.*;
 import static java.util.Objects.isNull;
 
 @ControllerAdvice

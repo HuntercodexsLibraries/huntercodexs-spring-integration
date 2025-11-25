@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.enumerator;
+package com.huntercodexs.integration.handler.enumerator;
 
 public enum IntegrationGlobalEnum {
     CUSTOM_EXCEPTION_INTERCEPTOR,

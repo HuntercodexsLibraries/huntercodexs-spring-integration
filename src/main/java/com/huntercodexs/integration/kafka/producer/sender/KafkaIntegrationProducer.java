@@ -1,7 +1,6 @@
-package com.huntercodexs.integration.kafka.producer;
+package com.huntercodexs.integration.kafka.producer.sender;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.huntercodexs.integration.kafka.process.KakfaIntegrationProcessor;
+import com.huntercodexs.integration.kafka.producer.process.KakfaProducerIntegrationProcess;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -17,8 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.KAFKA_APP_CONFIG;
-import static com.huntercodexs.integration.constants.IntegrationConstants.KAFKA_SPRING_APP_CONFIG;
+import static com.huntercodexs.integration.kafka.producer.constants.IntegrationKafkaProducerConstants.KAFKA_PRODUCER_APP_CONFIG;
+import static com.huntercodexs.integration.kafka.producer.constants.IntegrationKafkaProducerConstants.KAFKA_PRODUCER_SPRING_APP_CONFIG;
 
 @Component
 @RequiredArgsConstructor
@@ -26,23 +25,23 @@ public class KafkaIntegrationProducer {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaIntegrationProducer.class);
 
-    @Value("${"+KAFKA_SPRING_APP_CONFIG+".cluster.topic-name}")
-    private String topicName;
-
-    @Value("${"+KAFKA_APP_CONFIG+".enabled}")
+    @Value("${"+ KAFKA_PRODUCER_APP_CONFIG +".enabled}")
     private boolean kafkaEnabled;
 
-    private final @Nullable KafkaTemplate<String, String> kafkaTemplate;
-    private final List<KakfaIntegrationProcessor> processors;
+    @Value("${"+ KAFKA_PRODUCER_SPRING_APP_CONFIG +".cluster.topic-name}")
+    private String topicName;
 
-    public void send(Object message, String producerName) throws JsonProcessingException {
+    private final @Nullable KafkaTemplate<String, String> kafkaTemplate;
+    private final List<KakfaProducerIntegrationProcess> processors;
+
+    public void send(Object message, String producerName, String topicNameOverride) {
 
         if (!kafkaEnabled) {
             log.warn("Kafka integration is disabled. Message not sent: {}", message);
             throw new IllegalStateException("Kafka integration is disabled.");
         }
 
-        KakfaIntegrationProcessor strategy = processors.stream()
+        KakfaProducerIntegrationProcess strategy = processors.stream()
                 .filter(producer -> producer.supports(producerName))
                 .findFirst()
                 .orElse(null);
@@ -50,6 +49,10 @@ public class KafkaIntegrationProducer {
         if (strategy == null) {
             log.error("No Kafka producer found for name: {}", producerName);
             return;
+        }
+
+        if (topicNameOverride != null && !topicNameOverride.isBlank()) {
+            topicName = topicNameOverride;
         }
 
         try {
@@ -72,6 +75,7 @@ public class KafkaIntegrationProducer {
 
             log.info("Sending message to topic '{}': {}", topicName, message);
 
+            assert kafkaTemplate != null;
             final var retornoKafka = kafkaTemplate.send(producerRecord);
 
             SendResult<String, String> result = retornoKafka.get();

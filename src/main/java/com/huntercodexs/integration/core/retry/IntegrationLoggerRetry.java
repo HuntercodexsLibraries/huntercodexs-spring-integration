@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.core.logger;
+package com.huntercodexs.integration.core.retry;
 
 import com.huntercodexs.integration.core.interfaces.IntegrationRetryInterceptor;
 import com.huntercodexs.integration.handler.exception.IntegrationRetryAttemptsExceededException;
@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.RETRYER_HANDLER_EXCEPTION_DEFAULT;
+import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT;
 
 @RequiredArgsConstructor
-public class IntegrationRetryerLogger implements Retryer {
+public class IntegrationLoggerRetry implements Retryer {
 
-    private static final Logger log = LoggerFactory.getLogger(IntegrationRetryerLogger.class);
+    private static final Logger log = LoggerFactory.getLogger(IntegrationLoggerRetry.class);
 
     private int attempt = 0;
     private long nextInterval = 1;
@@ -40,7 +40,7 @@ public class IntegrationRetryerLogger implements Retryer {
                     e.getMessage());
 
             IntegrationRetryInterceptor retryInterceptor = interceptors.stream()
-                    .filter(r -> r.supports(RETRYER_HANDLER_EXCEPTION_DEFAULT))
+                    .filter(r -> r.supports(CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT))
                     .findFirst()
                     .orElse(null);
 
@@ -75,6 +75,6 @@ public class IntegrationRetryerLogger implements Retryer {
 
     @Override
     public Retryer clone() {
-        return new IntegrationRetryerLogger(basePeriod, maxPeriod, maxAttempts, logOn, interceptors);
+        return new IntegrationLoggerRetry(basePeriod, maxPeriod, maxAttempts, logOn, interceptors);
     }
 }

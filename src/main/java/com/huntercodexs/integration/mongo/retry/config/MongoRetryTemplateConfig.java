@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.retry.mongo.config;
+package com.huntercodexs.integration.mongo.retry.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,7 @@ import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
-import static com.huntercodexs.integration.constants.IntegrationConstants.MONGO_DB_RETRYER_APP_CONFIG;
+import static com.huntercodexs.integration.mongo.retry.constants.IntegrationMongoConstants.MONGO_DB_RETRYER_APP_CONFIG;
 
 @Configuration
 public class MongoRetryTemplateConfig {
