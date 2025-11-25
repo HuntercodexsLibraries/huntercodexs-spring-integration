@@ -16,6 +16,8 @@ public class IntegrationConstants {
     public static final String MONGO_DB_SPRING_APP_CONFIG = "spring.data.mongodb";
     public static final String MONGO_DB_RETRYER_APP_CONFIG = BASE_CONFIG + ".mongodb.retry";
     public static final String MONGO_DB_TIMEOUT_APP_CONFIG = BASE_CONFIG + ".mongodb.timeout";
+    public static final String KAFKA_SPRING_APP_CONFIG = "spring.kafka";
+    public static final String KAFKA_APP_CONFIG = BASE_CONFIG + ".kafka";
 
     public static final String COMPONENT_SCAN_BASE_PACKAGE = DOMAIN_PACKAGE +"."+ BASE_CONFIG;
     public static final String ENABLE_FEIGN_CLIENTS_BASE_PACKAGE_SPEL = "#{T("+COMPONENT_SCAN_BASE_PACKAGE+".core.resource.IntegrationPackageHolder).getBasePackages()}";

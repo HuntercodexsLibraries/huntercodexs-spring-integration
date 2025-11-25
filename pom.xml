@@ -113,6 +113,13 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
+        <!--Message Broker-->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+
         <!--OpenAPI/Swagger-->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>

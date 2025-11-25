@@ -6,6 +6,8 @@ import com.huntercodexs.integration.core.config.IntegrationClientInterceptorConf
 import com.huntercodexs.integration.core.logger.IntegrationHttpLogger;
 import com.huntercodexs.integration.core.resource.IntegrationImportSelector;
 import com.huntercodexs.integration.handler.GlobalExceptionHandler;
+import com.huntercodexs.integration.kafka.producer.KafkaIntegrationProducer;
+import com.huntercodexs.integration.kafka.config.KafkaIntegrationConfig;
 import com.huntercodexs.integration.retry.mongo.MongoRetry;
 import com.huntercodexs.integration.retry.mongo.config.MongoRetryTemplateConfig;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -26,6 +28,8 @@ import java.lang.annotation.*;
         , IntegrationClientInterceptorConfig.class
         , MongoRetryTemplateConfig.class
         , MongoRetry.class
+        , KafkaIntegrationConfig.class
+        , KafkaIntegrationProducer.class
 })
 public @interface EnableIntegration {
     String[] value();
