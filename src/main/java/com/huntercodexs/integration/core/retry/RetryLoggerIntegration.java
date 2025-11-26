@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.core.retry;
 
-import com.huntercodexs.integration.core.interfaces.IntegrationRetryInterceptor;
+import com.huntercodexs.integration.core.interfaces.RetryInterceptorIntegration;
 import com.huntercodexs.integration.handler.exception.IntegrationRetryAttemptsExceededException;
 import feign.RetryableException;
 import feign.Retryer;
@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT;
+import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT;
 
 @RequiredArgsConstructor
-public class IntegrationLoggerRetry implements Retryer {
+public class RetryLoggerIntegration implements Retryer {
 
-    private static final Logger log = LoggerFactory.getLogger(IntegrationLoggerRetry.class);
+    private static final Logger log = LoggerFactory.getLogger(RetryLoggerIntegration.class);
 
     private int attempt = 0;
     private long nextInterval = 1;
@@ -24,7 +24,7 @@ public class IntegrationLoggerRetry implements Retryer {
     private final long maxPeriod;
     private final int maxAttempts;
     private final boolean logOn;
-    private final List<IntegrationRetryInterceptor> interceptors;
+    private final List<RetryInterceptorIntegration> interceptors;
 
     @Override
     public void continueOrPropagate(RetryableException e) {
@@ -39,7 +39,7 @@ public class IntegrationLoggerRetry implements Retryer {
                     e.request().url(),
                     e.getMessage());
 
-            IntegrationRetryInterceptor retryInterceptor = interceptors.stream()
+            RetryInterceptorIntegration retryInterceptor = interceptors.stream()
                     .filter(r -> r.supports(CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT))
                     .findFirst()
                     .orElse(null);
@@ -75,6 +75,6 @@ public class IntegrationLoggerRetry implements Retryer {
 
     @Override
     public Retryer clone() {
-        return new IntegrationLoggerRetry(basePeriod, maxPeriod, maxAttempts, logOn, interceptors);
+        return new RetryLoggerIntegration(basePeriod, maxPeriod, maxAttempts, logOn, interceptors);
     }
 }

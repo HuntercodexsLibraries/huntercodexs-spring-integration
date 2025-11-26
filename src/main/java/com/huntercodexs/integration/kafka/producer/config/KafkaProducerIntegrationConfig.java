@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class KafkaProducerIntegrationConfig extends KafkaProducerCommonConfig {
+public class KafkaProducerIntegrationConfig extends KafkaProducerCommonIntegrationConfig {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaProducerIntegrationConfig.class);
 

@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitConstants.*;
-import static com.huntercodexs.integration.redis.constants.IntegrationRedisConstants.REDIS_APP_CONFIG;
+import static com.huntercodexs.integration.ratelimit.constants.RateLimitIntegrationConstants.*;
+import static com.huntercodexs.integration.redis.constants.RedisIntegrationConstants.REDIS_APP_CONFIG;
 
 @Aspect
 @Component

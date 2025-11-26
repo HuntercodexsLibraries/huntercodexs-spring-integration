@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.handler.enumerator;
 
-public enum IntegrationGlobalEnum {
+public enum GlobalEnumIntegration {
     CUSTOM_EXCEPTION_INTERCEPTOR,
     METHOD_ARGUMENT_VALIDATION_EXCEPTION_INTERCEPTOR_400,
     HTTP_MESSAGE_NOT_READABLE_EXCEPTION_INTERCEPTOR_400,

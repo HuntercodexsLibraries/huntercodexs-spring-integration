@@ -1,12 +1,12 @@
 package com.huntercodexs.integration.core.interfaces;
 
-import com.huntercodexs.integration.handler.enumerator.IntegrationGlobalEnum;
+import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
 
 import java.util.List;
 
-public interface IntegrationGlobalExceptionInterceptor {
+public interface GlobalExceptionInterceptorIntegration {
 
-    boolean supports(IntegrationGlobalEnum value);
+    boolean supports(GlobalEnumIntegration value);
     String message();
     String trackerId();
     String code();

@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @Component
-public class IntegrationErrorDecoder implements ErrorDecoder {
+public class ErrorDecoderIntegration implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {

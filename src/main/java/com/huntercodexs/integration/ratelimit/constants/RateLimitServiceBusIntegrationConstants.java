@@ -2,7 +2,7 @@ package com.huntercodexs.integration.ratelimit.constants;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
-public class IntegrationRateLimitServiceBusConstants {
+public class RateLimitServiceBusIntegrationConstants {
 
     public static final    int RATE_LIMIT_SERVICE_BUS_LIMIT_DEFAULT = 100;
     public static final    int RATE_LIMIT_SERVICE_BUS_DURATION_DEFAULT = 10;

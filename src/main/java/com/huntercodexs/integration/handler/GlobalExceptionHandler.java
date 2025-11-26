@@ -1,7 +1,7 @@
 package com.huntercodexs.integration.handler;
 
-import com.huntercodexs.integration.core.interfaces.IntegrationGlobalExceptionInterceptor;
-import com.huntercodexs.integration.handler.enumerator.IntegrationGlobalEnum;
+import com.huntercodexs.integration.core.interfaces.GlobalExceptionInterceptorIntegration;
+import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
 import com.huntercodexs.integration.handler.exception.IntegrationRetryAttemptsExceededException;
 import com.huntercodexs.integration.handler.exception.RateLimitExceededException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.huntercodexs.integration.handler.enumerator.IntegrationGlobalEnum.*;
+import static com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration.*;
 import static java.util.Objects.isNull;
 
 @ControllerAdvice
@@ -45,9 +45,9 @@ public class GlobalExceptionHandler {
     private String code = null;
     private List<String> errors = new ArrayList<>();
 
-    private final List<IntegrationGlobalExceptionInterceptor> interceptors;
+    private final List<GlobalExceptionInterceptorIntegration> interceptors;
 
-    public GlobalExceptionHandler(List<IntegrationGlobalExceptionInterceptor> interceptors) {
+    public GlobalExceptionHandler(List<GlobalExceptionInterceptorIntegration> interceptors) {
         this.interceptors = interceptors;
     }
 
@@ -252,8 +252,8 @@ public class GlobalExceptionHandler {
                 List.of(ex.getClass().getSimpleName(), ex.getMessage()));
     }
 
-    private boolean getInterceptor(IntegrationGlobalEnum interceptorEnum, Exception ex) {
-        IntegrationGlobalExceptionInterceptor interceptor = interceptors.stream()
+    private boolean getInterceptor(GlobalEnumIntegration interceptorEnum, Exception ex) {
+        GlobalExceptionInterceptorIntegration interceptor = interceptors.stream()
                 .filter(r -> r.supports(interceptorEnum))
                 .findFirst()
                 .orElse(null);

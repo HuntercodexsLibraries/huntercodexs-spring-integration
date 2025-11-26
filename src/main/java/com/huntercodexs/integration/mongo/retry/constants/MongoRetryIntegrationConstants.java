@@ -2,7 +2,7 @@ package com.huntercodexs.integration.mongo.retry.constants;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
-public class IntegrationMongoConstants {
+public class MongoRetryIntegrationConstants {
 
     public static final String MONGO_DB_SPRING_APP_CONFIG = "spring.data.mongodb";
     public static final String MONGO_DB_RETRYER_APP_CONFIG = GLOBAL_BASE_CONFIG + ".mongodb.retry";

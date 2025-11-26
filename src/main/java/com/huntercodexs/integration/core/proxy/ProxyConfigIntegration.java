@@ -8,15 +8,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_LOGGING_APP_CONFIG;
-import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_PROXY_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_LOGGING_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_PROXY_APP_CONFIG;
 
 @Configuration
 @Profile({"local", "dev", "default"})
-public class IntegrationProxyConfig {
+public class ProxyConfigIntegration {
 
     @Generated
-    private static final Logger log = LoggerFactory.getLogger(IntegrationProxyConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(ProxyConfigIntegration.class);
 
     @Value("${"+ CORE_LOGGING_APP_CONFIG +".enabled:false}")
     private boolean enableLogging;

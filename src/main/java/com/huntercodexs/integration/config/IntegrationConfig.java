@@ -7,5 +7,5 @@ import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL
 
 @Configuration
 @ComponentScan(basePackages = GLOBAL_COMPONENT_SCAN_BASE_PACKAGE)
-public class IntegrationGlobalConfig {
+public class IntegrationConfig {
 }

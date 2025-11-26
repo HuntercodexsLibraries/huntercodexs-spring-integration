@@ -3,8 +3,8 @@ package com.huntercodexs.integration.ratelimit.annotation;
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitConstants.RATE_LIMIT_DURATION_DEFAULT;
-import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitConstants.RATE_LIMIT_LIMIT_DEFAULT;
+import static com.huntercodexs.integration.ratelimit.constants.RateLimitIntegrationConstants.RATE_LIMIT_DURATION_DEFAULT;
+import static com.huntercodexs.integration.ratelimit.constants.RateLimitIntegrationConstants.RATE_LIMIT_LIMIT_DEFAULT;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

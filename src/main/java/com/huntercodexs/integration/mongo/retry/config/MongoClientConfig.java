@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.mongo.retry.constants.IntegrationMongoConstants.MONGO_DB_SPRING_APP_CONFIG;
-import static com.huntercodexs.integration.mongo.retry.constants.IntegrationMongoConstants.MONGO_DB_TIMEOUT_APP_CONFIG;
+import static com.huntercodexs.integration.mongo.retry.constants.MongoRetryIntegrationConstants.MONGO_DB_SPRING_APP_CONFIG;
+import static com.huntercodexs.integration.mongo.retry.constants.MongoRetryIntegrationConstants.MONGO_DB_TIMEOUT_APP_CONFIG;
 
 @Configuration
 public class MongoClientConfig {

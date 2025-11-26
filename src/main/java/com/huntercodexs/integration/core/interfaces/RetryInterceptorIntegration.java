@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.core.interfaces;
 
-public interface IntegrationRetryInterceptor {
+public interface RetryInterceptorIntegration {
 
     boolean supports(Object value);
     void execute();

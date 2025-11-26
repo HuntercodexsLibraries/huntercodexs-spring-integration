@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitServiceBusConstants.*;
+import static com.huntercodexs.integration.ratelimit.constants.RateLimitServiceBusIntegrationConstants.*;
 
 @Component
 public class RateLimitServiceBusActionDefaultImpl implements RateLimitServiceBusAction {

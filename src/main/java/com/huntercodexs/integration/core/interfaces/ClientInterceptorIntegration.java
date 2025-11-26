@@ -2,7 +2,7 @@ package com.huntercodexs.integration.core.interfaces;
 
 import java.util.Map;
 
-public interface IntegrationClientInterceptor {
+public interface ClientInterceptorIntegration {
 
     boolean checkSupport(Object value);
     String getClientToken();

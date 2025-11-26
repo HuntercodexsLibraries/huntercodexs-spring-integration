@@ -3,7 +3,7 @@ package com.huntercodexs.integration.ratelimit.annotation;
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.huntercodexs.integration.ratelimit.constants.IntegrationRateLimitServiceBusConstants.*;
+import static com.huntercodexs.integration.ratelimit.constants.RateLimitServiceBusIntegrationConstants.*;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

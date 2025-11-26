@@ -13,12 +13,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_LOGGING_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_LOGGING_APP_CONFIG;
 
 @Configuration
-public class IntegrationHttpLogger extends Logger {
+public class HttpLoggerIntegration extends Logger {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IntegrationHttpLogger.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(HttpLoggerIntegration.class);
 
     @Value("${"+ CORE_LOGGING_APP_CONFIG +".enabled:false}")
     private boolean logOn;

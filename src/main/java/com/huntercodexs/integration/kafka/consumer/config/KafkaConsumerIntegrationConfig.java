@@ -21,7 +21,7 @@ import java.util.Map;
 import static org.springframework.kafka.listener.ContainerProperties.AckMode.MANUAL;
 
 @Configuration
-public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonConfig {
+public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonIntegrationConfig {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaConsumerIntegrationConfig.class);
 
@@ -29,7 +29,7 @@ public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonConfig {
     private KafkaConsumerIntegrationFilter<String, String> filter;
 
     @PostConstruct
-    public void kafkaInicializado() {
+    public void kafkaConsumerStarted() {
         if (!kafkaConsumerEnabled) {
             log.warn("Kafka integration is disabled. Consumers will not be initialized.");
             return;

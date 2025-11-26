@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.core.config;
 
-import com.huntercodexs.integration.core.interfaces.IntegrationClientInterceptor;
+import com.huntercodexs.integration.core.interfaces.ClientInterceptorIntegration;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
@@ -12,15 +12,15 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-import static com.huntercodexs.integration.core.constants.IntegrationCoreConstants.CORE_LOGGING_APP_CONFIG;
+import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_LOGGING_APP_CONFIG;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
 @RequiredArgsConstructor
-public class IntegrationClientInterceptorConfig implements RequestInterceptor {
+public class ClientInterceptorConfigIntegration implements RequestInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(IntegrationClientInterceptorConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(ClientInterceptorConfigIntegration.class);
 
     @Value("${"+ CORE_LOGGING_APP_CONFIG +".enabled:false}")
     private boolean logOn;
@@ -30,7 +30,7 @@ public class IntegrationClientInterceptorConfig implements RequestInterceptor {
     private static final String APPLICATION_JSON = "application/json";
 
     private String interceptor;
-    private final List<IntegrationClientInterceptor> interceptors;
+    private final List<ClientInterceptorIntegration> interceptors;
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
@@ -48,7 +48,7 @@ public class IntegrationClientInterceptorConfig implements RequestInterceptor {
     private void retrieveClientToken(RequestTemplate requestTemplate) {
         requestTemplate.header(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 
-        IntegrationClientInterceptor strategy = interceptors.stream()
+        ClientInterceptorIntegration strategy = interceptors.stream()
                 .filter(interceptor -> interceptor.checkSupport(this.interceptor))
                 .findFirst()
                 .orElse(null);
