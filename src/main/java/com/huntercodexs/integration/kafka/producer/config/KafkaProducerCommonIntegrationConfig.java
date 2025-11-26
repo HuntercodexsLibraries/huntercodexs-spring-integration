@@ -11,8 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.huntercodexs.integration.kafka.producer.constants.KafkaProducerIntegrationConstants.KAFKA_PRODUCER_APP_CONFIG;
-import static com.huntercodexs.integration.kafka.producer.constants.KafkaProducerIntegrationConstants.KAFKA_PRODUCER_SPRING_APP_CONFIG;
+import static com.huntercodexs.integration.kafka.producer.constants.KafkaProducerIntegrationConstants.*;
 
 @Configuration
 public abstract class KafkaProducerCommonIntegrationConfig {
@@ -55,10 +54,10 @@ public abstract class KafkaProducerCommonIntegrationConfig {
     protected Map<String, Object> commonKafkaProps() {
         Map<String, Object> props = new HashMap<>();
 
-        String protocol = securityProtocol == null ? "SASL_PLAINTEXT" : securityProtocol.trim().toUpperCase();
+        String protocol = securityProtocol == null ? SASL_PLAINTEXT_PROTOCOL : securityProtocol.trim().toUpperCase();
 
-        if (!protocol.equals("SASL_PLAINTEXT") && !protocol.equals("SASL_SSL")) {
-            protocol = "SASL_PLAINTEXT";
+        if (!protocol.equals(SASL_PLAINTEXT_PROTOCOL) && !protocol.equals(SASL_SSL_PROTOCOL) && !protocol.equals(PLAINTEXT_PROTOCOL) && !protocol.equals(SSL_PROTOCOL)) {
+            protocol = SASL_PLAINTEXT_PROTOCOL;
             log.warn("Invalid protocol configured. Defaulting to SASL_PLAINTEXT.");
         }
 
@@ -69,7 +68,7 @@ public abstract class KafkaProducerCommonIntegrationConfig {
                 String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username='%s' password='%s';",
                         clusterApiKeyProducer, clusterApiSecretProducer));
 
-        if ("SASL_SSL".equals(protocol)) {
+        if (SASL_SSL_PROTOCOL.equals(protocol)) {
             if (!truststoreLocation.isBlank() && !truststorePassword.isBlank()) {
                 props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, truststoreLocation);
                 props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword);

@@ -11,8 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.huntercodexs.integration.kafka.consumer.constants.KafkaConsumerIntegrationConstants.KAFKA_CONSUMER_APP_CONFIG;
-import static com.huntercodexs.integration.kafka.consumer.constants.KafkaConsumerIntegrationConstants.KAFKA_CONSUMER_SPRING_APP_CONFIG;
+import static com.huntercodexs.integration.kafka.consumer.constants.KafkaConsumerIntegrationConstants.*;
 
 @Configuration
 public abstract class KafkaConsumerCommonIntegrationConfig {
@@ -52,7 +51,7 @@ public abstract class KafkaConsumerCommonIntegrationConfig {
     @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".bootstrap-servers}")
     protected String bootstrapConsumerServer;
 
-    @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".group-id}")
+    @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".group-id:"+GROUP_ID_DEFAULT+"}")
     protected String groupId;
 
     @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".max-poll-interval-ms:600000}")
@@ -61,13 +60,16 @@ public abstract class KafkaConsumerCommonIntegrationConfig {
     @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".max-poll-records:120}")
     protected String maxPollRecords;
 
+    @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".auto-offset-reset:earliest}")
+    protected String offsetResetType;
+
     protected Map<String, Object> commonKafkaProps() {
         Map<String, Object> props = new HashMap<>();
 
-        String protocol = securityProtocol == null ? "SASL_PLAINTEXT" : securityProtocol.trim().toUpperCase();
+        String protocol = securityProtocol == null ? SASL_PLAINTEXT_PROTOCOL : securityProtocol.trim().toUpperCase();
 
-        if (!protocol.equals("SASL_PLAINTEXT") && !protocol.equals("SASL_SSL")) {
-            protocol = "SASL_PLAINTEXT";
+        if (!protocol.equals(SASL_PLAINTEXT_PROTOCOL) && !protocol.equals(SASL_SSL_PROTOCOL) && !protocol.equals(PLAINTEXT_PROTOCOL) && !protocol.equals(SSL_PROTOCOL)) {
+            protocol = SASL_PLAINTEXT_PROTOCOL;
             log.warn("Invalid protocol configured. Defaulting to SASL_PLAINTEXT.");
         }
 
@@ -78,7 +80,7 @@ public abstract class KafkaConsumerCommonIntegrationConfig {
                 String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username='%s' password='%s';",
                         clusterApiKeyConsumer, clusterApiSecretConsumer));
 
-        if ("SASL_SSL".equals(protocol)) {
+        if (SASL_SSL_PROTOCOL.equals(protocol)) {
             if (!truststoreLocation.isBlank() && !truststorePassword.isBlank()) {
                 props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, truststoreLocation);
                 props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword);

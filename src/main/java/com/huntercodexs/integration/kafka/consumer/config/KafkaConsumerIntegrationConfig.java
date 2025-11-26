@@ -52,6 +52,7 @@ public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonIntegrati
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
             props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalMs);
             props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
+            props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offsetResetType);
             return new DefaultKafkaConsumerFactory<>(props);
         } catch (Exception ex) {
             log.error("Error creating Kafka ConsumerFactory: {}", ex.getMessage(), ex);

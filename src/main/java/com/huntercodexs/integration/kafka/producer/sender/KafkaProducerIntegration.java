@@ -16,8 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static com.huntercodexs.integration.kafka.producer.constants.KafkaProducerIntegrationConstants.KAFKA_PRODUCER_APP_CONFIG;
-import static com.huntercodexs.integration.kafka.producer.constants.KafkaProducerIntegrationConstants.KAFKA_PRODUCER_SPRING_APP_CONFIG;
+import static com.huntercodexs.integration.kafka.producer.constants.KafkaProducerIntegrationConstants.*;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +27,7 @@ public class KafkaProducerIntegration {
     @Value("${"+ KAFKA_PRODUCER_APP_CONFIG +".enabled}")
     private boolean kafkaEnabled;
 
-    @Value("${"+ KAFKA_PRODUCER_SPRING_APP_CONFIG +".cluster-topic-name}")
+    @Value("${"+ KAFKA_PRODUCER_SPRING_APP_CONFIG +".cluster-topic-name:"+TOPIC_DEFAULT+"}")
     private String topicName;
 
     private final @Nullable KafkaTemplate<String, String> kafkaTemplate;
