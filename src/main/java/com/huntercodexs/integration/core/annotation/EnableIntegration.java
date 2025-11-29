@@ -14,14 +14,12 @@ import com.huntercodexs.integration.mongo.retry.MongoRetry;
 import com.huntercodexs.integration.mongo.retry.config.MongoRetryTemplateConfig;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
-import org.springframework.kafka.annotation.EnableKafka;
 
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 @Documented
-@EnableKafka
 @EnableFeignClients
 @Import({
         ClientConfigIntegration.class

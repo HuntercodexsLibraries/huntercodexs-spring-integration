@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
@@ -20,6 +22,7 @@ import java.util.Map;
 
 import static org.springframework.kafka.listener.ContainerProperties.AckMode.MANUAL;
 
+@EnableKafka
 @Configuration
 public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonIntegrationConfig {
 
@@ -69,8 +72,8 @@ public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonIntegrati
 
         try {
             ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-            factory.setAckDiscarded(true);
-            factory.getContainerProperties().setAckMode(MANUAL);
+            factory.setAckDiscarded(discardAckMode);
+            factory.getContainerProperties().setAckMode(ackMode(ackMode));
             factory.setConsumerFactory(consumerFactory());
             factory.setRecordFilterStrategy(filter);
 
@@ -87,5 +90,24 @@ public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonIntegrati
     @Bean
     public TaskScheduler taskScheduler() {
         return new ThreadPoolTaskScheduler();
+    }
+
+    private ContainerProperties.AckMode ackMode(String mode) {
+        if (mode == null || mode.isBlank() || mode.equalsIgnoreCase("MANUAL")) {
+            return MANUAL;
+        } else if (mode.equalsIgnoreCase("RECORD")) {
+            return ContainerProperties.AckMode.RECORD;
+        } else if (mode.equalsIgnoreCase("BATCH")) {
+            return ContainerProperties.AckMode.BATCH;
+        } else if (mode.equalsIgnoreCase("TIME")) {
+            return ContainerProperties.AckMode.TIME;
+        } else if (mode.equalsIgnoreCase("COUNT")) {
+            return ContainerProperties.AckMode.COUNT;
+        } else if (mode.equalsIgnoreCase("COUNT_TIME")) {
+            return ContainerProperties.AckMode.COUNT_TIME;
+        } else {
+            log.warn("Invalid ack mode configured: {}. Defaulting to MANUAL.", mode);
+            return MANUAL;
+        }
     }
 }

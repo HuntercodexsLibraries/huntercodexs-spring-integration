@@ -63,6 +63,12 @@ public abstract class KafkaConsumerCommonIntegrationConfig {
     @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".auto-offset-reset:earliest}")
     protected String offsetResetType;
 
+    @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".message-discard:true}")
+    protected boolean discardAckMode;
+
+    @Value("${"+KAFKA_CONSUMER_SPRING_APP_CONFIG+".ack-mode:MANUAL}")
+    protected String ackMode;
+
     protected Map<String, Object> commonKafkaProps() {
         Map<String, Object> props = new HashMap<>();
 

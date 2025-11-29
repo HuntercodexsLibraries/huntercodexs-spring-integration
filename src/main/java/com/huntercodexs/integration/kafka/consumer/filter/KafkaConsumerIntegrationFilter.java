@@ -29,10 +29,15 @@ public class KafkaConsumerIntegrationFilter<K, V> implements RecordFilterStrateg
 
         log.info("Filtering record with key: {}, partition: {}, offset: {}", key, partition, offset);
 
-        return consumers.stream()
+        KafkaConsumerIntegrationProcess strategy = consumers.stream()
                 .filter(c -> c.supports(headers, value, key, partition, offset))
                 .findFirst()
-                .map(c -> c.discard(headers, value, key, partition, offset))
-                .orElse(false);
+                .orElse(null);
+
+        if (strategy == null) return true;
+
+        log.info("Using strategy: {} for record with key: {}, partition: {}, offset: {}", strategy.getClass().getSimpleName(), key, partition, offset);
+
+        return strategy.discard(headers, value, key, partition, offset);
     }
 }
