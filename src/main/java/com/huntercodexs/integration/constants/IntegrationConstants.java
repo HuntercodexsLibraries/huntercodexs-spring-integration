@@ -1,5 +1,6 @@
 package com.huntercodexs.integration.constants;
 
+@SuppressWarnings("java:S1118")
 public class IntegrationConstants {
 
     public static final String GLOBAL_DOMAIN_PACKAGE = "com";
