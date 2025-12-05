@@ -37,30 +37,37 @@ public class ServiceBusIntegrationProducer {
     }
 
     @SneakyThrows
-    public void send(Map<String, String> headers, long attempts, Object message, Class<?> clazz) {
+    public boolean send(Map<String, String> headers, long attempts, Object message, Class<?> clazz) {
 
-        final Object payload = (clazz != null) ? objectMapper.convertValue(message, clazz) : message;
-        final String mensagem = objectMapper.writeValueAsString(payload);
-        final ServiceBusMessage serviceBusMensagem = new ServiceBusMessage(mensagem);
+        try {
+            final Object payload = (clazz != null) ? objectMapper.convertValue(message, clazz) : message;
+            final String mensagem = objectMapper.writeValueAsString(payload);
+            final ServiceBusMessage serviceBusMensagem = new ServiceBusMessage(mensagem);
 
-        OffsetDateTime time;
-        serviceBusMensagem.getApplicationProperties().put("attempts", attempts);
+            OffsetDateTime time;
+            serviceBusMensagem.getApplicationProperties().put("attempts", attempts);
 
-        if (headers != null) {
-            headers.forEach(serviceBusMensagem.getApplicationProperties()::put);
+            if (headers != null) {
+                headers.forEach(serviceBusMensagem.getApplicationProperties()::put);
+            }
+
+            if (delaySeconds != null && !delaySeconds.isEmpty()) {
+                time = OffsetDateTime.now().plusSeconds(Long.parseLong(delaySeconds));
+                serviceBusMensagem.setScheduledEnqueueTime(time);
+            } else if (delayMinutes != null && !delayMinutes.isEmpty()) {
+                time = OffsetDateTime.now().plusMinutes(Long.parseLong(delayMinutes));
+                serviceBusMensagem.setScheduledEnqueueTime(time);
+            }
+
+            log.info("Sending message to queue");
+            serviceBusSenderClient.sendMessage(serviceBusMensagem);
+            log.info("Message sent successfully to queue");
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("Error sending message to queue: {}", e.getMessage(), e);
+            return false;
         }
-
-        if (delaySeconds != null && !delaySeconds.isEmpty()) {
-            time = OffsetDateTime.now().plusSeconds(Long.parseLong(delaySeconds));
-            serviceBusMensagem.setScheduledEnqueueTime(time);
-        } else if (delayMinutes != null && !delayMinutes.isEmpty()) {
-            time = OffsetDateTime.now().plusMinutes(Long.parseLong(delayMinutes));
-            serviceBusMensagem.setScheduledEnqueueTime(time);
-        }
-
-        log.info("Sending message to queue");
-        serviceBusSenderClient.sendMessage(serviceBusMensagem);
-        log.info("Message sent successfully to queue");
-
     }
 }

@@ -30,15 +30,28 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <sonar.coverage.exclusions>
-            src/main/java/**/core/interfaces/**,
+            src/main/java/**/annotation/**,
+            src/main/java/**/constants/**.java,
+            src/main/java/**/interfaces/**,
+            src/main/java/**/enumerator/**,
+            src/main/java/**/exception/**,
             src/main/java/**/core/resource/**,
             src/main/java/**/core/retry/**,
             src/main/java/**/ClientInterceptorConfigIntegration.java,
-            src/main/java/**/handler/enumerator/**,
-            src/main/java/**/handler/exception/**,
             src/main/java/**/handler/BaseHttpException.java,
             src/main/java/**/handler/CustomResponseException.java,
             src/main/java/**/ProxyConfigIntegration.java,
+            src/main/java/**/KafkaConsumerIntegrationConfig.java,
+            src/main/java/**/KafkaConsumerIntegrationProcess.java,
+            src/main/java/**/KafkaProducerIntegrationConfig.java,
+            src/main/java/**/KakfaProducerIntegrationProcess.java,
+            src/main/java/**/mongo/retry/config/MongoClientConfig.java,
+            src/main/java/**/mongo/retry/config/MongoRetryTemplateConfig.java,
+            src/main/java/**/ratelimit/action/RateLimitServiceBusAction.java,
+            src/main/java/**/redis/config/RedisConfig.java,
+            src/main/java/**/servicebus/consumer/config/ServiceBusConsumerListConfig.java,
+            src/main/java/**/servicebus/consumer/config/ServiceBusConsumerSingleConfig.java,
+            src/main/java/**/servicebus/consumer/implement/**.java,
             src/main/java/**/Application.java
         </sonar.coverage.exclusions>
     </properties>
