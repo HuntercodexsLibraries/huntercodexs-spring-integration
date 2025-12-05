@@ -2,6 +2,7 @@ package com.huntercodexs.integration.ratelimit.constants;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
+@SuppressWarnings("java:S1118")
 public class RateLimitIntegrationConstants {
 
     public static final    int RATE_LIMIT_LIMIT_DEFAULT = 100;

@@ -50,7 +50,7 @@ public class HttpLoggerIntegration extends Logger {
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(
-                        Map.Entry::getKey, (entry) -> String.join(",", entry.getValue())));
+                        Map.Entry::getKey, entry -> String.join(",", entry.getValue())));
 
         int status = response.status();
         String responseString = "";

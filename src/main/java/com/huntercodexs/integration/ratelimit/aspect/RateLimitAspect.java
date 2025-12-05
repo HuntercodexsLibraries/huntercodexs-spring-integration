@@ -26,6 +26,7 @@ import static com.huntercodexs.integration.redis.constants.RedisIntegrationConst
 @Aspect
 @Component
 @RequiredArgsConstructor
+@SuppressWarnings("java:S3776")
 public class RateLimitAspect {
 
     @Value("${"+REDIS_APP_CONFIG+".enabled:true}")
@@ -72,7 +73,7 @@ public class RateLimitAspect {
 
         // Redis Key Construction
         // Format: ratelimit:<IP_CLIENT>:<METHOD_NAME>
-        String redisKey = String.format(customPrefix+":%s:%s", ipAddress, method.getName());
+        String redisKey = String.format("%s:%s:%s", customPrefix, ipAddress, method.getName());
 
         // Redis Operations
         Long currentCount = redisTemplate.opsForValue().increment(redisKey);
@@ -94,22 +95,21 @@ public class RateLimitAspect {
 
         if (!unit.equals(TimeUnit.SECONDS)) { // DEFAULT IS SECONDS
 
-            if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_SECONDS)) {
-                if (currentCount == 1) {
-                    unit = TimeUnit.SECONDS;
-                    redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
-                }
-            } else if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_MINUTES)) {
-                if (currentCount == 1) {
-                    unit = TimeUnit.MINUTES;
-                    redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
-                }
-            } else if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_HOURS)) {
-                if (currentCount == 1) {
-                    unit = TimeUnit.HOURS;
-                    redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
-                }
+            if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_SECONDS) && currentCount == 1) {
+
+                unit = TimeUnit.SECONDS;
+                redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
+
+            } else if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_MINUTES) && currentCount == 1) {
+
+                unit = TimeUnit.MINUTES;
+                redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
+
+            } else if (overrideUnit.equalsIgnoreCase(RATE_LIMIT_TIME_UNIT_HOURS) && currentCount == 1) {
+                unit = TimeUnit.HOURS;
+                redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
             }
+
         } else {
             if (currentCount == 1) {
                 redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));

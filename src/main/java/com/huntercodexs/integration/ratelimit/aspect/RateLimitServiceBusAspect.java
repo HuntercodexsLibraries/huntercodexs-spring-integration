@@ -114,22 +114,23 @@ public class RateLimitServiceBusAspect {
 
         if (!unit.equals(TimeUnit.SECONDS)) { // DEFAULT IS SECONDS
 
-            if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_SECONDS)) {
-                if (currentCount == 1) {
-                    unit = TimeUnit.SECONDS;
-                    redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
-                }
-            } else if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_MINUTES)) {
-                if (currentCount == 1) {
-                    unit = TimeUnit.MINUTES;
-                    redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
-                }
-            } else if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_HOURS)) {
-                if (currentCount == 1) {
-                    unit = TimeUnit.HOURS;
-                    redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
-                }
+            if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_SECONDS) && currentCount == 1) {
+
+                unit = TimeUnit.SECONDS;
+                redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));
+
+            } else if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_MINUTES) && currentCount == 1) {
+
+                unit = TimeUnit.MINUTES;
+                redisTemplate.expire(redisKey, Duration.ofMinutes(TimeUnit.MINUTES.convert(duration, unit)));
+
+            } else if (customUnit.equalsIgnoreCase(RATE_LIMIT_SERVICE_BUS_TIME_UNIT_HOURS) && currentCount == 1) {
+
+                unit = TimeUnit.HOURS;
+                redisTemplate.expire(redisKey, Duration.ofHours(TimeUnit.HOURS.convert(duration, unit)));
+
             }
+
         } else {
             if (currentCount == 1) {
                 redisTemplate.expire(redisKey, Duration.ofSeconds(TimeUnit.SECONDS.convert(duration, unit)));

@@ -12,7 +12,7 @@ import static java.util.Objects.isNull;
 
 @Setter
 @Getter
-public class CustomResponseException {
+public class CustomResponseExceptionHandler {
 
     private String message;
     private LocalDateTime timestamp = LocalDateTime.now();
@@ -26,7 +26,7 @@ public class CustomResponseException {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> errors;
 
-    public CustomResponseException(String message, String code, String tracker, List<String> errors) {
+    public CustomResponseExceptionHandler(String message, String code, String tracker, List<String> errors) {
         this.message = message;
         this.tracker = tracker;
 

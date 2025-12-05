@@ -151,7 +151,8 @@ class KafkaProducerIntegrationTest {
         when(kafkaTemplate.send(any(ProducerRecord.class))).thenReturn(future);
 
         // Não deve lançar exceção para fora (tratada internamente)
-        subject.send("msg", "p", null);
+        assertDoesNotThrow(() -> subject.send("msg", "p", null));
+        verify(kafkaTemplate).send(any(ProducerRecord.class));
     }
 
     private static SendResult<String, String> mockSendResult(long offset, int partition) {

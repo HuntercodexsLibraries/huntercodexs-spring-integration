@@ -6,7 +6,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -24,12 +23,10 @@ import static org.springframework.kafka.listener.ContainerProperties.AckMode.MAN
 
 @EnableKafka
 @Configuration
+@SuppressWarnings("java:S2139")
 public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonIntegrationConfig {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaConsumerIntegrationConfig.class);
-
-    @Autowired
-    private KafkaConsumerIntegrationFilter<String, String> filter;
 
     @PostConstruct
     public void kafkaConsumerStarted() {
@@ -64,7 +61,9 @@ public class KafkaConsumerIntegrationConfig extends KafkaConsumerCommonIntegrati
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
+            KafkaConsumerIntegrationFilter<String, String> filter
+    ) {
         if (!kafkaConsumerEnabled) {
             log.warn("Kafka integration is disabled. KafkaListenerContainerFactory for consumer will not be created.");
             return null;

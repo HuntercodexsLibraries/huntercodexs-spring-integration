@@ -12,6 +12,7 @@ import java.beans.PropertyDescriptor;
 import java.util.HashSet;
 import java.util.Set;
 
+@SuppressWarnings("java:S119")
 @Component
 public class MongoRetry {
 

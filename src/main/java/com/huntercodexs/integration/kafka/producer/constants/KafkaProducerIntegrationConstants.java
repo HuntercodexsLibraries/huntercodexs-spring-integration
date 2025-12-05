@@ -2,6 +2,7 @@ package com.huntercodexs.integration.kafka.producer.constants;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
+@SuppressWarnings("java:S1118")
 public class KafkaProducerIntegrationConstants {
 
     public static final String KAFKA_PRODUCER_APP_CONFIG = GLOBAL_BASE_CONFIG + ".kafka.producer";

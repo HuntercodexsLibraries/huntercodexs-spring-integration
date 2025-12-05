@@ -2,6 +2,7 @@ package com.huntercodexs.integration.core.retry;
 
 import com.huntercodexs.integration.core.interfaces.RetryInterceptorIntegration;
 import com.huntercodexs.integration.handler.exception.IntegrationRetryAttemptsExceededException;
+import feign.Request;
 import feign.RetryableException;
 import feign.Retryer;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 
 import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT;
 
+@SuppressWarnings({"java:S2975", "java:S1182", "java:S2629"})
 @RequiredArgsConstructor
 public class RetryLoggerIntegration implements Retryer {
 
@@ -33,10 +35,11 @@ public class RetryLoggerIntegration implements Retryer {
 
         if (attempt >= maxAttempts) {
 
+            Request request = e.request();
             log.warn("Limit of retries reached, (tries: {}) | method: {} | url: {} | message: {}",
                     attempt,
                     e.method(),
-                    e.request().url(),
+                    request.url(),
                     e.getMessage());
 
             RetryInterceptorIntegration retryInterceptor = interceptors.stream()
@@ -54,11 +57,12 @@ public class RetryLoggerIntegration implements Retryer {
         }
 
         if (logOn) {
+            Request request = e.request();
             log.info("Retrying request - {}/{} | method: {} | url: {} | message: {}",
                     attempt,
                     maxAttempts,
                     e.method(),
-                    e.request().url(),
+                    request.url(),
                     e.getMessage());
         }
 

@@ -65,7 +65,7 @@ public class ServiceBusConsumerListConfig {
                     .orElse(null);
 
             if (processor == null) {
-                log.warn("No specific processor found for queue '{}', using default processor.", queueName.trim());
+                log.warn("No specific processor found for queue '{}', using default processor.", queueName);
                 processor = serviceBusProcessorIntegrationDefault;
             }
 
@@ -91,7 +91,7 @@ public class ServiceBusConsumerListConfig {
             client.start();
             clients.add(client);
 
-            log.info("Service Bus Consumer for List started for queue: {}", queueName.trim());
+            log.info("Service Bus Consumer for List started for queue: {}", queueName);
         }
     }
 

@@ -39,7 +39,7 @@
             src/main/java/**/core/retry/**,
             src/main/java/**/ClientInterceptorConfigIntegration.java,
             src/main/java/**/handler/BaseHttpException.java,
-            src/main/java/**/handler/CustomResponseException.java,
+            src/main/java/**/handler/CustomResponseExceptionHandler.java,
             src/main/java/**/ProxyConfigIntegration.java,
             src/main/java/**/KafkaConsumerIntegrationConfig.java,
             src/main/java/**/KafkaConsumerIntegrationProcess.java,

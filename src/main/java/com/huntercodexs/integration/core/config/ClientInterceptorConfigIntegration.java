@@ -49,7 +49,7 @@ public class ClientInterceptorConfigIntegration implements RequestInterceptor {
         requestTemplate.header(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 
         ClientInterceptorIntegration strategy = interceptors.stream()
-                .filter(interceptor -> interceptor.checkSupport(this.interceptor))
+                .filter(obj -> obj.checkSupport(this.interceptor))
                 .findFirst()
                 .orElse(null);
 

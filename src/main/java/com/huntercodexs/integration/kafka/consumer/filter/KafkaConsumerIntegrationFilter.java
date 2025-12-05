@@ -20,12 +20,12 @@ public class KafkaConsumerIntegrationFilter<K, V> implements RecordFilterStrateg
     private final List<KafkaConsumerIntegrationProcess> consumers;
 
     @Override
-    public boolean filter(ConsumerRecord<K, V> record) {
-        Headers headers = record.headers();
-        V value = record.value();
-        K key = record.key();
-        int partition = record.partition();
-        long offset = record.offset();
+    public boolean filter(ConsumerRecord<K, V> consumerRecord) {
+        Headers headers = consumerRecord.headers();
+        V value = consumerRecord.value();
+        K key = consumerRecord.key();
+        int partition = consumerRecord.partition();
+        long offset = consumerRecord.offset();
 
         log.info("Filtering record with key: {}, partition: {}, offset: {}", key, partition, offset);
 

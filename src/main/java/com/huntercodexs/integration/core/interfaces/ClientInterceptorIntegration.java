@@ -1,5 +1,6 @@
 package com.huntercodexs.integration.core.interfaces;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public interface ClientInterceptorIntegration {
@@ -12,7 +13,7 @@ public interface ClientInterceptorIntegration {
     }
 
     default Map<String, String> getHeaders() {
-        return null;
+        return new HashMap<>();
     }
 
 }

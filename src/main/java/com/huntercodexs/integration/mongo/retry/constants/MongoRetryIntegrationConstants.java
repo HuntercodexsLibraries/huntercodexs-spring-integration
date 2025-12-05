@@ -2,6 +2,7 @@ package com.huntercodexs.integration.mongo.retry.constants;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
+@SuppressWarnings("java:S1118")
 public class MongoRetryIntegrationConstants {
 
     public static final String MONGO_DB_SPRING_APP_CONFIG = "spring.data.mongodb";

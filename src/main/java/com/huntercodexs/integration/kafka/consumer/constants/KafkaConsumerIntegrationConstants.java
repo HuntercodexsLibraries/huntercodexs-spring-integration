@@ -2,6 +2,7 @@ package com.huntercodexs.integration.kafka.consumer.constants;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
+@SuppressWarnings("java:S1118")
 public class KafkaConsumerIntegrationConstants {
 
     public static final String KAFKA_CONSUMER_APP_CONFIG = GLOBAL_BASE_CONFIG + ".kafka.consumer";

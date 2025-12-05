@@ -1,5 +1,6 @@
 package com.huntercodexs.integration.servicebus.constants;
 
+@SuppressWarnings("java:S1118")
 public class ServiceBusIntegrationConstants {
 
     public static final String SERVICEBUS_SPRING_CLOUD_APP_CONFIG = "spring.cloud.azure.servicebus";

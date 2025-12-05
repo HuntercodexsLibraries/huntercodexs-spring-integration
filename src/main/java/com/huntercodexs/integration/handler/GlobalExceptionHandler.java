@@ -40,10 +40,10 @@ public class GlobalExceptionHandler {
     @Generated
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private String message = null;
-    private String tracker = null;
-    private String code = null;
-    private List<String> errors = new ArrayList<>();
+    private String messageInterceptor = null;
+    private String trackerInterceptor = null;
+    private String codeInterceptor = null;
+    private List<String> errorsInterceptor = new ArrayList<>();
 
     private final List<GlobalExceptionInterceptorIntegration> interceptors;
 
@@ -52,17 +52,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BaseHttpException.class)
-    public ResponseEntity<CustomResponseException> handleHttpCustomException(BaseHttpException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleHttpCustomException(BaseHttpException ex) {
         if (getInterceptor(CUSTOM_EXCEPTION_INTERCEPTOR, ex)) {
-            return buildErrorResponse(this.message, ex.getStatus(), this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, ex.getStatus(), this.trackerInterceptor, this.errorsInterceptor);
         }
         return buildErrorResponse(ex.getMessage(), ex.getStatus(), ex.getTracker(), null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CustomResponseException> handleValidationMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleValidationMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         if (getInterceptor(METHOD_ARGUMENT_VALIDATION_EXCEPTION_INTERCEPTOR_400, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.BAD_REQUEST, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.BAD_REQUEST, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         List<String> errors = ex.getBindingResult()
@@ -75,17 +75,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<CustomResponseException> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         if (getInterceptor(HTTP_MESSAGE_NOT_READABLE_EXCEPTION_INTERCEPTOR_400, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.BAD_REQUEST, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.BAD_REQUEST, this.trackerInterceptor, this.errorsInterceptor);
         }
         return buildErrorResponse("Malformed JSON request", HttpStatus.BAD_REQUEST,  null,null);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<CustomResponseException> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
         if (getInterceptor(MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION_INTERCEPTOR_400, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.BAD_REQUEST, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.BAD_REQUEST, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         String message = String.format("Missing required parameter: %s", ex.getParameterName());
@@ -93,9 +93,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<CustomResponseException> handleConstraintViolationException(ConstraintViolationException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleConstraintViolationException(ConstraintViolationException ex) {
         if (getInterceptor(CONSTRAINT_VIOLATION_EXCEPTION_INTERCEPTOR_400, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.BAD_REQUEST, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.BAD_REQUEST, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         List<String> errors = new ArrayList<>(List.of(ex.getConstraintViolations().stream()
@@ -108,17 +108,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<CustomResponseException> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
         if (getInterceptor(HANDLER_METHOD_VALIDATION_EXCEPTION_INTERCEPTOR_400, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.BAD_REQUEST, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.BAD_REQUEST, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         List<String> errors = new ArrayList<>();
 
         ex.getAllValidationResults().forEach(result ->
-                result.getResolvableErrors().forEach(error -> {
-                    errors.add(extractTargetFromMessageError(error) +" "+ error.getDefaultMessage());
-                }));
+                result.getResolvableErrors().forEach(error ->
+                        errors.add(extractTargetFromMessageError(error) +" "+ error.getDefaultMessage())));
 
         errors.sort(Comparator.naturalOrder());
 
@@ -126,9 +125,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<CustomResponseException> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         if (getInterceptor(HTTP_REQUEST_METHOD_NOT_SUPPORTED_EXCEPTION_INTERCEPTOR_405, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.METHOD_NOT_ALLOWED, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.METHOD_NOT_ALLOWED, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         String message = String.format("HTTP method '%s' not supported for this endpoint", ex.getMethod());
@@ -136,9 +135,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<CustomResponseException> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException ex) {
         if (getInterceptor(HTTP_MEDIA_TYPE_NOT_SUPPORTED_EXCEPTION_INTERCEPTOR_415, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.UNSUPPORTED_MEDIA_TYPE, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.UNSUPPORTED_MEDIA_TYPE, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         String message = String.format("Media type '%s' is not supported", ex.getMessage());
@@ -146,9 +145,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CallNotPermittedException.class)
-    public ResponseEntity<CustomResponseException> handleCallNotPermittedException(CallNotPermittedException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleCallNotPermittedException(CallNotPermittedException ex) {
         if (getInterceptor(CIRCUIT_BREAKER_CALL_NOT_PERMITTED_EXCEPTION_INTERCEPTOR_503, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.SERVICE_UNAVAILABLE, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.SERVICE_UNAVAILABLE, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         String message = String.format("Service is not available '%s'", ex.getMessage());
@@ -156,9 +155,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RestClientException.class)
-    public ResponseEntity<CustomResponseException> handleRestClientException(RestClientException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleRestClientException(RestClientException ex) {
         if (getInterceptor(REST_CLIENT_EXCEPTION_INTERCEPTOR_502, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.BAD_GATEWAY, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.BAD_GATEWAY, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         log.error("External service communication failed", ex);
@@ -170,9 +169,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataAccessResourceFailureException.class)
-    public ResponseEntity<CustomResponseException> handleDataAccessResourceFailureException(DataAccessResourceFailureException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleDataAccessResourceFailureException(DataAccessResourceFailureException ex) {
         if (getInterceptor(DATA_ACCESS_RESOURCE_FAILURE_EXCEPTION_INTERCEPTOR_500, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.INTERNAL_SERVER_ERROR, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.INTERNAL_SERVER_ERROR, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         log.error("Communication with the database failed", ex);
@@ -184,9 +183,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RateLimitExceededException.class)
-    public ResponseEntity<CustomResponseException> handleRateLimitExceededException(RateLimitExceededException ex, WebRequest request) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleRateLimitExceededException(RateLimitExceededException ex, WebRequest request) {
         if (getInterceptor(RATE_LIMIT_EXCEEDED_EXCEPTION_INTERCEPTOR_429, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.TOO_MANY_REQUESTS, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.TOO_MANY_REQUESTS, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         log.error("Limit of requests exceeded. Please try again later.", ex);
@@ -198,9 +197,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IntegrationRetryAttemptsExceededException.class)
-    public ResponseEntity<CustomResponseException> handleIntegrationRetryAttemptsExceededException(IntegrationRetryAttemptsExceededException ex, WebRequest request) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleIntegrationRetryAttemptsExceededException(IntegrationRetryAttemptsExceededException ex, WebRequest request) {
         if (getInterceptor(INTEGRATION_RETRY_EXCEEDED_EXCEPTION_INTERCEPTOR_503, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.SERVICE_UNAVAILABLE, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.SERVICE_UNAVAILABLE, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         log.error("Limit of requests exceeded for Integration: {}", ex.getMessage());
@@ -212,9 +211,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<CustomResponseException> handleRuntimeException(RuntimeException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleRuntimeException(RuntimeException ex) {
         if (getInterceptor(RUNTIME_EXCEPTION_INTERCEPTOR_500, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.INTERNAL_SERVER_ERROR, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.INTERNAL_SERVER_ERROR, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         log.error("Unhandled runtime exception", ex);
@@ -227,9 +226,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<CustomResponseException> handleNullPointerException(NullPointerException ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleNullPointerException(NullPointerException ex) {
         if (getInterceptor(NULL_POINTER_EXCEPTION_INTERCEPTOR_5XX, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.INTERNAL_SERVER_ERROR, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.INTERNAL_SERVER_ERROR, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         return buildErrorResponse(
@@ -240,9 +239,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomResponseException> handleGenericException(Exception ex) {
+    public ResponseEntity<CustomResponseExceptionHandler> handleGenericException(Exception ex) {
         if (getInterceptor(GENERIC_EXCEPTION_INTERCEPTOR_5XX, ex)) {
-            return buildErrorResponse(this.message, HttpStatus.INTERNAL_SERVER_ERROR, this.tracker, this.errors);
+            return buildErrorResponse(this.messageInterceptor, HttpStatus.INTERNAL_SERVER_ERROR, this.trackerInterceptor, this.errorsInterceptor);
         }
 
         return buildErrorResponse(
@@ -259,10 +258,10 @@ public class GlobalExceptionHandler {
                 .orElse(null);
 
         if (interceptor != null) {
-            this.message = interceptor.message();
-            this.tracker = interceptor.trackerId();
-            this.code = interceptor.code();
-            this.errors = interceptor.errors(ex);
+            this.messageInterceptor = interceptor.message();
+            this.trackerInterceptor = interceptor.trackerId();
+            this.codeInterceptor = interceptor.code();
+            this.errorsInterceptor = interceptor.errors(ex);
             return true;
         }
 
@@ -286,15 +285,15 @@ public class GlobalExceptionHandler {
         }
     }
 
-    private ResponseEntity<CustomResponseException> buildErrorResponse(String message, HttpStatus status, String tracker, List<String> errors) {
+    private ResponseEntity<CustomResponseExceptionHandler> buildErrorResponse(String message, HttpStatus status, String tracker, List<String> errors) {
         if (isNull(tracker) || tracker.isEmpty()) {
             tracker = UUID.randomUUID().toString();
             log.info("No tracker provided; generated automatically: {}", tracker);
         }
 
-        String overCode = this.code != null ? this.code : String.valueOf(status.value());
+        String overCode = this.codeInterceptor != null ? this.codeInterceptor : String.valueOf(status.value());
 
-        CustomResponseException response = new CustomResponseException(message, overCode, tracker, errors);
+        CustomResponseExceptionHandler response = new CustomResponseExceptionHandler(message, overCode, tracker, errors);
 
         logException(message, status, tracker, errors);
 
