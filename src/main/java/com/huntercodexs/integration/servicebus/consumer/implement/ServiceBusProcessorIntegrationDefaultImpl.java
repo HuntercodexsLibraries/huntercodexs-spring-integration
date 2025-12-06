@@ -1,7 +1,7 @@
 package com.huntercodexs.integration.servicebus.consumer.implement;
 
-import com.azure.messaging.servicebus.ServiceBusErrorContext;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
+import com.huntercodexs.integration.servicebus.context.ServiceBusErrorContextIntegration;
+import com.huntercodexs.integration.servicebus.context.ServiceBusMessageContextIntegration;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,16 +21,16 @@ public class ServiceBusProcessorIntegrationDefaultImpl implements ServiceBusProc
     }
 
     @Override
-    public void processMessage(ServiceBusReceivedMessageContext mensagem) {
-        log.warn("Default message processing started for message ID: {}", mensagem.getMessage().getMessageId());
+    public void processMessage(ServiceBusMessageContextIntegration mensagem) {
+        log.warn("Default message processing started for message ID: {}", mensagem.getDetails().getMessageId());
         log.warn("This message was routed to the default processor. No specific processor found for the queue.");
         log.warn("Message will be abandoned.");
-        mensagem.abandon();
+        mensagem.getActions().abandon();
     }
 
     @Override
-    public void processError(ServiceBusErrorContext serviceBusErrorContext) {
-        log.error("Error occurred in Service Bus processing: {}", serviceBusErrorContext.getException().getMessage());
+    public void processError(ServiceBusErrorContextIntegration context) {
+        log.error("Error occurred in Service Bus processing: {}", context.getException().getMessage());
     }
 
 }

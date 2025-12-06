@@ -12,6 +12,9 @@ import com.huntercodexs.integration.kafka.producer.config.KafkaProducerIntegrati
 import com.huntercodexs.integration.kafka.producer.sender.KafkaProducerIntegration;
 import com.huntercodexs.integration.mongo.retry.MongoRetry;
 import com.huntercodexs.integration.mongo.retry.config.MongoRetryTemplateConfig;
+import com.huntercodexs.integration.servicebus.consumer.config.ServiceBusConsumerListConfig;
+import com.huntercodexs.integration.servicebus.consumer.config.ServiceBusConsumerSingleConfig;
+import com.huntercodexs.integration.servicebus.producer.config.ServiceBusProducerConfig;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 
@@ -34,6 +37,9 @@ import java.lang.annotation.*;
         , KafkaProducerIntegration.class
         , KafkaConsumerIntegrationConfig.class
         , KafkaConsumerIntegrationFilter.class
+        , ServiceBusConsumerListConfig.class
+        , ServiceBusConsumerSingleConfig.class
+        , ServiceBusProducerConfig.class
 })
 public @interface EnableIntegration {
     String[] value();

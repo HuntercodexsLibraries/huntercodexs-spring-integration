@@ -5,6 +5,8 @@ import com.azure.messaging.servicebus.ServiceBusProcessorClient;
 import com.azure.messaging.servicebus.models.ServiceBusReceiveMode;
 import com.huntercodexs.integration.servicebus.consumer.implement.ServiceBusProcessorIntegration;
 import com.huntercodexs.integration.servicebus.consumer.implement.ServiceBusProcessorIntegrationDefaultImpl;
+import com.huntercodexs.integration.servicebus.context.ServiceBusErrorContextIntegration;
+import com.huntercodexs.integration.servicebus.context.ServiceBusMessageContextIntegration;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +38,7 @@ public class ServiceBusConsumerListConfig {
     @Value("${"+ SERVICEBUS_SPRING_CLOUD_APP_CONFIG +".consumer.receive-mode:PEEK_LOCK}")
     private String receiveModeConsumer;
 
-    @Value("${"+ SERVICEBUS_SPRING_CLOUD_APP_CONFIG +".consumer.prefer-fetch-count:1}")
+    @Value("${"+ SERVICEBUS_SPRING_CLOUD_APP_CONFIG +".consumer.prefetch-count:1}")
     private int preferFetchCount;
 
     @Value("${"+ SERVICEBUS_SPRING_CLOUD_APP_CONFIG +".consumer.max-concurrent-calls:1}")
@@ -69,6 +71,8 @@ public class ServiceBusConsumerListConfig {
                 processor = serviceBusProcessorIntegrationDefault;
             }
 
+            final ServiceBusProcessorIntegration selectedProcessor = processor;
+
             ServiceBusClientBuilder.ServiceBusProcessorClientBuilder builder = new ServiceBusClientBuilder()
                     .connectionString(connectionString)
                     .processor()
@@ -76,8 +80,13 @@ public class ServiceBusConsumerListConfig {
                     .receiveMode(ServiceBusReceiveMode.valueOf(receiveModeConsumer))
                     .prefetchCount(preferFetchCount)
                     .maxConcurrentCalls(maxConcurrentCalls)
-                    .processMessage(processor::processMessage)
-                    .processError(processor::processError)
+
+                    .processMessage(ctx ->
+                            selectedProcessor.processMessage(new ServiceBusMessageContextIntegration(ctx)))
+
+                    .processError(err ->
+                            selectedProcessor.processError(new ServiceBusErrorContextIntegration(err)))
+
                     .maxAutoLockRenewDuration(Duration.ofMinutes(maxAutoRenewDurationMinutes));
 
             if (disableAutoComplete) {
