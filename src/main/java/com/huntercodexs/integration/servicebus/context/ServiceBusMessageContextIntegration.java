@@ -4,6 +4,7 @@ import com.azure.core.util.IterableStream;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 @Getter
+@ToString
 public class ServiceBusMessageContextIntegration {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceBusMessageContextIntegration.class);
@@ -53,6 +55,7 @@ public class ServiceBusMessageContextIntegration {
     }
 
     @Getter
+    @ToString
     public static class Details {
 
         private long sequenceNumber;
@@ -114,15 +117,15 @@ public class ServiceBusMessageContextIntegration {
             }
 
             try {
-                this.rawAmqpMessageValue = messageContext.getMessage().getRawAmqpMessage().getBody().getValue();
-            } catch (Exception e) {
-                log.warn("Failed to load Raw AMQP message details for message ID: {}. Error: {}", messageContext.getMessage().getMessageId(), e.getMessage());
-            }
-
-            try {
                 this.rawAmqpMessageData = messageContext.getMessage().getRawAmqpMessage().getBody().getData();
             } catch (Exception e) {
                 log.warn("Failed to load Raw AMQP message data for message ID: {}. Error: {}", messageContext.getMessage().getMessageId(), e.getMessage());
+            }
+
+            try {
+                this.rawAmqpMessageValue = messageContext.getMessage().getRawAmqpMessage().getBody().getValue();
+            } catch (Exception e) {
+                log.warn("Failed to load Raw AMQP message details for message ID: {}. Error: {}", messageContext.getMessage().getMessageId(), e.getMessage());
             }
 
             log.info("Message details loaded for message ID: {}", messageContext.getMessage().getMessageId());
