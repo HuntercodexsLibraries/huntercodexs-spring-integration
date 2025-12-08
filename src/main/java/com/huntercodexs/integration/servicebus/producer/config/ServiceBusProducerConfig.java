@@ -33,10 +33,10 @@ public class ServiceBusProducerConfig {
 
         if (serviceBusTopicName != null && !serviceBusTopicName.isEmpty()) {
             serviceBusSenderClient.topicName(serviceBusTopicName);
-            log.info("Configuration for ServiceBusProducerConfig for the topic '{}' created successfully.", serviceBusTopicName);
+            log.info("Configuration for ServiceBusProducerConfig for the TOPIC '{}' created successfully.", serviceBusTopicName);
         } else {
             serviceBusSenderClient.queueName(serviceBusQueueName);
-            log.info("Configuration for ServiceBusProducerConfig for the queue '{}' created successfully.", serviceBusQueueName);
+            log.info("Configuration for ServiceBusProducerConfig for the QUEUE '{}' created successfully.", serviceBusQueueName);
         }
 
         return serviceBusSenderClient.buildClient();

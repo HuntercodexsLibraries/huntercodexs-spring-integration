@@ -41,26 +41,26 @@ public class ServiceBusIntegrationProducer {
 
         try {
             final Object payload = (clazz != null) ? objectMapper.convertValue(message, clazz) : message;
-            final String mensagem = objectMapper.writeValueAsString(payload);
-            final ServiceBusMessage serviceBusMensagem = new ServiceBusMessage(mensagem);
+            final String msg = objectMapper.writeValueAsString(payload);
+            final ServiceBusMessage serviceBusMessage = new ServiceBusMessage(msg);
 
             OffsetDateTime time;
-            serviceBusMensagem.getApplicationProperties().put("attempts", attempts);
+            serviceBusMessage.getApplicationProperties().put("attempts", attempts);
 
             if (headers != null) {
-                headers.forEach(serviceBusMensagem.getApplicationProperties()::put);
+                headers.forEach(serviceBusMessage.getApplicationProperties()::put);
             }
 
             if (delaySeconds != null && !delaySeconds.isEmpty()) {
                 time = OffsetDateTime.now().plusSeconds(Long.parseLong(delaySeconds));
-                serviceBusMensagem.setScheduledEnqueueTime(time);
+                serviceBusMessage.setScheduledEnqueueTime(time);
             } else if (delayMinutes != null && !delayMinutes.isEmpty()) {
                 time = OffsetDateTime.now().plusMinutes(Long.parseLong(delayMinutes));
-                serviceBusMensagem.setScheduledEnqueueTime(time);
+                serviceBusMessage.setScheduledEnqueueTime(time);
             }
 
             log.info("Sending message to queue");
-            serviceBusSenderClient.sendMessage(serviceBusMensagem);
+            serviceBusSenderClient.sendMessage(serviceBusMessage);
             log.info("Message sent successfully to queue");
 
             return true;
