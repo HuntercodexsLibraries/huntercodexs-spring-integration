@@ -4,6 +4,8 @@ import com.azure.core.util.IterableStream;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -11,6 +13,8 @@ import java.util.Map;
 
 @Getter
 public class ServiceBusMessageContextIntegration {
+
+    private static final Logger log = LoggerFactory.getLogger(ServiceBusMessageContextIntegration.class);
 
     private final Data data;
     private final Details details;
@@ -81,6 +85,9 @@ public class ServiceBusMessageContextIntegration {
         }
 
         private void detailsLoader() {
+
+            log.info("Loading message details for message ID: {}", messageContext.getMessage().getMessageId());
+
             this.sequenceNumber = messageContext.getMessage().getSequenceNumber();
             this.sessionId = messageContext.getMessage().getSessionId();
             this.to = messageContext.getMessage().getTo();
@@ -97,11 +104,28 @@ public class ServiceBusMessageContextIntegration {
             this.correlationId = messageContext.getMessage().getCorrelationId();
             this.applicationProperties = messageContext.getMessage().getApplicationProperties();
             this.contentType = messageContext.getMessage().getContentType();
-            this.messageAnnotations = messageContext.getMessage().getRawAmqpMessage().getMessageAnnotations();
-            this.rawAmqpMessageValue = messageContext.getMessage().getRawAmqpMessage().getBody().getValue();
-            this.rawAmqpMessageData = messageContext.getMessage().getRawAmqpMessage().getBody().getData();
             this.deliveryCount = messageContext.getMessage().getDeliveryCount();
             this.messageId = messageContext.getMessage().getMessageId();
+
+            try {
+                this.messageAnnotations = messageContext.getMessage().getRawAmqpMessage().getMessageAnnotations();
+            } catch (Exception e) {
+                log.warn("Failed to load Message Annotations for message ID: {}. Error: {}", messageContext.getMessage().getMessageId(), e.getMessage());
+            }
+
+            try {
+                this.rawAmqpMessageValue = messageContext.getMessage().getRawAmqpMessage().getBody().getValue();
+            } catch (Exception e) {
+                log.warn("Failed to load Raw AMQP message details for message ID: {}. Error: {}", messageContext.getMessage().getMessageId(), e.getMessage());
+            }
+
+            try {
+                this.rawAmqpMessageData = messageContext.getMessage().getRawAmqpMessage().getBody().getData();
+            } catch (Exception e) {
+                log.warn("Failed to load Raw AMQP message data for message ID: {}. Error: {}", messageContext.getMessage().getMessageId(), e.getMessage());
+            }
+
+            log.info("Message details loaded for message ID: {}", messageContext.getMessage().getMessageId());
         }
     }
 
@@ -115,18 +139,22 @@ public class ServiceBusMessageContextIntegration {
 
         public void complete() {
             messageContext.complete();
+            log.info("Message with ID '{}' completed successfully.", messageContext.getMessage().getMessageId());
         }
 
         public void abandon() {
             messageContext.abandon();
+            log.info("Message with ID '{}' abandoned.", messageContext.getMessage().getMessageId());
         }
 
         public void deadLetter() {
             messageContext.deadLetter();
+            log.info("Message with ID '{}' dead-lettered.", messageContext.getMessage().getMessageId());
         }
 
         public void defer() {
             messageContext.defer();
+            log.info("Message with ID '{}' deferred.", messageContext.getMessage().getMessageId());
         }
     }
 }

@@ -21,11 +21,11 @@ public class ServiceBusProcessorIntegrationDefaultImpl implements ServiceBusProc
     }
 
     @Override
-    public void processMessage(ServiceBusMessageContextIntegration mensagem) {
-        log.warn("Default message processing started for message ID: {}", mensagem.getDetails().getMessageId());
+    public void processMessage(ServiceBusMessageContextIntegration message) {
+        log.warn("Default message processing started for message ID: {}", message.getDetails().getMessageId());
         log.warn("This message was routed to the default processor. No specific processor found for the queue.");
         log.warn("Message will be abandoned.");
-        mensagem.getActions().abandon();
+        message.getActions().abandon();
     }
 
     @Override
