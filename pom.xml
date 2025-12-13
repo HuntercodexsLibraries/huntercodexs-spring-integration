@@ -148,6 +148,12 @@
             <artifactId>spring-cloud-azure-starter-servicebus</artifactId>
         </dependency>
 
+        <!--RabbitMQ-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <!--OpenAPI/Swagger-->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
