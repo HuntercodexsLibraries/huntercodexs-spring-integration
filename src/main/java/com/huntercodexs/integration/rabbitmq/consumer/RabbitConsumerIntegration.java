@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.rabbitmq.consumer;
 
-import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersPropertiesIntegration;
+import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersIntegrationProperties;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,15 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.*;
+
 @Component
 @RequiredArgsConstructor
-public class DynamicRabbitListener {
+public class RabbitConsumerIntegration {
 
-    private static final Logger log = LoggerFactory.getLogger(DynamicRabbitListener.class);
+    private static final Logger log = LoggerFactory.getLogger(RabbitConsumerIntegration.class);
 
     private final StrategyRegistry registry;
     private final RabbitTemplate rabbitTemplate;
-    private final RabbitConsumersPropertiesIntegration consumersProperties;
+    private final RabbitConsumersIntegrationProperties consumersProperties;
 
     @RabbitListener(queues = "#{dynamicRabbitQueues}", containerFactory = "rabbitListenerContainerFactory")
     public void onMessage(Message message, Channel channel) throws Exception {
@@ -36,14 +38,14 @@ public class DynamicRabbitListener {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
         // Prevent ambiguous usage
-        if (checkGlobalConsumerPropertiesSet()) {
-            List<RabbitConsumersPropertiesIntegration> consumer = new ArrayList<>();
+        if (checkSingleConsumerPropertiesSet(consumersProperties, false)) {
+            List<RabbitConsumersIntegrationProperties> consumer = new ArrayList<>();
             consumer.add(consumersProperties);
             consumersProperties.setConsumers(consumer);
         }
 
         // Resolve configuration
-        RabbitConsumersPropertiesIntegration cfg = consumersProperties.getConsumers().stream()
+        RabbitConsumersIntegrationProperties cfg = consumersProperties.getConsumers().stream()
                 .filter(c -> c.getName().equalsIgnoreCase(strategyName))
                 .findFirst()
                 .orElse(null);
@@ -52,7 +54,8 @@ public class DynamicRabbitListener {
         RabbitConsumerStrategy strategy = registry.getByStrategyName(strategyName);
 
         if (strategy == null) {
-            log.warn("Strategy not found -> send to DLQ if configured, ack to drop from queue");
+
+            doLog(consumersProperties, "Strategy not found -> send to DLQ if configured, ack to drop from queue", null);
 
             if (cfg != null && cfg.isDlqEnabled()) {
                 finalize(cfg.getExchange() + ".dlq", cfg.getRoutingKey() + ".dlq", strategyName, raw, -1);
@@ -80,13 +83,16 @@ public class DynamicRabbitListener {
     }
 
     private void sendToRetry(
-            RabbitConsumersPropertiesIntegration cfg,
+            RabbitConsumersIntegrationProperties cfg,
             String strategyName,
             String raw,
             int nextRetry,
             long deliveryTag,
             Channel channel
     ) throws Exception {
+
+        doLog(consumersProperties, "Sending message to retry queue", null);
+
         // Send to retry exchange
         finalize(cfg.getExchange() + ".retry", cfg.getRoutingKey() + ".retry", strategyName, raw, nextRetry);
         // Ack original to remove from queue
@@ -94,12 +100,14 @@ public class DynamicRabbitListener {
     }
 
     private void sentToDlq(
-            RabbitConsumersPropertiesIntegration cfg,
+            RabbitConsumersIntegrationProperties cfg,
             String strategyName,
             String raw,
             long deliveryTag,
             Channel channel
     ) throws Exception {
+
+        doLog(consumersProperties, "Sending message to DLQ queue", null);
 
         if (cfg != null && cfg.isDlqEnabled()) {
             // Send to DLQ (if configured) or ack/nack to drop
@@ -112,11 +120,11 @@ public class DynamicRabbitListener {
         }
     }
 
-    private void finalize(String exchange, String routingKey, String strategyName, String raw, int nextRetry) {
+    private void finalize(String exchange, String routingKey, String strategyName, String payload, int nextRetry) {
         rabbitTemplate.convertAndSend(
                 exchange,
                 routingKey,
-                raw,
+                stripPayload(payload),
                 msg -> {
                     msg.getMessageProperties().setHeader("strategy", strategyName);
                     if (nextRetry != -1) {
@@ -141,10 +149,6 @@ public class DynamicRabbitListener {
         }
 
         return currentRetry;
-    }
-
-    private boolean checkGlobalConsumerPropertiesSet() {
-        return (!consumersProperties.getName().isEmpty()) && !consumersProperties.getExchange().isEmpty() && !consumersProperties.getRoutingKey().isEmpty();
     }
 
 }

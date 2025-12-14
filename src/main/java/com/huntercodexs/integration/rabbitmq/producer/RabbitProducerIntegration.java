@@ -1,8 +1,77 @@
 package com.huntercodexs.integration.rabbitmq.producer;
 
-import java.util.Map;
+import com.huntercodexs.integration.rabbitmq.core.props.RabbitProducersIntegrationProperties;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Service;
 
-interface RabbitProducerIntegration {
-    void send(String strategyName, Object payload);
-    void send(String strategyName, Object payload, Map<String,Object> extraHeaders);
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.doLog;
+import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.stripPayload;
+
+@Service
+@RequiredArgsConstructor
+public final class RabbitProducerIntegration {
+
+    private static final Logger log = LoggerFactory.getLogger(RabbitProducerIntegration.class);
+
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitProducersIntegrationProperties producersProperties;
+
+    public void send(String strategyName, Object payload) {
+        send(strategyName, payload, Map.of());
+    }
+
+    public void send(String strategyName, Object payload, Map<String, Object> extraHeaders) {
+
+        RabbitProducersIntegrationProperties producersProps = findProducersProperties(strategyName);
+
+        doLog(producersProperties, "Sending message to exchange {}", producersProps.getExchange());
+
+        MessageDeliveryMode deliveryMode;
+
+        if (producersProps.getDeliveryMode().equalsIgnoreCase("NON_PERSISTENT")) {
+            deliveryMode = MessageDeliveryMode.NON_PERSISTENT;
+        } else {
+            deliveryMode = MessageDeliveryMode.PERSISTENT;
+        }
+
+        rabbitTemplate.convertAndSend(
+                producersProps.getExchange(),
+                producersProps.getRoutingKey(),
+                stripPayload(String.valueOf(payload)),
+                msg -> {
+                    msg.getMessageProperties().setHeader("strategy", strategyName);
+                    msg.getMessageProperties().setHeader("messageId", UUID.randomUUID().toString());
+                    extraHeaders.forEach((k, v) -> msg.getMessageProperties().setHeader(k, v));
+                    msg.getMessageProperties().setDeliveryMode(deliveryMode);
+                    return msg;
+                }
+        );
+    }
+
+    private RabbitProducersIntegrationProperties findProducersProperties(String strategyName) {
+        doLog(producersProperties, "Trying to find producers properties for strategy {}", strategyName);
+
+        Optional<RabbitProducersIntegrationProperties> cfgOpt = producersProperties.getProducers().stream()
+                .filter(c -> c.getName().equalsIgnoreCase(strategyName))
+                .findFirst();
+
+        if (
+                (!producersProperties.getName().isEmpty() && producersProperties.getName().equalsIgnoreCase(strategyName))
+                && !producersProperties.getExchange().isEmpty()
+                && !producersProperties.getRoutingKey().isEmpty()
+        ) {
+            doLog(producersProperties, "Using default producer configuration for strategy: {}", strategyName);
+            return producersProperties;
+        }
+
+        return cfgOpt.orElseThrow(() -> new IllegalArgumentException("Configuration not found for producer strategy: " + strategyName));
+    }
 }

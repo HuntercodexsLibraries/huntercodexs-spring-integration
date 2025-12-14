@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.rabbitmq.core.config;
 
-import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersPropertiesIntegration;
+import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersIntegrationProperties;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +11,16 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.checkSingleConsumerPropertiesSet;
+import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.doLog;
+
 @Configuration
 @RequiredArgsConstructor
-public class DynamicRabbitConfiguration {
+public class RabbitExchangeIntegrationConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(DynamicRabbitConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(RabbitExchangeIntegrationConfig.class);
 
-    private final RabbitConsumersPropertiesIntegration consumersProperties;
+    private final RabbitConsumersIntegrationProperties consumersProperties;
 
     @Bean
     public Declarables rabbitDeclarables() {
@@ -25,15 +28,13 @@ public class DynamicRabbitConfiguration {
 
         if (consumersProperties.getConsumers() == null) return new Declarables(declarableList);
 
-        if (checkGlobalConsumerPropertiesSet()) {
-            log.warn("Single RabbitMQ consumer properties detected (name, exchange, routingKey), " +
-                    "overriding 'consumers' list with a single entry. Is it intended?");
-            List<RabbitConsumersPropertiesIntegration> consumer = new ArrayList<>();
+        if (checkSingleConsumerPropertiesSet(consumersProperties, true)) {
+            List<RabbitConsumersIntegrationProperties> consumer = new ArrayList<>();
             consumer.add(consumersProperties);
             consumersProperties.setConsumers(consumer);
         }
 
-        for (RabbitConsumersPropertiesIntegration cfg : consumersProperties.getConsumers()) {
+        for (RabbitConsumersIntegrationProperties cfg : consumersProperties.getConsumers()) {
 
             String exchangeName = cfg.getExchange();
             String queueName = cfg.getQueue();
@@ -65,6 +66,8 @@ public class DynamicRabbitConfiguration {
                 Binding retryBinding = BindingBuilder.bind(retryQueue).to((DirectExchange) retryExchange).with(routingKey + ".retry");
 
                 declarableList.add(retryBinding);
+
+                doLog(consumersProperties, "Retry queues created successfully {}.retry", queueName);
             }
 
             // DLQ
@@ -77,6 +80,8 @@ public class DynamicRabbitConfiguration {
 
                 Binding dlqBinding = BindingBuilder.bind(dlqQueue).to((DirectExchange) dlqExchange).with(routingKey + ".dlq");
                 declarableList.add(dlqBinding);
+
+                doLog(consumersProperties, "DLQ queues created successfully {}.dlq", queueName);
             }
         }
 
@@ -86,23 +91,27 @@ public class DynamicRabbitConfiguration {
     @Bean
     public String[] dynamicRabbitQueues() {
 
-        if (checkGlobalConsumerPropertiesSet()) {
-            List<RabbitConsumersPropertiesIntegration> consumer = new ArrayList<>();
+        if (checkSingleConsumerPropertiesSet(consumersProperties, false)) {
+            List<RabbitConsumersIntegrationProperties> consumer = new ArrayList<>();
             consumer.add(consumersProperties);
             consumersProperties.setConsumers(consumer);
         }
 
         if (consumersProperties.getConsumers() == null || consumersProperties.getConsumers().isEmpty()) {
-            log.warn("Consumers not found for creating queue");
+            doLog(consumersProperties, "Consumers not found for creating queue", null);
             return new String[0];
         }
 
-        return consumersProperties.getConsumers().stream()
-                .map(RabbitConsumersPropertiesIntegration::getQueue)
+        String[] queues = consumersProperties.getConsumers().stream()
+                .map(RabbitConsumersIntegrationProperties::getQueue)
                 .toArray(String[]::new);
+
+        doLog(consumersProperties, "Dynamic queues loaded successfully {}", (Object) queues);
+
+        return queues;
     }
 
-    private Queue buildMainQueue(RabbitConsumersPropertiesIntegration cfg, String queueName, String exchangeName, String routingKey) {
+    private Queue buildMainQueue(RabbitConsumersIntegrationProperties cfg, String queueName, String exchangeName, String routingKey) {
 
         QueueBuilder mainQueueBuilder = QueueBuilder.durable(queueName);
 
@@ -126,36 +135,41 @@ public class DynamicRabbitConfiguration {
                     .withArgument("x-dead-letter-exchange", exchangeName + ".retry")
                     .withArgument("x-dead-letter-routing-key", routingKey + ".retry");
 
-            log.warn("Retry is enabled without separate DLQ, route dead-letter to retry exchange");
+            doLog(consumersProperties, "Retry is enabled without separate DLQ, route dead-letter to retry exchange", null);
         }
 
         Queue mainQueue = mainQueueBuilder.build();
-        log.info("Main Queue created successfully {}", mainQueue.getName());
+        doLog(consumersProperties, "Main Queue created successfully {}", mainQueue.getName());
         return mainQueue;
     }
 
     private Exchange buildExchange(String type, String name) {
         if (type == null) type = "direct"; //default
-        return switch (type.toLowerCase()) {
+        Exchange exchange = switch (type.toLowerCase()) {
             case "topic" -> ExchangeBuilder.topicExchange(name).durable(true).build();
             case "fanout" -> ExchangeBuilder.fanoutExchange(name).durable(true).build();
             case "headers" -> ExchangeBuilder.headersExchange(name).durable(true).build();
             default -> ExchangeBuilder.directExchange(name).durable(true).build();
         };
+
+        doLog(consumersProperties, "Exchange created successfully {}", exchange.getName());
+
+        return exchange;
     }
 
     private Binding buildBinding(Queue queue, Exchange exchange, String type, String routingKey) {
+        Binding binding;
         if ("fanout".equalsIgnoreCase(type)) {
-            return BindingBuilder.bind(queue).to((FanoutExchange) exchange);
+            binding = BindingBuilder.bind(queue).to((FanoutExchange) exchange);
         } else if ("topic".equalsIgnoreCase(type)) {
-            return BindingBuilder.bind(queue).to((TopicExchange) exchange).with(routingKey);
+            binding = BindingBuilder.bind(queue).to((TopicExchange) exchange).with(routingKey);
         } else {
-            return BindingBuilder.bind(queue).to((DirectExchange) exchange).with(routingKey);
+            binding = BindingBuilder.bind(queue).to((DirectExchange) exchange).with(routingKey);
         }
-    }
 
-    private boolean checkGlobalConsumerPropertiesSet() {
-        return (!consumersProperties.getName().isEmpty()) && !consumersProperties.getExchange().isEmpty() && !consumersProperties.getRoutingKey().isEmpty();
+        doLog(consumersProperties, "Bindings created successfully {}", binding.getDestination());
+
+        return binding;
     }
 
 }

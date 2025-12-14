@@ -12,7 +12,7 @@ import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL
 @Service
 @Configuration
 @ConfigurationProperties(prefix = GLOBAL_BASE_CONFIG+".rabbitmq.global")
-public class RabbitGlobalPropertiesIntegration {
+public class RabbitGlobalIntegrationProperties {
 
     @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.logEnabled:false}")
     private boolean logEnabled;

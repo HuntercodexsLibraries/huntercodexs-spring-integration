@@ -13,8 +13,8 @@ import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL
 @Data
 @Service
 @Configuration
-@ConfigurationProperties(prefix = GLOBAL_BASE_CONFIG+".rabbitmq.consumers")
-public class RabbitConsumersPropertiesIntegration {
+@ConfigurationProperties(prefix = GLOBAL_BASE_CONFIG+".rabbitmq")
+public class RabbitConsumersIntegrationProperties {
 
     @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.consumers.name}")
     private String name;
@@ -49,7 +49,7 @@ public class RabbitConsumersPropertiesIntegration {
     @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.consumers.logEnabled:false}")
     private boolean logEnabled;
 
-    private List<RabbitConsumersPropertiesIntegration> consumers;
+    private List<RabbitConsumersIntegrationProperties> consumers;
 
 }
 

@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.rabbitmq.retry;
 
-import com.huntercodexs.integration.rabbitmq.core.retry.RabbitRetryLoggingListener;
+import com.huntercodexs.integration.rabbitmq.core.retry.RabbitLoggingListenerRetry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,7 +28,7 @@ class RabbitRetryTest {
 
         RetryTemplate retryTemplate = new RetryTemplate();
         retryTemplate.setRetryPolicy(new SimpleRetryPolicy(3));
-        retryTemplate.registerListener(new RabbitRetryLoggingListener(true));
+        retryTemplate.registerListener(new RabbitLoggingListenerRetry(true));
         FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
         backOffPolicy.setBackOffPeriod(3000); // milliseconds
         retryTemplate.setBackOffPolicy(backOffPolicy);

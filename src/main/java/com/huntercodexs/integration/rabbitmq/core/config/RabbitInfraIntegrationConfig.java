@@ -1,7 +1,7 @@
 package com.huntercodexs.integration.rabbitmq.core.config;
 
-import com.huntercodexs.integration.rabbitmq.core.props.RabbitGlobalPropertiesIntegration;
-import com.huntercodexs.integration.rabbitmq.core.retry.RabbitRetryLoggingListener;
+import com.huntercodexs.integration.rabbitmq.core.props.RabbitGlobalIntegrationProperties;
+import com.huntercodexs.integration.rabbitmq.core.retry.RabbitLoggingListenerRetry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -16,9 +16,9 @@ import org.springframework.retry.support.RetryTemplate;
 
 @Configuration
 @RequiredArgsConstructor
-public class RabbitInfrastructureConfig {
+public class RabbitInfraIntegrationConfig {
 
-    private final RabbitGlobalPropertiesIntegration globalProperties;
+    private final RabbitGlobalIntegrationProperties globalProperties;
 
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
@@ -28,7 +28,7 @@ public class RabbitInfrastructureConfig {
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,
-            RabbitGlobalPropertiesIntegration globalProperties
+            RabbitGlobalIntegrationProperties globalProperties
     ) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
@@ -61,7 +61,7 @@ public class RabbitInfrastructureConfig {
         RetryTemplate retryTemplate = new RetryTemplate();
         retryTemplate.setBackOffPolicy(backOff);
         retryTemplate.setRetryPolicy(retryPolicy);
-        retryTemplate.registerListener(new RabbitRetryLoggingListener(globalProperties.isLogEnabled()));
+        retryTemplate.registerListener(new RabbitLoggingListenerRetry(globalProperties.isLogEnabled()));
 
         return retryTemplate;
     }
