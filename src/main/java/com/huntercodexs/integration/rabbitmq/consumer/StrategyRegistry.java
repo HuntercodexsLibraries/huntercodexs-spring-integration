@@ -1,6 +1,5 @@
 package com.huntercodexs.integration.rabbitmq.consumer;
 
-import com.huntercodexs.integration.rabbitmq.consumer.implement.RabbitConsumerStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +13,15 @@ public class StrategyRegistry {
 
     private final List<RabbitConsumerStrategy> strategies;
 
-    public RabbitConsumerStrategy getByName(String name) {
+    public RabbitConsumerStrategy getByStrategyName(String name) {
         if (name == null) return null;
         return strategies.stream()
-                .filter(s -> s.getName().equalsIgnoreCase(name))
+                .filter(s -> s.supports().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
 
-    // expose map if needed
     public Map<String, RabbitConsumerStrategy> asMap() {
-        return strategies.stream().collect(Collectors.toMap(RabbitConsumerStrategy::getName, s -> s));
+        return strategies.stream().collect(Collectors.toMap(RabbitConsumerStrategy::supports, s -> s));
     }
 }

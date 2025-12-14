@@ -12,7 +12,7 @@ import com.huntercodexs.integration.kafka.producer.config.KafkaProducerIntegrati
 import com.huntercodexs.integration.kafka.producer.sender.KafkaProducerIntegration;
 import com.huntercodexs.integration.mongo.retry.MongoRetry;
 import com.huntercodexs.integration.mongo.retry.config.MongoRetryTemplateConfig;
-import com.huntercodexs.integration.rabbitmq.producer.RabbitSenderIntegrationImpl;
+import com.huntercodexs.integration.rabbitmq.producer.RabbitProducerIntegrationImpl;
 import com.huntercodexs.integration.servicebus.consumer.config.ServiceBusConsumerListConfig;
 import com.huntercodexs.integration.servicebus.consumer.config.ServiceBusConsumerSingleConfig;
 import com.huntercodexs.integration.servicebus.producer.config.ServiceBusProducerConfig;
@@ -41,7 +41,7 @@ import java.lang.annotation.*;
         , ServiceBusConsumerListConfig.class
         , ServiceBusConsumerSingleConfig.class
         , ServiceBusProducerConfig.class
-        , RabbitSenderIntegrationImpl.class
+        , RabbitProducerIntegrationImpl.class
 })
 public @interface EnableIntegration {
     String[] value();
