@@ -8,9 +8,9 @@ import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryListener;
 
 @RequiredArgsConstructor
-public class RabbitLoggingListenerRetry implements RetryListener {
+public class RabbitProducerLoggingRetry implements RetryListener {
 
-    private static final Logger log = LoggerFactory.getLogger(RabbitLoggingListenerRetry.class);
+    private static final Logger log = LoggerFactory.getLogger(RabbitProducerLoggingRetry.class);
 
     private final boolean logGlobalEnabled;
 

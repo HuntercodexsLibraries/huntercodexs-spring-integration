@@ -1,5 +1,7 @@
 package com.huntercodexs.integration.rabbitmq.consumer;
 
+import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionDlqIntegration;
+import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionRetryIntegration;
 import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersIntegrationProperties;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
@@ -70,15 +72,18 @@ public class RabbitConsumerIntegration {
             strategy.messageConsumer(raw, message, headers);
             channel.basicAck(deliveryTag, false);
 
-        } catch (Exception ex) {
+        } catch (RabbitExceptionRetryIntegration ex) {
 
-            int nextRetry = currentRetry(headers) + 1;
+            int nextRetry = currentRetry(headers);
 
             if (cfg != null && cfg.isRetryEnabled() && nextRetry <= cfg.getMaxRetries()) {
                 sendToRetry(cfg, strategyName, raw, nextRetry, deliveryTag, channel);
             } else {
                 sentToDlq(cfg, strategyName, raw, deliveryTag, channel);
             }
+
+        } catch (RabbitExceptionDlqIntegration ex) {
+            sentToDlq(cfg, strategyName, raw, deliveryTag, channel);
         }
     }
 
@@ -148,7 +153,7 @@ public class RabbitConsumerIntegration {
             }
         }
 
-        return currentRetry;
+        return currentRetry + 1;
     }
 
 }

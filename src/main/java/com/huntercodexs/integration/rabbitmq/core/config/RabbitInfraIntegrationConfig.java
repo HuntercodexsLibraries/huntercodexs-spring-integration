@@ -1,7 +1,7 @@
 package com.huntercodexs.integration.rabbitmq.core.config;
 
 import com.huntercodexs.integration.rabbitmq.core.props.RabbitGlobalIntegrationProperties;
-import com.huntercodexs.integration.rabbitmq.core.retry.RabbitLoggingListenerRetry;
+import com.huntercodexs.integration.rabbitmq.core.retry.RabbitProducerLoggingRetry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -61,7 +61,7 @@ public class RabbitInfraIntegrationConfig {
         RetryTemplate retryTemplate = new RetryTemplate();
         retryTemplate.setBackOffPolicy(backOff);
         retryTemplate.setRetryPolicy(retryPolicy);
-        retryTemplate.registerListener(new RabbitLoggingListenerRetry(globalProperties.isLogEnabled()));
+        retryTemplate.registerListener(new RabbitProducerLoggingRetry(globalProperties.isLogEnabled()));
 
         return retryTemplate;
     }
