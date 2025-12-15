@@ -2,6 +2,7 @@ package com.huntercodexs.integration.rabbitmq.consumer;
 
 import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionDlqIntegration;
 import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionRetryIntegration;
+import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionRouterIntegration;
 import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersIntegrationProperties;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +85,29 @@ public class RabbitConsumerIntegration {
 
         } catch (RabbitExceptionDlqIntegration ex) {
             sentToDlq(cfg, strategyName, raw, deliveryTag, channel);
+
+        } catch (RabbitExceptionRouterIntegration ex) {
+            routerTo(cfg, ex.getTarget(), raw, deliveryTag, channel);
+        }
+    }
+
+    private void routerTo(
+            RabbitConsumersIntegrationProperties cfg,
+            String strategyName,
+            String raw,
+            long deliveryTag,
+            Channel channel
+    ) throws Exception {
+
+        doLog(consumersProperties, "Sending message to router queue", null);
+
+        if (cfg != null) {
+            // Send to retry exchange
+            finalize(cfg.getExchange(), cfg.getRoutingKey(), strategyName, raw, -1);
+            // Ack original to remove from queue
+            channel.basicAck(deliveryTag, false);
+        } else {
+            doLog(consumersProperties, "[CRITICAL] Missing Router Configuration", null);
         }
     }
 
