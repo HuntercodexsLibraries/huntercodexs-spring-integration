@@ -16,13 +16,13 @@ import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL
 @ConfigurationProperties(prefix = GLOBAL_BASE_CONFIG+".rabbitmq")
 public class RabbitProducersIntegrationProperties {
 
-    @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.producers.name}")
+    @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.producers.name:}")
     private String name;
 
-    @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.producers.exchange}")
+    @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.producers.exchange:}")
     private String exchange;
 
-    @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.producers.routingKey}")
+    @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.producers.routingKey:}")
     private String routingKey;
 
     @Value("${"+ GLOBAL_BASE_CONFIG +".rabbitmq.producers.deliveryMode:persistent}")

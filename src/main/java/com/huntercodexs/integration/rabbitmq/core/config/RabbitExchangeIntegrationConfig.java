@@ -1,9 +1,9 @@
 package com.huntercodexs.integration.rabbitmq.core.config;
 
+import com.huntercodexs.integration.rabbitmq.core.dto.RabbitDefaultIntegrationDto;
 import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersIntegrationProperties;
+import com.huntercodexs.integration.rabbitmq.core.props.RabbitGlobalIntegrationProperties;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,15 +11,14 @@ import org.springframework.context.annotation.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.checkSingleConsumerPropertiesSet;
+import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.defaultConsumerPropertiesCheck;
 import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationUtil.doLog;
 
 @Configuration
 @RequiredArgsConstructor
 public class RabbitExchangeIntegrationConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(RabbitExchangeIntegrationConfig.class);
-
+    private final RabbitGlobalIntegrationProperties globalProperties;
     private final RabbitConsumersIntegrationProperties consumersProperties;
 
     @Bean
@@ -28,7 +27,7 @@ public class RabbitExchangeIntegrationConfig {
 
         if (consumersProperties.getConsumers() == null) return new Declarables(declarableList);
 
-        if (checkSingleConsumerPropertiesSet(consumersProperties, true)) {
+        if (defaultCheck(true)) {
             List<RabbitConsumersIntegrationProperties> consumer = new ArrayList<>();
             consumer.add(consumersProperties);
             consumersProperties.setConsumers(consumer);
@@ -67,7 +66,7 @@ public class RabbitExchangeIntegrationConfig {
 
                 declarableList.add(retryBinding);
 
-                doLog(consumersProperties, "Retry queues created successfully {}.retry", queueName);
+                callLog("Retry queues created successfully {}.retry", queueName, true);
             }
 
             // DLQ
@@ -81,7 +80,7 @@ public class RabbitExchangeIntegrationConfig {
                 Binding dlqBinding = BindingBuilder.bind(dlqQueue).to((DirectExchange) dlqExchange).with(routingKey + ".dlq");
                 declarableList.add(dlqBinding);
 
-                doLog(consumersProperties, "DLQ queues created successfully {}.dlq", queueName);
+                callLog("DLQ queues created successfully {}.dlq", queueName, true);
             }
         }
 
@@ -91,14 +90,14 @@ public class RabbitExchangeIntegrationConfig {
     @Bean
     public String[] dynamicRabbitQueues() {
 
-        if (checkSingleConsumerPropertiesSet(consumersProperties, false)) {
+        if (defaultCheck(false)) {
             List<RabbitConsumersIntegrationProperties> consumer = new ArrayList<>();
             consumer.add(consumersProperties);
             consumersProperties.setConsumers(consumer);
         }
 
         if (consumersProperties.getConsumers() == null || consumersProperties.getConsumers().isEmpty()) {
-            doLog(consumersProperties, "Consumers not found for creating queue", null);
+            callLog("Consumers not found for creating queue", null, false);
             return new String[0];
         }
 
@@ -106,7 +105,7 @@ public class RabbitExchangeIntegrationConfig {
                 .map(RabbitConsumersIntegrationProperties::getQueue)
                 .toArray(String[]::new);
 
-        doLog(consumersProperties, "Dynamic queues loaded successfully {}", (Object) queues);
+        callLog("Dynamic queues loaded successfully {}", (Object) queues, true);
 
         return queues;
     }
@@ -135,11 +134,11 @@ public class RabbitExchangeIntegrationConfig {
                     .withArgument("x-dead-letter-exchange", exchangeName + ".retry")
                     .withArgument("x-dead-letter-routing-key", routingKey + ".retry");
 
-            doLog(consumersProperties, "Retry is enabled without separate DLQ, route dead-letter to retry exchange", null);
+            callLog("Retry is enabled without separate DLQ, route dead-letter to retry exchange", null, false);
         }
 
         Queue mainQueue = mainQueueBuilder.build();
-        doLog(consumersProperties, "Main Queue created successfully {}", mainQueue.getName());
+        callLog("Main Queue created successfully {}", mainQueue.getName(), false);
         return mainQueue;
     }
 
@@ -152,7 +151,7 @@ public class RabbitExchangeIntegrationConfig {
             default -> ExchangeBuilder.directExchange(name).durable(true).build();
         };
 
-        doLog(consumersProperties, "Exchange created successfully {}", exchange.getName());
+        callLog("Exchange created successfully {}", exchange.getName(), false);
 
         return exchange;
     }
@@ -167,9 +166,34 @@ public class RabbitExchangeIntegrationConfig {
             binding = BindingBuilder.bind(queue).to((DirectExchange) exchange).with(routingKey);
         }
 
-        doLog(consumersProperties, "Bindings created successfully {}", binding.getDestination());
+        callLog("Bindings created successfully {}", binding.getDestination(), false);
 
         return binding;
+    }
+
+    private boolean defaultCheck(boolean logOver) {
+        RabbitDefaultIntegrationDto defaultIntegrationDto = new RabbitDefaultIntegrationDto();
+        defaultIntegrationDto.setName(consumersProperties.getName());
+        defaultIntegrationDto.setExchange(consumersProperties.getExchange());
+        defaultIntegrationDto.setRoutingKey(consumersProperties.getRoutingKey());
+        if (!logOver) {
+            defaultIntegrationDto.setLogEnabled(false);
+        } else {
+            defaultIntegrationDto.setLogEnabled(consumersProperties.isLogEnabled() || globalProperties.isLogEnabled());
+        }
+        return defaultConsumerPropertiesCheck(defaultIntegrationDto);
+    }
+
+    private void callLog(String text, Object args, boolean logOver) {
+        RabbitDefaultIntegrationDto defaultIntegrationDto = new RabbitDefaultIntegrationDto();
+        if (!logOver) {
+            defaultIntegrationDto.setLogEnabled(false);
+        } else {
+            defaultIntegrationDto.setLogEnabled(consumersProperties.isLogEnabled() || globalProperties.isLogEnabled());
+        }
+        defaultIntegrationDto.setLogText(text);
+        defaultIntegrationDto.setLogArgs(args);
+        doLog(defaultIntegrationDto);
     }
 
 }

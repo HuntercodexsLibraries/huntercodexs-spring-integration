@@ -1,13 +1,13 @@
 package com.huntercodexs.integration.rabbitmq.consumer;
 
+import com.huntercodexs.integration.rabbitmq.core.dto.RabbitDefaultIntegrationDto;
 import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionDlqIntegration;
 import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionRetryIntegration;
 import com.huntercodexs.integration.rabbitmq.core.handler.RabbitExceptionRouterIntegration;
 import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersIntegrationProperties;
+import com.huntercodexs.integration.rabbitmq.core.props.RabbitGlobalIntegrationProperties;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -24,10 +24,10 @@ import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationU
 @RequiredArgsConstructor
 public class RabbitConsumerIntegration {
 
-    private static final Logger log = LoggerFactory.getLogger(RabbitConsumerIntegration.class);
-
     private final StrategyRegistry registry;
     private final RabbitTemplate rabbitTemplate;
+
+    private final RabbitGlobalIntegrationProperties globalProperties;
     private final RabbitConsumersIntegrationProperties consumersProperties;
 
     @RabbitListener(queues = "#{dynamicRabbitQueues}", containerFactory = "rabbitListenerContainerFactory")
@@ -41,7 +41,7 @@ public class RabbitConsumerIntegration {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
 
         // Prevent ambiguous usage
-        if (checkSingleConsumerPropertiesSet(consumersProperties, false)) {
+        if (defaultCheck(false)) {
             List<RabbitConsumersIntegrationProperties> consumer = new ArrayList<>();
             consumer.add(consumersProperties);
             consumersProperties.setConsumers(consumer);
@@ -58,7 +58,7 @@ public class RabbitConsumerIntegration {
 
         if (strategy == null) {
 
-            doLog(consumersProperties, "Strategy not found -> send to DLQ if configured, ack to drop from queue", null);
+            callLog("Strategy not found -> send to DLQ if configured, ack to drop from queue", null);
 
             if (cfg != null && cfg.isDlqEnabled()) {
                 finalize(cfg.getExchange() + ".dlq", cfg.getRoutingKey() + ".dlq", strategyName, raw, -1);
@@ -99,7 +99,7 @@ public class RabbitConsumerIntegration {
             Channel channel
     ) throws Exception {
 
-        doLog(consumersProperties, "Sending message to router queue", null);
+        callLog("Sending message to router queue", null);
 
         if (cfg != null) {
             // Send to retry exchange
@@ -107,7 +107,7 @@ public class RabbitConsumerIntegration {
             // Ack original to remove from queue
             channel.basicAck(deliveryTag, false);
         } else {
-            doLog(consumersProperties, "[CRITICAL] Missing Router Configuration", null);
+            callLog("[CRITICAL] Missing Router Configuration", null);
         }
     }
 
@@ -120,7 +120,7 @@ public class RabbitConsumerIntegration {
             Channel channel
     ) throws Exception {
 
-        doLog(consumersProperties, "Sending message to retry queue", null);
+        callLog("Sending message to retry queue", null);
 
         // Send to retry exchange
         finalize(cfg.getExchange() + ".retry", cfg.getRoutingKey() + ".retry", strategyName, raw, nextRetry);
@@ -136,7 +136,7 @@ public class RabbitConsumerIntegration {
             Channel channel
     ) throws Exception {
 
-        doLog(consumersProperties, "Sending message to DLQ queue", null);
+        callLog("Sending message to DLQ queue", null);
 
         if (cfg != null && cfg.isDlqEnabled()) {
             // Send to DLQ (if configured) or ack/nack to drop
@@ -178,6 +178,29 @@ public class RabbitConsumerIntegration {
         }
 
         return currentRetry + 1;
+    }
+
+    private boolean defaultCheck(boolean logOver) {
+        RabbitDefaultIntegrationDto defaultIntegrationDto = new RabbitDefaultIntegrationDto();
+        defaultIntegrationDto.setName(consumersProperties.getName());
+        defaultIntegrationDto.setExchange(consumersProperties.getExchange());
+        defaultIntegrationDto.setRoutingKey(consumersProperties.getRoutingKey());
+
+        if (!logOver) {
+            defaultIntegrationDto.setLogEnabled(false);
+        } else {
+            defaultIntegrationDto.setLogEnabled(consumersProperties.isLogEnabled() || globalProperties.isLogEnabled());
+        }
+
+        return defaultConsumerPropertiesCheck(defaultIntegrationDto);
+    }
+
+    private void callLog(String text, Object args) {
+        RabbitDefaultIntegrationDto defaultIntegrationDto = new RabbitDefaultIntegrationDto();
+        defaultIntegrationDto.setLogEnabled(consumersProperties.isLogEnabled() || globalProperties.isLogEnabled());
+        defaultIntegrationDto.setLogText(text);
+        defaultIntegrationDto.setLogArgs(args);
+        doLog(defaultIntegrationDto);
     }
 
 }

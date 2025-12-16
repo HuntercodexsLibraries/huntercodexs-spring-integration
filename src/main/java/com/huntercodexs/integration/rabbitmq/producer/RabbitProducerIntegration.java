@@ -1,9 +1,9 @@
 package com.huntercodexs.integration.rabbitmq.producer;
 
+import com.huntercodexs.integration.rabbitmq.core.dto.RabbitDefaultIntegrationDto;
+import com.huntercodexs.integration.rabbitmq.core.props.RabbitGlobalIntegrationProperties;
 import com.huntercodexs.integration.rabbitmq.core.props.RabbitProducersIntegrationProperties;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,8 @@ import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationU
 @RequiredArgsConstructor
 public final class RabbitProducerIntegration {
 
-    private static final Logger log = LoggerFactory.getLogger(RabbitProducerIntegration.class);
-
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitGlobalIntegrationProperties globalProperties;
     private final RabbitProducersIntegrationProperties producersProperties;
 
     public void send(String strategyName, Object payload) {
@@ -32,7 +31,7 @@ public final class RabbitProducerIntegration {
 
         RabbitProducersIntegrationProperties producersProps = findProducersProperties(strategyName);
 
-        doLog(producersProperties, "Sending message to exchange {}", producersProps.getExchange());
+        callLog("Sending message to exchange {}", producersProps.getExchange());
 
         MessageDeliveryMode deliveryMode;
 
@@ -57,7 +56,7 @@ public final class RabbitProducerIntegration {
     }
 
     private RabbitProducersIntegrationProperties findProducersProperties(String strategyName) {
-        doLog(producersProperties, "Trying to find producers properties for strategy {}", strategyName);
+        callLog("Trying to find producers properties for strategy {}", strategyName);
 
         Optional<RabbitProducersIntegrationProperties> cfgOpt = producersProperties.getProducers().stream()
                 .filter(c -> c.getName().equalsIgnoreCase(strategyName))
@@ -68,10 +67,18 @@ public final class RabbitProducerIntegration {
                 && !producersProperties.getExchange().isEmpty()
                 && !producersProperties.getRoutingKey().isEmpty()
         ) {
-            doLog(producersProperties, "Using default producer configuration for strategy: {}", strategyName);
+            callLog("Using default producer configuration for strategy: {}", strategyName);
             return producersProperties;
         }
 
         return cfgOpt.orElseThrow(() -> new IllegalArgumentException("Configuration not found for producer strategy: " + strategyName));
+    }
+
+    private void callLog(String text, Object args) {
+        RabbitDefaultIntegrationDto defaultIntegrationDto = new RabbitDefaultIntegrationDto();
+        defaultIntegrationDto.setLogEnabled(producersProperties.isLogEnabled() || globalProperties.isLogEnabled());
+        defaultIntegrationDto.setLogText(text);
+        defaultIntegrationDto.setLogArgs(args);
+        doLog(defaultIntegrationDto);
     }
 }
