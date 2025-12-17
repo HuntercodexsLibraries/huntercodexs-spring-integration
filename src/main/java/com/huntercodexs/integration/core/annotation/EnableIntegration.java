@@ -16,6 +16,7 @@ import com.huntercodexs.integration.rabbitmq.producer.RabbitProducerIntegration;
 import com.huntercodexs.integration.servicebus.consumer.config.ServiceBusConsumerListConfig;
 import com.huntercodexs.integration.servicebus.consumer.config.ServiceBusConsumerSingleConfig;
 import com.huntercodexs.integration.servicebus.producer.config.ServiceBusProducerConfig;
+import com.huntercodexs.integration.sqs.core.config.SqsConfigIntegration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Import;
 
@@ -42,6 +43,7 @@ import java.lang.annotation.*;
         , ServiceBusConsumerSingleConfig.class
         , ServiceBusProducerConfig.class
         , RabbitProducerIntegration.class
+        , SqsConfigIntegration.class
 })
 public @interface EnableIntegration {
     String[] value();

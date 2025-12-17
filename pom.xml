@@ -154,6 +154,12 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
+        <!--AWS SQS-->
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter-sqs</artifactId>
+        </dependency>
+
         <!--OpenAPI/Swagger-->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
@@ -207,6 +213,13 @@
                 <groupId>com.azure.spring</groupId>
                 <artifactId>spring-cloud-azure-dependencies</artifactId>
                 <version>5.23.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>3.0.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
