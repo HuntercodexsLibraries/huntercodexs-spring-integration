@@ -10,10 +10,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.retry.RetryPolicy;
+import software.amazon.awssdk.core.retry.backoff.BackoffStrategy;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
@@ -23,11 +28,7 @@ public class SqsConfigIntegration {
 
     private static final Logger log = LoggerFactory.getLogger(SqsConfigIntegration.class);
 
-    @Value("${cloud.aws.account-id:}")
-    private String accountId;
-
-    @Value("${cloud.aws.queue.name:}")
-    private String queueName;
+    private static final String QUEUE_NAME_PROPERTY = "cloud.aws.queue.name";
 
     @Value("${cloud.aws.region.static:}")
     private String region;
@@ -41,6 +42,9 @@ public class SqsConfigIntegration {
     @Value("${cloud.aws.endpoint.uri:}")
     private String endpointUri;
 
+    @Value("${cloud.aws.sqs-client.maxAttempts:3}")
+    private int maxAttempts;
+
     @Bean
     public SqsTemplate sqsTemplate() {
         return SqsTemplate.builder().sqsAsyncClient(sqsAsyncClient()).build();
@@ -50,23 +54,51 @@ public class SqsConfigIntegration {
     @Primary
     public SqsAsyncClient sqsAsyncClient() {
 
-        String destination = "https://sqs."+region+".amazonaws.com/"+accountId+"/"+queueName;
+        URI endpoint = (endpointUri != null && !endpointUri.isEmpty())
+                ? URI.create(endpointUri)
+                : URI.create("https://sqs." + region + ".amazonaws.com");
 
-        if (endpointUri != null && !endpointUri.isEmpty()) {
-            destination = endpointUri+accountId+"/"+queueName;
-        }
+        StaticCredentialsProvider credentials =
+                StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)
+                );
 
-        StaticCredentialsProvider credentials = StaticCredentialsProvider
-                .create(AwsBasicCredentials.create(accessKey, secretKey));
+        RetryPolicy retryPolicy = RetryPolicy.builder()
+                .numRetries(maxAttempts)
+                .backoffStrategy(BackoffStrategy.defaultStrategy())
+                .build();
 
         SqsAsyncClient sqsClient = SqsAsyncClient.builder()
                 .credentialsProvider(credentials)
-                .endpointOverride(URI.create(destination))
+                .endpointOverride(endpoint)
                 .region(Region.of(region))
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.builder()
+                                .retryPolicy(retryPolicy)
+                                .build()
+                )
                 .build();
 
         log.info("Sqs Client was configured successfully: {}", sqsClient);
 
         return sqsClient;
+    }
+
+    @Bean(name = "dynamicSqsQueuesConsumer")
+    public List<String> dynamicSqsQueuesConsumer(
+            @Value("${"+QUEUE_NAME_PROPERTY+":}") String queueNamesProperty
+    ) {
+        if (queueNamesProperty == null || queueNamesProperty.trim().isEmpty()) {
+            log.warn("No SQS queues configured in '{}'", QUEUE_NAME_PROPERTY);
+            return List.of();
+        }
+
+        List<String> queues = Arrays.stream(queueNamesProperty.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        log.info("Dynamic SQS queues loaded successfully: {}", queues);
+        return queues;
     }
 }
