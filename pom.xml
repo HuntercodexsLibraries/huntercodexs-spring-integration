@@ -52,6 +52,13 @@
             src/main/java/**/servicebus/consumer/config/ServiceBusConsumerListConfig.java,
             src/main/java/**/servicebus/consumer/config/ServiceBusConsumerSingleConfig.java,
             src/main/java/**/servicebus/consumer/implement/**.java,
+            src/main/java/**/rabbitmq/core/config/RabbitInfraIntegrationConfig.java,
+            src/main/java/**/rabbitmq/core/handler/RabbitExceptionDlqIntegration.java,
+            src/main/java/**/rabbitmq/core/handler/RabbitExceptionRetryIntegration.java,
+            src/main/java/**/rabbitmq/core/handler/RabbitExceptionRouterIntegration.java,
+            src/main/java/**/rabbitmq/consumer/StrategyRegistry.java,
+            src/main/java/**/sqs/producer/SqsProducerIntegration.java,
+            src/main/java/**/sqs/core/config/SqsConfigIntegration.java,
             src/main/java/**/Application.java
         </sonar.coverage.exclusions>
     </properties>

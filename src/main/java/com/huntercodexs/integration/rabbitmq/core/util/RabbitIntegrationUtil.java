@@ -4,6 +4,7 @@ import com.huntercodexs.integration.rabbitmq.core.dto.RabbitDefaultIntegrationDt
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("java:S5361")
 public class RabbitIntegrationUtil {
 
     private static final Logger log = LoggerFactory.getLogger(RabbitIntegrationUtil.class);
@@ -12,6 +13,9 @@ public class RabbitIntegrationUtil {
             "overriding 'consumers' list with a single entry. Is it intended?";
 
     private static final String LIST_RABBIT_FOUNDED_MSG = "==> List RabbitMQ consumers and producers detected";
+
+    private RabbitIntegrationUtil() {
+    }
 
     public static boolean defaultConsumerPropertiesCheck(RabbitDefaultIntegrationDto defaultIntegrationDto) {
         boolean result =

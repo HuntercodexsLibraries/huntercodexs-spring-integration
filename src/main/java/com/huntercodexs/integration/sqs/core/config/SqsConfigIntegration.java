@@ -22,6 +22,7 @@ import java.util.List;
 
 import static com.huntercodexs.integration.constants.IntegrationConstants.GLOBAL_BASE_CONFIG;
 
+@SuppressWarnings("java:S6244")
 @Configuration
 @ConditionalOnProperty(prefix = GLOBAL_BASE_CONFIG+".sqs", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class SqsConfigIntegration {

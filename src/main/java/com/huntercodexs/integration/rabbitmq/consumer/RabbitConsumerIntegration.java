@@ -8,6 +8,8 @@ import com.huntercodexs.integration.rabbitmq.core.props.RabbitConsumersIntegrati
 import com.huntercodexs.integration.rabbitmq.core.props.RabbitGlobalIntegrationProperties;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -23,6 +25,8 @@ import static com.huntercodexs.integration.rabbitmq.core.util.RabbitIntegrationU
 @Component
 @RequiredArgsConstructor
 public class RabbitConsumerIntegration {
+
+    private static final Logger log = LoggerFactory.getLogger(RabbitConsumerIntegration.class);
 
     private final StrategyRegistry registry;
     private final RabbitTemplate rabbitTemplate;
@@ -61,7 +65,7 @@ public class RabbitConsumerIntegration {
             callLog("Strategy not found -> send to DLQ if configured, ack to drop from queue", null);
 
             if (cfg != null && cfg.isDlqEnabled()) {
-                finalize(cfg.getExchange() + ".dlq", cfg.getRoutingKey() + ".dlq", strategyName, raw, -1);
+                sendTo(cfg.getExchange() + ".dlq", cfg.getRoutingKey() + ".dlq", strategyName, raw, -1);
             }
 
             channel.basicAck(deliveryTag, false);
@@ -103,7 +107,7 @@ public class RabbitConsumerIntegration {
 
         if (cfg != null) {
             // Send to retry exchange
-            finalize(cfg.getExchange(), cfg.getRoutingKey(), strategyName, raw, -1);
+            sendTo(cfg.getExchange(), cfg.getRoutingKey(), strategyName, raw, -1);
             // Ack original to remove from queue
             channel.basicAck(deliveryTag, false);
         } else {
@@ -123,7 +127,7 @@ public class RabbitConsumerIntegration {
         callLog("Sending message to retry queue", null);
 
         // Send to retry exchange
-        finalize(cfg.getExchange() + ".retry", cfg.getRoutingKey() + ".retry", strategyName, raw, nextRetry);
+        sendTo(cfg.getExchange() + ".retry", cfg.getRoutingKey() + ".retry", strategyName, raw, nextRetry);
         // Ack original to remove from queue
         channel.basicAck(deliveryTag, false);
     }
@@ -140,7 +144,7 @@ public class RabbitConsumerIntegration {
 
         if (cfg != null && cfg.isDlqEnabled()) {
             // Send to DLQ (if configured) or ack/nack to drop
-            finalize(cfg.getExchange() + ".dlq", cfg.getRoutingKey() + ".dlq", strategyName, raw, -1);
+            sendTo(cfg.getExchange() + ".dlq", cfg.getRoutingKey() + ".dlq", strategyName, raw, -1);
             // Ack original to remove from queue
             channel.basicAck(deliveryTag, false);
         } else {
@@ -149,7 +153,7 @@ public class RabbitConsumerIntegration {
         }
     }
 
-    private void finalize(String exchange, String routingKey, String strategyName, String payload, int nextRetry) {
+    private void sendTo(String exchange, String routingKey, String strategyName, String payload, int nextRetry) {
         rabbitTemplate.convertAndSend(
                 exchange,
                 routingKey,
@@ -173,7 +177,8 @@ public class RabbitConsumerIntegration {
         } else if (rawRetry instanceof String) {
             try {
                 currentRetry = Integer.parseInt((String) rawRetry);
-            } catch (Exception ignored) {
+            } catch (Exception ex) {
+                log.error(ex.getMessage());
             }
         }
 

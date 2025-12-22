@@ -17,15 +17,23 @@ public class SqsCustomHeadersIntegration {
 
     public static SqsCustomHeadersIntegration fromMessageHeaders(Message<?> message) {
         SqsCustomHeadersIntegration headers = new SqsCustomHeadersIntegration();
-        headers.setUrl(String.valueOf(message.getHeaders().get("Sqs_QueueUrl")));
-        headers.setReceivedAt(String.valueOf(message.getHeaders().get("Sqs_ReceivedAt")));
-        headers.setReceivedCount(Integer.parseInt(String.valueOf(message.getHeaders().get("Sqs_Msa_ApproximateReceiveCount"))));
-        headers.setSentTimestamp(String.valueOf(message.getHeaders().get("Sqs_Msa_SentTimestamp")));
-        headers.setApproximateFirstReceiveTimestamp(String.valueOf(message.getHeaders().get("Sqs_Msa_ApproximateFirstReceiveTimestamp")));
-        headers.setQueueName(String.valueOf(message.getHeaders().get("Sqs_QueueName")));
-        headers.setAccountId(String.valueOf(message.getHeaders().get("Sqs_Msa_SenderId")));
-        headers.setMessageId(String.valueOf(message.getHeaders().get("id")));
-        headers.setContentType(String.valueOf(message.getHeaders().get("contentType")));
+        headers.setUrl(getValueOrDefault(message, "Sqs_QueueUrl"));
+        headers.setReceivedAt(getValueOrDefault(message, "Sqs_ReceivedAt"));
+        headers.setReceivedCount(getValueOrZero(message, "Sqs_Msa_ApproximateReceiveCount"));
+        headers.setSentTimestamp(getValueOrDefault(message, "Sqs_Msa_SentTimestamp"));
+        headers.setApproximateFirstReceiveTimestamp(getValueOrDefault(message, "Sqs_Msa_ApproximateFirstReceiveTimestamp"));
+        headers.setQueueName(getValueOrDefault(message, "Sqs_QueueName"));
+        headers.setAccountId(getValueOrDefault(message, "Sqs_Msa_SenderId"));
+        headers.setMessageId(getValueOrDefault(message, "id"));
+        headers.setContentType(getValueOrDefault(message, "contentType"));
         return headers;
+    }
+
+    public static String getValueOrDefault(Message<?> message, String value) {
+        return message.getHeaders().get(value) != null ? String.valueOf(message.getHeaders().get(value)) : null;
+    }
+
+    private static int getValueOrZero(Message<?> message, String value) {
+        return message.getHeaders().get(value) != null ? Integer.parseInt(String.valueOf(message.getHeaders().get(value))) : 0;
     }
 }

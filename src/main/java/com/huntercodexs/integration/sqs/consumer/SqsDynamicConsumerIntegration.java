@@ -10,8 +10,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 import static com.huntercodexs.integration.sqs.consumer.SqsCustomHeadersIntegration.fromMessageHeaders;
+import static com.huntercodexs.integration.sqs.consumer.SqsCustomHeadersIntegration.getValueOrDefault;
 
 @Component
+@SuppressWarnings("java:S2139")
 public class SqsDynamicConsumerIntegration {
 
     private static final Logger log = LoggerFactory.getLogger(SqsDynamicConsumerIntegration.class);
@@ -29,7 +31,7 @@ public class SqsDynamicConsumerIntegration {
         SqsCustomHeadersIntegration headers = fromMessageHeaders(message);
 
         try {
-            queueName = String.valueOf(message.getHeaders().get("x-queue-name"));
+            queueName = getValueOrDefault(message, "x-queue-name");
         } catch (Exception e) {
             log.error("Error when retrieving queue name from headers: {}", e.getMessage());
             throw new IllegalStateException("Error when retrieving queue name from headers", e);

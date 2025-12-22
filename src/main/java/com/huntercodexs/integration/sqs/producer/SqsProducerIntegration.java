@@ -1,5 +1,6 @@
 package com.huntercodexs.integration.sqs.producer;
 
+import com.huntercodexs.integration.handler.exception.InternalServerException;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+@SuppressWarnings("java:S2139")
 @Service
 public class SqsProducerIntegration {
 
@@ -43,9 +45,10 @@ public class SqsProducerIntegration {
 
             sqsTemplate.send(destination, message);
             log.info("Message sent to SQS queue {} successfully", queue);
+
         } catch (RuntimeException re) {
             log.error("SQS Message failed during send: {}", re.getMessage());
-            throw new RuntimeException();
+            throw new InternalServerException("SQS Message failed during send: ", re.getMessage());
         }
 
     }
