@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT;
+import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_RETRYER_HANDLER_EXCEPTION_CUSTOM;
 
 @SuppressWarnings({"java:S2975", "java:S1182", "java:S2629"})
 @RequiredArgsConstructor
@@ -36,21 +36,16 @@ public class RetryLoggerIntegration implements Retryer {
         if (attempt >= maxAttempts) {
 
             Request request = e.request();
-            log.warn("Limit of retries reached, (tries: {}) | method: {} | url: {} | message: {}",
+            log.warn("Limit of retries reached, (tries: {}/{}) | method: {} | url: {} | message: {}",
                     attempt,
+                    maxAttempts,
                     e.method(),
                     request.url(),
                     e.getMessage());
 
-            RetryInterceptorIntegration retryInterceptor = interceptors.stream()
-                    .filter(r -> r.supports(CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT))
-                    .findFirst()
-                    .orElse(null);
-
-            if (retryInterceptor != null) {
-                retryInterceptor.execute();
-                return;
-            }
+            interceptors.stream()
+                    .filter(r -> r.supports(CORE_RETRYER_HANDLER_EXCEPTION_CUSTOM))
+                    .findFirst().ifPresent(RetryInterceptorIntegration::execute);
 
             throw new IntegrationRetryAttemptsExceededException("Integration Retries Exceeded: " + attempt, e);
 

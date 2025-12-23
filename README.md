@@ -1263,6 +1263,141 @@ dentro do arquivo pom.xml
 
 ### Recursos
 
+A biblioteca huntercodexs-spring-integration oferece muito mais do que simplesmente integrar APIs e microservicos, ela 
+oferece uma serie de recursos uteis para implementacoes complexas como interceptores, proxy, retentativas, logs dentre 
+outros, a seguir a lista de recursos:
+
+- Proxy
+
+Ative o proxy antes de fazer o uso do mesmo com a propriedade
+
+```properties
+huntercodexs.integration.client.config.proxy.enable=true
+```
+
+Apos ativar o proxy configure o host e a porta, por exemplo
+
+```properties
+huntercodexs.integration.client.config.proxy.host=myproxy.com
+huntercodexs.integration.client.config.proxy.port=8080
+```
+
+- Retry
+
+O recurso de retentativa considera a seguinte configuracao
+
+```properties
+huntercodexs.integration.client.config.retryer.period=3000
+huntercodexs.integration.client.config.retryer.max-period=10000
+huntercodexs.integration.client.config.retryer.max-attempts=3
+```
+
+Com essas propriedades e possivel criar um sistema de retentativa eficiente e escalavel, sendo esses os valores default 
+para o retryer do Feign. A retentativa e disparada automaticamente quando e detectada alguma falha durante a requisicao 
+de uma API.
+
+Ainda e possivel implementar a interface RetryInterceptorIntegration.java para personlizacao de comportamento da API 
+quando a quantidade de tentativas e excedida, conforme mostrado a seguir
+
+```java
+package com.huntercodexs.sample.component.interceptor;
+
+import com.huntercodexs.integration.core.interfaces.RetryInterceptorIntegration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_RETRYER_HANDLER_EXCEPTION_CUSTOM;
+
+@Component
+public class RetryInterceptorCustomSimulation implements RetryInterceptorIntegration {
+
+    private static final Logger log = LoggerFactory.getLogger(RetryInterceptorCustomSimulation.class);
+
+    @Override
+    public boolean supports(Object value) {
+        return value.toString().equals(CORE_RETRYER_HANDLER_EXCEPTION_CUSTOM);
+    }
+
+    @Override
+    public void execute() {
+        log.info("This is a CUSTOM retry interceptor integration");
+    }
+}
+```
+
+Quando essa abordagem e usada, temos entao a possibilidade de executar alguma operacao antes de finalizar as tentativas, 
+o log nessa situacao pode parecer com algo assim
+
+```text
+2025-12-23 17:32:31.819 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - No interceptor found for target: invalid-api
+2025-12-23 17:32:31.820 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logRequest - Request sent - method: POST | url: http://localhost:8085/api/users/create | headers: {Content-Length=53, Content-Type=application/json} | body: {"name":"Username Test","email":"username@email.com"}
+2025-12-23 17:32:31.825 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.retry.RetryLoggerIntegration.continueOrPropagate - Retrying request - 1/3 | method: POST | url: http://localhost:8085/api/users/create | message: Connection refused executing POST http://localhost:8085/api/users/create
+2025-12-23 17:32:33.827 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - No interceptor found for target: invalid-api
+2025-12-23 17:32:33.827 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logRequest - Request sent - method: POST | url: http://localhost:8085/api/users/create | headers: {Content-Length=53, Content-Type=application/json} | body: {"name":"Username Test","email":"username@email.com"}
+2025-12-23 17:32:33.828 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.retry.RetryLoggerIntegration.continueOrPropagate - Retrying request - 2/3 | method: POST | url: http://localhost:8085/api/users/create | message: Connection refused executing POST http://localhost:8085/api/users/create
+2025-12-23 17:32:37.829 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - No interceptor found for target: invalid-api
+2025-12-23 17:32:37.830 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logRequest - Request sent - method: POST | url: http://localhost:8085/api/users/create | headers: {Content-Length=53, Content-Type=application/json} | body: {"name":"Username Test","email":"username@email.com"}
+2025-12-23 17:32:37.831 [http-nio-8080-exec-1] [WARN ] [jereelton-acer-nitro] c.h.i.c.retry.RetryLoggerIntegration.continueOrPropagate - Limit of retries reached, (tries: 3/3) | method: POST | url: http://localhost:8085/api/users/create | message: Connection refused executing POST http://localhost:8085/api/users/create
+2025-12-23 17:32:37.831 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.s.c.i.RetryInterceptorCustomSimulation.execute - This is a CUSTOM retry interceptor integration
+2025-12-23 17:32:37.834 [http-nio-8080-exec-1] [ERROR] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.handleIntegrationRetryAttemptsExceededException - Limit of requests exceeded for Integration: Integration Retries Exceeded: 3
+2025-12-23 17:32:37.834 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.buildErrorResponse - No tracker provided; generated automatically: f0024aec-8fd8-4219-813f-fd44f635e095
+2025-12-23 17:32:37.835 [http-nio-8080-exec-1] [ERROR] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.logException - [f0024aec-8fd8-4219-813f-fd44f635e095] 503 SERVICE_UNAVAILABLE - Limit of requests exceeded for Integration | errors=[Integration Retries Exceeded: 3]
+```
+
+Repare no trecho de log "This is a CUSTOM retry interceptor integration" onde foi implementado o codigo.
+
+- Interceptor
+
+Um dos recursos mais uteis dessa biblioteca chamada huntercodexs-spring-integration e o interceptor, com ele e possivel 
+interceptar uma requisicao antes mesmo de ela sair da aplicacao, efetuando algum alteracao especifica como adicionar 
+uma nova header, ou encriptar algum dado.
+
+
+
+!!!!!!!!!!!!!!!
+
+
+- Logger
+
+O log e feito durante a requisicao/integracao de uma API e tambem durante o recebimento da resposta dessa integracao. Caso
+seja necessario desabilitar o log use a seguinte propriedade
+
+```properties
+huntercodexs.integration.client.config.logging.enabled=true
+```
+
+O log deve ter a seguinte aparencia
+
+Requisicao e Recepcao de dados
+```text
+2025-12-23 16:43:24.962 [http-nio-8080-exec-2] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logRequest - Request sent - method: POST | url: http://localhost:8080/api/users/create | headers: {Authorization=Bearer UserManagerTokenFake, Content-Length=53, Content-Type=application/json} | body: {"name":"Username Test","email":"username@email.com"}
+2025-12-23 16:43:25.015 [http-nio-8080-exec-2] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logAndRebufferResponse - Request received - status: 200 | elapsedTime: 53ms | headers: {date=Tue, 23 Dec 2025 19:43:25 GMT, content-length=0, keep-alive=timeout=60, connection=keep-alive} | body: 
+```
+Inteceptacao de Request
+```text
+2025-12-23 16:43:24.961 [http-nio-8080-exec-2] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - Interceptor applied for target: user, headers: {Authorization=[Bearer UserManagerTokenFake], Content-Length=[53], Content-Type=[application/json]}
+```
+Retentativas
+```text
+2025-12-23 17:24:27.919 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - No interceptor found for target: invalid-api
+2025-12-23 17:24:27.920 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logRequest - Request sent - method: POST | url: http://localhost:8085/api/users/create | headers: {Content-Length=53, Content-Type=application/json} | body: {"name":"Username Test","email":"username@email.com"}
+2025-12-23 17:24:27.925 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.retry.RetryLoggerIntegration.continueOrPropagate - Retrying request - 1/3 | method: POST | url: http://localhost:8085/api/users/create | message: Connection refused executing POST http://localhost:8085/api/users/create
+2025-12-23 17:24:29.927 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - No interceptor found for target: invalid-api
+2025-12-23 17:24:29.928 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logRequest - Request sent - method: POST | url: http://localhost:8085/api/users/create | headers: {Content-Length=53, Content-Type=application/json} | body: {"name":"Username Test","email":"username@email.com"}
+2025-12-23 17:24:29.930 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.retry.RetryLoggerIntegration.continueOrPropagate - Retrying request - 2/3 | method: POST | url: http://localhost:8085/api/users/create | message: Connection refused executing POST http://localhost:8085/api/users/create
+2025-12-23 17:24:33.932 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - No interceptor found for target: invalid-api
+2025-12-23 17:24:33.933 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.c.logger.HttpLoggerIntegration.logRequest - Request sent - method: POST | url: http://localhost:8085/api/users/create | headers: {Content-Length=53, Content-Type=application/json} | body: {"name":"Username Test","email":"username@email.com"}
+2025-12-23 17:24:33.936 [http-nio-8080-exec-1] [WARN ] [jereelton-acer-nitro] c.h.i.c.retry.RetryLoggerIntegration.continueOrPropagate - Limit of retries reached, (tries: 3/3) | method: POST | url: http://localhost:8085/api/users/create | message: Connection refused executing POST http://localhost:8085/api/users/create
+2025-12-23 17:24:33.951 [http-nio-8080-exec-1] [ERROR] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.handleIntegrationRetryAttemptsExceededException - Limit of requests exceeded for Integration: Integration Retries Exceeded: 3
+2025-12-23 17:24:33.951 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.buildErrorResponse - No tracker provided; generated automatically: 238191e2-9f5b-47b0-9d0f-44247023e4d1
+2025-12-23 17:24:33.956 [http-nio-8080-exec-1] [ERROR] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.logException - [238191e2-9f5b-47b0-9d0f-44247023e4d1] 503 SERVICE_UNAVAILABLE - Limit of requests exceeded for Integration | errors=[Integration Retries Exceeded: 3]
+```
+Circuit Breaker Aberto
+```text
+2025-12-23 16:43:24.961 [http-nio-8080-exec-2] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - Interceptor applied for target: user, headers: {Authorization=[Bearer UserManagerTokenFake], Content-Length=[53], Content-Type=[application/json]}
+```
+
 ### Compilacao
 
 ### Programacao

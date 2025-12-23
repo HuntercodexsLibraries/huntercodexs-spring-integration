@@ -10,6 +10,6 @@ public class CoreIntegrationConstants {
     public static final String CORE_LOGGING_APP_CONFIG = GLOBAL_BASE_CONFIG + ".client.config.logging";
     public static final String CORE_PROXY_APP_CONFIG = GLOBAL_BASE_CONFIG + ".client.config.proxy";
     public static final String CORE_RETRYER_APP_CONFIG = GLOBAL_BASE_CONFIG + ".client.config.retryer";
-    public static final String CORE_RETRYER_HANDLER_EXCEPTION_DEFAULT = "__DEFAULT__";
+    public static final String CORE_RETRYER_HANDLER_EXCEPTION_CUSTOM = "__CUSTOM__";
 
 }
