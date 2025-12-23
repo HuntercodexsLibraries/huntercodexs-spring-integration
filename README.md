@@ -228,88 +228,88 @@ Para utilizar os recursos do openapi de forma correta sera necessario implementa
 1. Adicione o plugin maven para buildar os sources no arquivo pom.xml
 
 ```xml
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>target/generated/swagger/gen</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>build-helper-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+                <goal>add-source</goal>
+            </goals>
+            <configuration>
+                <sources>
+                    <source>target/generated/swagger/gen</source>
+                </sources>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
 ```
 
 2. Adicione tambem o plugin maven do openapi generator, conforme mostrado abaixo
 
 ```xml
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.16.0</version>
-                <executions>
+<plugin>
+    <groupId>org.openapitools</groupId>
+    <artifactId>openapi-generator-maven-plugin</artifactId>
+    <version>7.16.0</version>
+    <executions>
 
-                    <!--OPENAPI Sample-->
-                    <execution>
-                        <id>users</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>./src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
-                            <generatorName>spring</generatorName>
-                            <modelPackage>com.huntercodexs.api.users.model</modelPackage>
-                            <apiPackage>com.huntercodexs.api.users.api</apiPackage>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <generateSupportingFiles>true</generateSupportingFiles>
-                                <sourceFolder>gen</sourceFolder>
-                                <interfaceOnly>true</interfaceOnly>
-                                <skipDefaultInterface>true</skipDefaultInterface>
-                                <java21>true</java21>
-                                <serializableModel>true</serializableModel>
-                            </configOptions>
-                            <templateDirectory>./src/main/resources/openapi/templates</templateDirectory>
-                        </configuration>
-                    </execution>
+        <!--OPENAPI Sample-->
+        <execution>
+            <id>users</id>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+            <configuration>
+                <inputSpec>./src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
+                <generatorName>spring</generatorName>
+                <modelPackage>com.huntercodexs.api.users.model</modelPackage>
+                <apiPackage>com.huntercodexs.api.users.api</apiPackage>
+                <configOptions>
+                    <useJakartaEe>true</useJakartaEe>
+                    <useSpringBoot3>true</useSpringBoot3>
+                    <generateSupportingFiles>true</generateSupportingFiles>
+                    <sourceFolder>gen</sourceFolder>
+                    <interfaceOnly>true</interfaceOnly>
+                    <skipDefaultInterface>true</skipDefaultInterface>
+                    <java21>true</java21>
+                    <serializableModel>true</serializableModel>
+                </configOptions>
+                <templateDirectory>./src/main/resources/openapi/templates</templateDirectory>
+            </configuration>
+        </execution>
 
-                    <!--FEIGN Sample-->
-                    <execution>
-                        <id>users-data</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
-                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
-                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
-                            <generatorName>spring</generatorName>
-                            <library>spring-cloud</library>
-                            <configHelp/>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <performBeanValidation>true</performBeanValidation>
-                                <sourceFolder>gen</sourceFolder>
-                                <java21>true</java21>
-                                <useTags>true</useTags>
-                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
-                            </configOptions>
-                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
-                        </configuration>
-                    </execution>
+        <!--FEIGN Sample-->
+        <execution>
+            <id>users-data</id>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+            <configuration>
+                <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+                <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+                <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
+                <generatorName>spring</generatorName>
+                <library>spring-cloud</library>
+                <configHelp/>
+                <configOptions>
+                    <useJakartaEe>true</useJakartaEe>
+                    <useSpringBoot3>true</useSpringBoot3>
+                    <performBeanValidation>true</performBeanValidation>
+                    <sourceFolder>gen</sourceFolder>
+                    <java21>true</java21>
+                    <useTags>true</useTags>
+                    <title>usersData</title> <!-- Used for feign bean name and uri property-->
+                </configOptions>
+                <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+            </configuration>
+        </execution>
 
-                </executions>
-            </plugin>
+    </executions>
+</plugin>
 ```
 
 Repare que existem duas configuracoes (execution) dentro do bloco do plugin openapi-generator, uma para OPENAPI e outro 
@@ -333,30 +333,30 @@ Voltando a falar sobre a estrutura de configuracao do arquivo pom.xml, vamos obs
 configuracao para definicoes de contrato da API
 
 ```xml
-                    <!--OPENAPI Sample-->
-                    <execution>
-                        <id>users</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>./src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
-                            <generatorName>spring</generatorName>
-                            <modelPackage>com.huntercodexs.api.users.model</modelPackage>
-                            <apiPackage>com.huntercodexs.api.users.api</apiPackage>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <generateSupportingFiles>true</generateSupportingFiles>
-                                <sourceFolder>gen</sourceFolder>
-                                <interfaceOnly>true</interfaceOnly>
-                                <skipDefaultInterface>true</skipDefaultInterface>
-                                <java21>true</java21>
-                                <serializableModel>true</serializableModel>
-                            </configOptions>
-                            <templateDirectory>./src/main/resources/openapi/templates</templateDirectory>
-                        </configuration>
-                    </execution>
+<!--OPENAPI Sample-->
+<execution>
+    <id>users</id>
+    <goals>
+        <goal>generate</goal>
+    </goals>
+    <configuration>
+        <inputSpec>./src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
+        <generatorName>spring</generatorName>
+        <modelPackage>com.huntercodexs.api.users.model</modelPackage>
+        <apiPackage>com.huntercodexs.api.users.api</apiPackage>
+        <configOptions>
+            <useJakartaEe>true</useJakartaEe>
+            <useSpringBoot3>true</useSpringBoot3>
+            <generateSupportingFiles>true</generateSupportingFiles>
+            <sourceFolder>gen</sourceFolder>
+            <interfaceOnly>true</interfaceOnly>
+            <skipDefaultInterface>true</skipDefaultInterface>
+            <java21>true</java21>
+            <serializableModel>true</serializableModel>
+        </configOptions>
+        <templateDirectory>./src/main/resources/openapi/templates</templateDirectory>
+    </configuration>
+</execution>
 ```
 
 Observe que a configuracao e composta pelos seguintes campos: id, inputSpec, modelPackage, apiPackage, configOptions e
@@ -372,31 +372,31 @@ templateDirectory, sendo elas descritas a seguir:
 Agora vamos observar o que temos no bloco de configuracoes do pom.xml para integracoes FEIGN
 
 ```xml
-                    <!--FEIGN Sample-->
-                    <execution>
-                        <id>users-data</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
-                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
-                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
-                            <generatorName>spring</generatorName>
-                            <library>spring-cloud</library>
-                            <configHelp/>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <performBeanValidation>true</performBeanValidation>
-                                <sourceFolder>gen</sourceFolder>
-                                <java21>true</java21>
-                                <useTags>true</useTags>
-                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
-                            </configOptions>
-                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
-                        </configuration>
-                    </execution>
+<!--FEIGN Sample-->
+<execution>
+    <id>users-data</id>
+    <goals>
+        <goal>generate</goal>
+    </goals>
+    <configuration>
+        <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+        <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+        <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
+        <generatorName>spring</generatorName>
+        <library>spring-cloud</library>
+        <configHelp/>
+        <configOptions>
+            <useJakartaEe>true</useJakartaEe>
+            <useSpringBoot3>true</useSpringBoot3>
+            <performBeanValidation>true</performBeanValidation>
+            <sourceFolder>gen</sourceFolder>
+            <java21>true</java21>
+            <useTags>true</useTags>
+            <title>usersData</title> <!-- Used for feign bean name and uri property-->
+        </configOptions>
+        <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+    </configuration>
+</execution>
 ```
 
 Observe que a configuracao e composta pelos seguintes campos: id, inputSpec, modelPackage, apiPackage, configOptions e
@@ -1177,31 +1177,31 @@ isso sera explicada em detalhes
 2 - pom.xml: Ja nesse arquivo sera necessario (conforme dito anteriormente) as seguintes configuracoes
 
 ```xml
-                    <!--FEIGN Sample-->
-                    <execution>
-                        <id>users-data</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
-                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
-                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
-                            <generatorName>spring</generatorName>
-                            <library>spring-cloud</library>
-                            <configHelp/>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <performBeanValidation>true</performBeanValidation>
-                                <sourceFolder>gen</sourceFolder>
-                                <java21>true</java21>
-                                <useTags>true</useTags>
-                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
-                            </configOptions>
-                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
-                        </configuration>
-                    </execution>
+<!--FEIGN Sample-->
+<execution>
+    <id>users-data</id>
+    <goals>
+        <goal>generate</goal>
+    </goals>
+    <configuration>
+        <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+        <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+        <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
+        <generatorName>spring</generatorName>
+        <library>spring-cloud</library>
+        <configHelp/>
+        <configOptions>
+            <useJakartaEe>true</useJakartaEe>
+            <useSpringBoot3>true</useSpringBoot3>
+            <performBeanValidation>true</performBeanValidation>
+            <sourceFolder>gen</sourceFolder>
+            <java21>true</java21>
+            <useTags>true</useTags>
+            <title>usersData</title> <!-- Used for feign bean name and uri property-->
+        </configOptions>
+        <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+    </configuration>
+</execution>
 ```
 
 Um ponto importante e que para cada integracao devera ser criado um bloco de configuracao como esse, como por exemplo: 
@@ -1209,56 +1209,56 @@ Imagine que temos duas integracoes, uma de usuario e outra de dados, entao teria
 dentro do arquivo pom.xml
 
 ```xml
-                    <!--FEIGN Sample-->
-                    <execution>
-                        <id>users</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>./src/main/resources/feign/openapi/USER-SAMPLE-API.yaml</inputSpec>
-                            <modelPackage>com.huntercodexs.integration.users.model</modelPackage>
-                            <apiPackage>com.huntercodexs.integration.users.api</apiPackage>
-                            <generatorName>spring</generatorName>
-                            <library>spring-cloud</library>
-                            <configHelp/>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <performBeanValidation>true</performBeanValidation>
-                                <sourceFolder>gen</sourceFolder>
-                                <java21>true</java21>
-                                <useTags>true</useTags>
-                                <title>users</title> <!-- Used for feign bean name and uri property-->
-                            </configOptions>
-                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
-                        </configuration>
-                    </execution>
+<!--FEIGN Sample-->
+<execution>
+    <id>users</id>
+    <goals>
+        <goal>generate</goal>
+    </goals>
+    <configuration>
+        <inputSpec>./src/main/resources/feign/openapi/USER-SAMPLE-API.yaml</inputSpec>
+        <modelPackage>com.huntercodexs.integration.users.model</modelPackage>
+        <apiPackage>com.huntercodexs.integration.users.api</apiPackage>
+        <generatorName>spring</generatorName>
+        <library>spring-cloud</library>
+        <configHelp/>
+        <configOptions>
+            <useJakartaEe>true</useJakartaEe>
+            <useSpringBoot3>true</useSpringBoot3>
+            <performBeanValidation>true</performBeanValidation>
+            <sourceFolder>gen</sourceFolder>
+            <java21>true</java21>
+            <useTags>true</useTags>
+            <title>users</title> <!-- Used for feign bean name and uri property-->
+        </configOptions>
+        <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+    </configuration>
+</execution>
 
-                    <execution>
-                        <id>data</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>./src/main/resources/feign/openapi/DATA-SAMPLE-API.yaml</inputSpec>
-                            <modelPackage>com.huntercodexs.integration.data.model</modelPackage>
-                            <apiPackage>com.huntercodexs.integration.data.api</apiPackage>
-                            <generatorName>spring</generatorName>
-                            <library>spring-cloud</library>
-                            <configHelp/>
-                            <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <performBeanValidation>true</performBeanValidation>
-                                <sourceFolder>gen</sourceFolder>
-                                <java21>true</java21>
-                                <useTags>true</useTags>
-                                <title>data</title> <!-- Used for feign bean name and uri property-->
-                            </configOptions>
-                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
-                        </configuration>
-                    </execution>
+<execution>
+    <id>data</id>
+    <goals>
+        <goal>generate</goal>
+    </goals>
+    <configuration>
+        <inputSpec>./src/main/resources/feign/openapi/DATA-SAMPLE-API.yaml</inputSpec>
+        <modelPackage>com.huntercodexs.integration.data.model</modelPackage>
+        <apiPackage>com.huntercodexs.integration.data.api</apiPackage>
+        <generatorName>spring</generatorName>
+        <library>spring-cloud</library>
+        <configHelp/>
+        <configOptions>
+            <useJakartaEe>true</useJakartaEe>
+            <useSpringBoot3>true</useSpringBoot3>
+            <performBeanValidation>true</performBeanValidation>
+            <sourceFolder>gen</sourceFolder>
+            <java21>true</java21>
+            <useTags>true</useTags>
+            <title>data</title> <!-- Used for feign bean name and uri property-->
+        </configOptions>
+        <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+    </configuration>
+</execution>
 ```
 
 ### Recursos
