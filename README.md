@@ -10,10 +10,11 @@ Library to help developers make integration easily
 
 ![integration-banner.png](files/img/integration-banner.png)
 
-- [OpenAPI (Swagger)](#openapi)
 - [Mustache](#mustache)
+- [OpenAPI (Swagger)](#openapi)
 - [Codegen (openapi-generator-maven-plugin)](#codegen-openapi-generator-maven-plugin)
 - [Feign](#feign)
+- [Global Handler Interceptor](#global-handler-interceptor)
 - [Circuit Breaker](#circuit-breaker)
 - [Rate Limit (API)](#rate-limit-for-apis)
 - [Rate Limit (Service Bus)](#rate-limit-service-bus)
@@ -189,11 +190,28 @@ os recursos presentes nela.
 A seguir iremos descrever item a item dos recursos que compoe essa biblioteca, sendo que para cada um deles voce podera 
 encontrar alem de uma explicacao detalhada exemplos de uso e implementacoes diversas.
 
+# Mustache
+
+Mustache é um mecanismo de template leve e sem lógica, utilizado para gerar arquivos de texto a partir de modelos
+predefinidos. Ele permite separar a estrutura do documento dos dados, facilitando a criação de classes padronizadas e
+pré-formatadas. No contexto de projetos Java e contratos, o Mustache pode ser empregado para automatizar a geração de
+código, documentação ou contratos, garantindo consistência, agilidade e controle sobre o processo. Ao definir
+templates, é possível criar rapidamente estruturas reutilizáveis, reduzindo erros manuais e acelerando o
+desenvolvimento, especialmente em integrações e padronizações de APIs.
+
+Voce pode personalizar os arquivos de configuracao mustache de acordo com suas necessidades, mas para iniciar do zero
+basta usar os arquivos disponiveis em `src/main/resources/support/openapi/templates` e/ou `src/main/resources/support/feign/templates`,
+ressaltando que os templates em openapi/templates sao usados para geracao de contratos da API com seus consumidores e
+os arquivos em feign/templates sao usados para gerar a propria integracao nas aplicacoes consumidores, contendo em sua
+estrutura circuit breakers e o proprio feign.
+
 # OpenAPI
 
 OpenAPI é uma especificação que define um padrão para descrever APIs REST de forma estruturada e compreensível tanto 
 para humanos quanto para máquinas. O documento OpenAPI, geralmente escrito em YAML ou JSON, detalha os endpoints, 
 métodos HTTP, parâmetros, respostas, autenticação e outros aspectos da API.
+
+![swagger-sample.png](files/img/swagger-sample.png)
 
 Swagger é um conjunto de ferramentas que facilita a criação, visualização e validação de documentos OpenAPI. 
 Com Swagger UI, por exemplo, é possível apresentar a documentação de forma interativa ao time, permitindo testes e 
@@ -980,16 +998,134 @@ components:
       bearerFormat: JWT
 ```
 
-O exemplo pode tambem ser encontrado no caminho desse repositorio em `src/main/resources/support/openapi`
+O exemplo pode tambem ser encontrado no caminho desse repositorio em `src/main/resources/support/openapi`.
 
-# Mustache
+### Maven command
 
-Mustache é um mecanismo de template leve e sem lógica, utilizado para gerar arquivos de texto a partir de modelos 
-predefinidos. Ele permite separar a estrutura do documento dos dados, facilitando a criação de classes padronizadas e 
-pré-formatadas. No contexto de projetos Java e contratos, o Mustache pode ser empregado para automatizar a geração de 
-código, documentação ou contratos, garantindo consistência, agilidade e controle sobre o processo. Ao definir 
-templates, é possível criar rapidamente estruturas reutilizáveis, reduzindo erros manuais e acelerando o 
-desenvolvimento, especialmente em integrações e padronizações de APIs.
+Agora que voce configurou todos os arquivos relacionados ao OPENAPI, basta rodar o comando na sua IDE
+
+```shell
+mvn clean install -DskipTests
+```
+
+A saida/conclusao devera ser algo como mostrado a seguir
+
+***Gerado a partir da IDE IntelliJ***
+![mvncleaninstall.png](files/img/mvncleaninstall.png)
+
+Apos a conclusao do comando, serao gerados todos os arquivos necessarios para iniciar a programacao da API e utilizar 
+os arquivos resultados como base para integracao de outras aplicacoes com a aplicacao atual. Os arquivos gerados estarao 
+disponiveis no caminho `target/generated-sources/openapi/gen` conforme ilustrado a seguir
+
+![targetsample.png](files/img/targetsample.png)
+
+> DICA: Caso a pasta gen nao esteja marcada como "Generated Resources Root", clique com o botao direito sobre ela e 
+> marque ela como tal, pois a IDE IntelliJ ou outra qualquer pode nao encontrar esses arquivos automaticamente.
+
+### Implementacao
+
+Agora com todos os arquivos e configuracoes criados, podemos dar inicio a programacao da API, criando os controllers 
+e implementando as interfaces que foram gerados a partir do arquivo YAML, Sendo assim vamos iniciar criando o controller 
+UsersControllerSimulation.java
+
+```java
+package com.huntercodexs.sample.controlller;
+
+import com.huntercodexs.api.users.api.UsersApi;
+import com.huntercodexs.api.users.model.*;
+import com.huntercodexs.integration.ratelimit.annotation.RateLimit;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.TimeUnit;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/simulation")
+public class UsersApiControllerSimulation implements UsersApi {
+
+    @Override
+    public ResponseEntity<CreateUserResponse> createNewUser(CreateUserRequest createUserRequest) {
+        System.out.println("Creating new user: " + createUserRequest);
+        return null;
+    }
+}
+```
+
+Observe que ao implementar `UsersApi.java` em nossa aplicacao automaticamente temos acesso aos metodos contidos dentro 
+dessa interface, assim como os objetos e detalhes pertinentes a ela, e tudo isso foi gerado a partir do arquivo YAML.
+
+Se voce der uma espiada nesse metodo `createNewUesr` vera que realmente foi tudo o que voce definiou no arquivo YAML e 
+seu conteudo sera mais ou menos igual a
+
+```java
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-23T15:06:39.938308216-03:00[America/Sao_Paulo]", comments = "Generator version: 7.16.0")
+@Validated
+@Tag(name = "Users Management", description = "the Users Management API")
+public interface UsersApi {
+
+    public static final String PATH_CREATE_NEW_USER = "/users";
+
+    /**
+     * POST /users : Create a new User
+     * ## Responsibilities * Creates a new User entity in the system.  ---  ## Requirements * To access this endpoint, the client must have one of the following role sets:   * &#x60;ADMIN&#x60; and &#x60;USER&#x60; and &#x60;AUTH-BASIC&#x60; 
+     *
+     * @param createUserRequest  (required)
+     * @return User successfully created (status code 201)
+     *         or Bad Request  This endpoint can throw the following errors:  &#x60;&#x60;&#x60; [{\&quot;code\&quot;: \&quot;400\&quot;, \&quot;message\&quot;: \&quot;Username is required.\&quot;}] &#x60;&#x60;&#x60;  (status code 400)
+     *         or Unauthorized (status code 401)
+     *         or Forbidden (status code 403)
+     *         or Unprocessable Entity  This endpoint can throw the following errors:  &#x60;&#x60;&#x60; [{ \&quot;code\&quot;: \&quot;422001\&quot;, \&quot;message\&quot;: \&quot;The user already exists.\&quot; }] &#x60;&#x60;&#x60;  (status code 422)
+     *         or Internal Server Error  This endpoint can throw the following errors:  &#x60;&#x60;&#x60; [{ \&quot;code\&quot;: \&quot;500001\&quot;, \&quot;message\&quot;: \&quot;Failed to integrate with User Data Sample API.\&quot; }] &#x60;&#x60;&#x60;  (status code 500)
+     *         or Unexpected Error (status code 200)
+     */
+    @Operation(
+            operationId = "createNewUser",
+            summary = "Create a new User",
+            description = "## Responsibilities * Creates a new User entity in the system.  ---  ## Requirements * To access this endpoint, the client must have one of the following role sets:   * `ADMIN` and `USER` and `AUTH-BASIC` ",
+            tags = {"Users Management"},
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "User successfully created", content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = CreateUserResponse.class))
+                    }),
+                    @ApiResponse(responseCode = "400", description = "Bad Request  This endpoint can throw the following errors:  ``` [{\"code\": \"400\", \"message\": \"Username is required.\"}] ``` ", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorModelInner.class)))
+                    }),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorModelInner.class)))
+                    }),
+                    @ApiResponse(responseCode = "403", description = "Forbidden", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorModelInner.class)))
+                    }),
+                    @ApiResponse(responseCode = "422", description = "Unprocessable Entity  This endpoint can throw the following errors:  ``` [{ \"code\": \"422001\", \"message\": \"The user already exists.\" }] ``` ", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorModelInner.class)))
+                    }),
+                    @ApiResponse(responseCode = "500", description = "Internal Server Error  This endpoint can throw the following errors:  ``` [{ \"code\": \"500001\", \"message\": \"Failed to integrate with User Data Sample API.\" }] ``` ", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorModelInner.class)))
+                    }),
+                    @ApiResponse(responseCode = "default", description = "Unexpected Error", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ErrorModelInner.class)))
+                    })
+            },
+            security = {
+                    @SecurityRequirement(name = "bearerAuth")
+            }
+    )
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = UsersApi.PATH_CREATE_NEW_USER,
+            produces = {"application/json"},
+            consumes = {"application/json"}
+    )
+    ResponseEntity<CreateUserResponse> createNewUser(
+            @Parameter(name = "CreateUserRequest", description = "", required = true) @Valid @RequestBody CreateUserRequest createUserRequest
+    );
+}
+```
+
+Agora e so criar as Services e demais classes para tratar a regra de negocio da aplicacao.
 
 # Codegen (openapi-generator-maven-plugin)
 
@@ -999,12 +1135,146 @@ contratos definidos em YAML são convertidos em implementações Java, reduzindo
 A configuração do plugin no Maven possibilita customizar templates e integrar o processo de geração ao ciclo de build 
 do projeto.
 
+Esse recurso ja foi apresentado anteriormente em Como Usar, sendo assim nao necessita de mais explicacoes no momento.
+
 # Feign
 
 Feign é um cliente HTTP declarativo para Java, utilizado para simplificar chamadas a APIs REST. Ele permite definir 
 interfaces que representam endpoints remotos, tornando o consumo de serviços externos mais simples e integrado ao 
 Spring Boot. Na prática, basta criar uma interface anotada com `@FeignClient` e declarar os métodos correspondentes às 
 requisições desejadas, sem necessidade de implementar lógica de comunicação manual.
+
+Aqui comeca a principal fonte de integracao da biblioteca huntercodexs-spring-integration, onde temos possibilidade de 
+implementar de forma simples e objetiva integracoes entre APIs utilizando REST. Para isso vamos pontuar os seguintes 
+topicos que iremos tratar para uma implementacao satisfatoria do Feign:
+
+### Definicao
+
+Apos a definicao de contrato da API, que nada mais e do que definir como a API sera servida, qual metodo HTTP 
+sera utilizado e quais objetos de entrada e saida serao processados. Esse arquivo ja foi explicado anteriormente e nao
+necessita mais delongas a cerca de sua estrutura e utilidade, mas tenha em mente que ele sera a peca chave para iniciar 
+os desenvolvimento de toda a aplicacao em questao.
+
+### Configuracao
+
+A configuracao e feita atraves dos seguintes arquivos
+
+1 - application.propoerties: Nesse arquivo sera necessario definir as seguintes propriedades
+
+```properties
+# FEIGN CONFIG
+huntercodexs.integration.client.config.logging.enabled=true
+huntercodexs.integration.client.config.retryer.period=3000
+huntercodexs.integration.client.config.retryer.max-period=10000
+huntercodexs.integration.client.config.retryer.max-attempts=3
+huntercodexs.integration.client.config.proxy.enable=false
+huntercodexs.integration.client.config.proxy.host=localhost
+huntercodexs.integration.client.config.proxy.port=8080
+```
+Cada uma dessas propriedades sera utilizada durante a programacao da aplicacao, em um momento oportuno e adequado tudo 
+isso sera explicada em detalhes
+
+2 - pom.xml: Ja nesse arquivo sera necessario (conforme dito anteriormente) as seguintes configuracoes
+
+```xml
+                    <!--FEIGN Sample-->
+                    <execution>
+                        <id>users-data</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
+                            <generatorName>spring</generatorName>
+                            <library>spring-cloud</library>
+                            <configHelp/>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <performBeanValidation>true</performBeanValidation>
+                                <sourceFolder>gen</sourceFolder>
+                                <java21>true</java21>
+                                <useTags>true</useTags>
+                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
+                            </configOptions>
+                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+                        </configuration>
+                    </execution>
+```
+
+Um ponto importante e que para cada integracao devera ser criado um bloco de configuracao como esse, como por exemplo: 
+Imagine que temos duas integracoes, uma de usuario e outra de dados, entao teriamos dois arquivos YAML e duas configuracoes 
+dentro do arquivo pom.xml
+
+```xml
+                    <!--FEIGN Sample-->
+                    <execution>
+                        <id>users</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>./src/main/resources/feign/openapi/USER-SAMPLE-API.yaml</inputSpec>
+                            <modelPackage>com.huntercodexs.integration.users.model</modelPackage>
+                            <apiPackage>com.huntercodexs.integration.users.api</apiPackage>
+                            <generatorName>spring</generatorName>
+                            <library>spring-cloud</library>
+                            <configHelp/>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <performBeanValidation>true</performBeanValidation>
+                                <sourceFolder>gen</sourceFolder>
+                                <java21>true</java21>
+                                <useTags>true</useTags>
+                                <title>users</title> <!-- Used for feign bean name and uri property-->
+                            </configOptions>
+                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>data</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>./src/main/resources/feign/openapi/DATA-SAMPLE-API.yaml</inputSpec>
+                            <modelPackage>com.huntercodexs.integration.data.model</modelPackage>
+                            <apiPackage>com.huntercodexs.integration.data.api</apiPackage>
+                            <generatorName>spring</generatorName>
+                            <library>spring-cloud</library>
+                            <configHelp/>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <performBeanValidation>true</performBeanValidation>
+                                <sourceFolder>gen</sourceFolder>
+                                <java21>true</java21>
+                                <useTags>true</useTags>
+                                <title>data</title> <!-- Used for feign bean name and uri property-->
+                            </configOptions>
+                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+                        </configuration>
+                    </execution>
+```
+
+### Recursos
+
+### Compilacao
+
+### Programacao
+
+### Execucao
+
+# Global Handler Interceptor
+
+O arquivo GlobalExceptionHandler.java implementa um interceptor global de exceções para a aplicação Spring. Ele 
+centraliza o tratamento de erros lançados durante o processamento das requisições, capturando exceções específicas 
+e genéricas, e retornando respostas padronizadas para o cliente. Dessa forma, garante maior controle, padronização 
+e clareza nas mensagens de erro, além de facilitar a manutenção e o monitoramento do sistema.
 
 # Circuit Breaker
 
