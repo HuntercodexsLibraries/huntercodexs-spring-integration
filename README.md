@@ -24,6 +24,168 @@ Library to help developers make integration easily
 - [RabbitMQ](#rabbitmq)
 - [SQS](#sqs)
 
+# Como Usar
+
+Para Usar essa biblioteca de recursos para integracao siga os seguintes passos
+
+1. Importe a bilbioteca para sua aplicacao
+
+```xml
+        <dependency>
+            <groupId>com.huntercodexs</groupId>
+            <artifactId>huntercodexs-spring-integration</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+```
+
+2. Adicione a anotacao @EnableIntegration
+
+```java
+package com.huntercodexs.sample;
+
+import com.huntercodexs.integration.core.annotation.EnableIntegration;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+@EnableIntegration("com.huntercodexs.sample")
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+Indique o package para ser escaneado pela biblioteca conforme mostrado no exemplo acima "com.huntercodexs.sample" que  
+por sua vez deve estar de acordo com a estrutura de aplicacao, conforme segue exemplo de aplicacao real:
+
+```
+.
+├── LICENSE
+├── pom.xml
+├── README.md
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── huntercodexs
+│   │   │           └── sample
+│   │   │               ├── api
+│   │   │               │   ├── InvalidApiClientSimulation.java
+│   │   │               │   └── UserApiClientSimulation.java
+│   │   │               ├── Application.java
+│   │   │               ├── component
+│   │   │               │   ├── exception
+│   │   │               │   │   ├── Impl1.java
+│   │   │               │   │   ├── Impl2.java
+│   │   │               │   │   ├── Impl3.java
+│   │   │               │   │   └── Impl4.java
+│   │   │               │   └── interceptor
+│   │   │               │       ├── OrgInterceptorImpl.java
+│   │   │               │       └── UserInterceptorImpl.java
+│   │   │               ├── config
+│   │   │               │   ├── RateLimitActionMessageImpl.java
+│   │   │               │   └── RateLimitActionUserImpl.java
+│   │   │               ├── controlller
+│   │   │               │   ├── RabbitProducerSimulation.java
+│   │   │               │   ├── RateLimitControllerSimulation.java
+│   │   │               │   ├── RateLimitServiceBusConsumerSimulation.java
+│   │   │               │   ├── ServiceBusProducerSimulation.java
+│   │   │               │   ├── SqsProducerSimulation.java
+│   │   │               │   ├── UserControllerSimulation.java
+│   │   │               │   └── UsersApiControllerSimulation.java
+│   │   │               ├── dto
+│   │   │               │   ├── ProcessMessageSimulation.java
+│   │   │               │   ├── UserRequestSimulation.java
+│   │   │               │   └── UserResponseSimulation.java
+│   │   │               ├── messaging
+│   │   │               │   ├── kafka
+│   │   │               │   │   ├── consumer
+│   │   │               │   │   │   ├── KafkaConsumer1IntegrationProcessImpl.java
+│   │   │               │   │   │   ├── KafkaConsumer2IntegrationProcessImpl.java
+│   │   │               │   │   │   └── KafkaConsumer.java
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   └── User.java
+│   │   │               │   │   └── producer
+│   │   │               │   │       ├── component
+│   │   │               │   │       │   ├── KafkaProducerMessage1Impl.java
+│   │   │               │   │       │   └── KafkaProducerMessage2Impl.java
+│   │   │               │   │       ├── controller
+│   │   │               │   │       │   └── KafkaController.java
+│   │   │               │   │       └── service
+│   │   │               │   │           └── KafkaService.java
+│   │   │               │   ├── rabbitmq
+│   │   │               │   │   ├── consumer
+│   │   │               │   │   │   ├── OrderCreatedRetryStrategy.java
+│   │   │               │   │   │   ├── OrderCreatedStrategy.java
+│   │   │               │   │   │   ├── UserRegisteredRetryStrategy.java
+│   │   │               │   │   │   └── UserRegisteredStrategy.java
+│   │   │               │   │   ├── dto
+│   │   │               │   │   │   ├── OrderEvent.java
+│   │   │               │   │   │   └── UserEvent.java
+│   │   │               │   │   └── producer
+│   │   │               │   │       └── ProducerSample.java
+│   │   │               │   ├── servicebus
+│   │   │               │   │   ├── consumer
+│   │   │               │   │   │   ├── list
+│   │   │               │   │   │   │   └── impl
+│   │   │               │   │   │   │       ├── ServiceBusProcessorIntegrationList1Impl.java
+│   │   │               │   │   │   │       ├── ServiceBusProcessorIntegrationList2Impl.java
+│   │   │               │   │   │   │       └── ServiceBusProcessorIntegrationList3Impl.java
+│   │   │               │   │   │   └── single
+│   │   │               │   │   │       └── impl
+│   │   │               │   │   │           └── ServiceBusProcessorIntegrationSingleImpl.java
+│   │   │               │   │   └── producer
+│   │   │               │   │       └── ServiceBusProducerSample.java
+│   │   │               │   └── sqs
+│   │   │               │       ├── consumer
+│   │   │               │       │   ├── SqsConsumer1Sample.java
+│   │   │               │       │   └── SqsConsumer2Sample.java
+│   │   │               │       └── producer
+│   │   │               │           └── SqsProducerSample.java
+│   │   │               └── retry
+│   │   │                   └── mongo
+│   │   │                       ├── controller
+│   │   │                       │   └── UserController.java
+│   │   │                       ├── database
+│   │   │                       │   ├── entity
+│   │   │                       │   │   └── UserEntity.java
+│   │   │                       │   └── repository
+│   │   │                       │       └── UserRepository.java
+│   │   │                       ├── dto
+│   │   │                       │   ├── UserRequestDto.java
+│   │   │                       │   └── UserResponseDto.java
+│   │   │                       └── service
+│   │   │                           └── UserService.java
+│   │   └── resources
+│   │       ├── application-default.properties
+│   │       ├── application-deploy.properties
+│   │       ├── application.properties
+│   │       ├── certs
+│   │       │   ├── broker.keystore.jks
+│   │       │   ├── broker.truststore.jks
+│   │       │   ├── key_password
+│   │       │   ├── keystore_password
+│   │       │   ├── README
+│   │       │   └── truststore_password
+│   │       ├── feign
+│   │       │   ├── openapi
+│   │       │   │   └── USER-DATA-SAMPLE-API.yaml
+│   │       │   └── templates
+│   │       │       ├── apiClient.mustache
+│   │       │       └── clientConfiguration.mustache
+│   │       ├── logback.xml
+│   │       ├── messages_en.properties
+│   │       └── openapi
+│   │           ├── templates
+│   │           │   ├── api.mustache
+│   │           │   └── model.mustache
+│   │           └── USER-SAMPLE-API.yaml
+```
+
+A partir de agora a biblioteca esta pronta para ser utilizada e consumida em sua aplicacao, tendo disponiveis todos 
+os recursos presentes nela.
+
 A seguir iremos descrever item a item dos recursos que compoe essa biblioteca, sendo que para cada um deles voce podera 
 encontrar alem de uma explicacao detalhada exemplos de uso e implementacoes diversas.
 
@@ -42,6 +204,783 @@ compreendam os contratos da API. Após a validação, o documento pode ser inclu
 ou em uma pasta específica (ex: `docs/openapi.yaml`), mais comumente usada `src/main/resources/openapi`. A implementação
 pode ser automatizada usando bibliotecas como Springdoc OpenAPI, que geram o documento a partir do código-fonte, 
 mantendo a documentação sempre atualizada e acessível.
+
+Para utilizar os recursos do openapi de forma correta sera necessario implementar as seguintes configuracoes:
+
+1. Adicione o plugin maven para buildar os sources no arquivo pom.xml
+
+```xml
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated/swagger/gen</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+```
+
+2. Adicione tambem o plugin maven do openapi generator, conforme mostrado abaixo
+
+```xml
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.16.0</version>
+                <executions>
+
+                    <!--OPENAPI Sample-->
+                    <execution>
+                        <id>users</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>./src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <modelPackage>com.huntercodexs.api.users.model</modelPackage>
+                            <apiPackage>com.huntercodexs.api.users.api</apiPackage>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <generateSupportingFiles>true</generateSupportingFiles>
+                                <sourceFolder>gen</sourceFolder>
+                                <interfaceOnly>true</interfaceOnly>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <java21>true</java21>
+                                <serializableModel>true</serializableModel>
+                            </configOptions>
+                            <templateDirectory>./src/main/resources/openapi/templates</templateDirectory>
+                        </configuration>
+                    </execution>
+
+                    <!--FEIGN Sample-->
+                    <execution>
+                        <id>users-data</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
+                            <generatorName>spring</generatorName>
+                            <library>spring-cloud</library>
+                            <configHelp/>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <performBeanValidation>true</performBeanValidation>
+                                <sourceFolder>gen</sourceFolder>
+                                <java21>true</java21>
+                                <useTags>true</useTags>
+                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
+                            </configOptions>
+                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+```
+
+Repare que existem duas configuracoes (execution) dentro do bloco do plugin openapi-generator, uma para OPENAPI e outro 
+para o FEIGN, sendo o primeiro utilizado para definicoes de contratos da aplicacao que implementa a biblioteca e o 
+segundo para integracao com outro servico ou API, ambos serao tratados como contratos que cada aplicacao tem para que 
+ela seja consumida por outra aplicacao.
+
+Na patrica teremos o seguinte cenario:
+
+![openapi.png](files/img/openapi.png)
+
+Olhando a imagem acima podemos ver que o contrato OPENAPI (swagger) do MS1 dentro do NAMESPACE 2 esta sendo usado pelos 
+micro servicos MS1, MS2 e MS3 do NAMESPACE 1 como integracao, ou seja, o contrato foi gerado pelo MS1 do NAMESPACE 2 e 
+entao deve ser obedecido pelas aplicacoes que precisam integrar com ele. O mesmo acontece dentro do NAMESPACE 2, onde 
+o MS2 possui um contrato OPENAPI (swagger) que esta sendo consumido pelo MS1 dentro do mesmo NAMESPACE (2).
+
+Isso e muito util para lidar com situacoes onde existe a dificuldade em gerir grandes quantidades de equipes que por 
+sua vez precisam consumir servicos uns dos outros.
+
+Voltando a falar sobre a estrutura de configuracao do arquivo pom.xml, vamos observar o que temos dentro do bloco de 
+configuracao para definicoes de contrato da API
+
+```xml
+                    <!--OPENAPI Sample-->
+                    <execution>
+                        <id>users</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>./src/main/resources/openapi/USER-SAMPLE-API.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <modelPackage>com.huntercodexs.api.users.model</modelPackage>
+                            <apiPackage>com.huntercodexs.api.users.api</apiPackage>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <generateSupportingFiles>true</generateSupportingFiles>
+                                <sourceFolder>gen</sourceFolder>
+                                <interfaceOnly>true</interfaceOnly>
+                                <skipDefaultInterface>true</skipDefaultInterface>
+                                <java21>true</java21>
+                                <serializableModel>true</serializableModel>
+                            </configOptions>
+                            <templateDirectory>./src/main/resources/openapi/templates</templateDirectory>
+                        </configuration>
+                    </execution>
+```
+
+Observe que a configuracao e composta pelos seguintes campos: id, inputSpec, modelPackage, apiPackage, configOptions e
+templateDirectory, sendo elas descritas a seguir:
+
+- id: Define uma identificacao do bloco em questao, podendo ser utilizada para definir regras especificas
+- inputSpec: Define o caminho para o arquivo que contem as especificacoes da API (arquivo yaml)
+- modelPackage: Define onde os model devem ser gerados pelo codegen, esses model sao configurados no arquivo YAML
+- apiPackage: Define onde as interfaces de apis devem ser geradas para consumo nas aplicacoes, tambem configurado no arquivo YAML
+- configOptions: Contem detalhes importantes para controle de geracao dos arquivos de integracao
+- templateDirectory: Define onde esta o arquivo de template para geracao das classes de APIs e Models (nao obrigatorio)
+
+Agora vamos observar o que temos no bloco de configuracoes do pom.xml para integracoes FEIGN
+
+```xml
+                    <!--FEIGN Sample-->
+                    <execution>
+                        <id>users-data</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+                            <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+                            <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
+                            <generatorName>spring</generatorName>
+                            <library>spring-cloud</library>
+                            <configHelp/>
+                            <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <performBeanValidation>true</performBeanValidation>
+                                <sourceFolder>gen</sourceFolder>
+                                <java21>true</java21>
+                                <useTags>true</useTags>
+                                <title>usersData</title> <!-- Used for feign bean name and uri property-->
+                            </configOptions>
+                            <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+                        </configuration>
+                    </execution>
+```
+
+Observe que a configuracao e composta pelos seguintes campos: id, inputSpec, modelPackage, apiPackage, configOptions e
+templateDirectory, sendo elas descritas a seguir:
+
+- id: Define uma identificacao do bloco em questao, podendo ser utilizada para definir regras especificas
+- inputSpec: Define o caminho para o arquivo que contem as especificacoes da API (arquivo yaml)
+- modelPackage: Define onde os model devem ser gerados pelo codegen, esses model sao configurados no arquivo YAML
+- apiPackage: Define onde as interfaces de apis devem ser geradas para consumo nas aplicacoes, tambem configurado no arquivo YAML
+- configOptions: Contem detalhes importantes para controle de geracao dos arquivos de integracao
+  - Dentro desse campo temos o title que merece atencao dedicada e sera apresentado na sessao FEIGN
+- templateDirectory: Define onde esta o arquivo de template para geracao das classes de APIs e Models (nao obrigatorio)
+
+A diferenca entre a configuracao do OPENAPI (swagger) para o OPENAPI (feign) esta no caminho de cada um, onde para o 
+feign temos openapi/feign e no caminho dos packages temos ".integration.", alem do caminho especifico para templates 
+de geracao de arquivos de integracao FEIGN especificos para isso feign/templates.
+
+Essa configuracao e basica, mas serve para a maioria dos casos, agora vamos falar sobre o arquivo de especificacao de 
+dados e integracacao, o arquivo YAML.
+
+### Arquivo YAML
+
+Este arquivo YAML contém a especificação OpenAPI (Swagger) usada para definir contratos de integração com um 
+serviço/API. Ele deve descrever endpoints, esquemas de requisição/resposta, parâmetros, códigos de status e requisitos 
+de segurança necessários para seus templates de codegen. Mantenha o arquivo versionado e estável (por exemplo em 
+`src/main/resources/openapi`) e atualize a configuração do `openapi-generator` no `pom.xml` sempre que o contrato 
+mudar. Artefatos gerados (clientes, interfaces de servidor) dependem dessa especificação para manter integrações 
+consistentes.
+
+O arquivo de especificacao OPENAPI para contrato e integracao possui as seguintes definicoes estruturais:
+
+```yaml
+openapi: 3.0.0
+
+info:
+  title: USER SAMPLE API
+  version: 1.0.0
+  description: API for managing Users
+  contact:
+    name: Huntercodexs API team
+    email: support@huntercodexs.com
+    
+servers:
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: STG
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: QA
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: UAT
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: PROD
+
+paths:
+  /users:
+    post:
+    get:
+    put:
+    delete:
+    path:
+      
+components:
+  schemas:
+  responses:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+```
+
+**info**: Dentro de info sao definidos detalhes sobre a API, como versao por exemplo, porem meramente informativo
+
+**servers**: Em servers podem ser  informados os ambientes em que a API vai estar disponivel com suas respectivas urls
+
+**paths**: O path e usado para definir os enpoints da API, com seus metodos HTTP, objetos de entradas e saidas e ate 
+mesmo os parametros que a API espera receber.
+
+**components**: Ja em components, podemos definir a estrutura dos objetos, e aqui onde criamos os DTOs de entrada e 
+saida, para assim compor o contrato da API.
+
+A seguir um exemplo real de um arquivo YAML Swagger:
+
+> NOTA: Voce pode usar o Swagger Editor para validar seu arquivo YAML no link https://editor.swagger.io/
+
+```yaml
+openapi: 3.0.0
+
+info:
+  title: USER SAMPLE API
+  version: 1.0.0
+  description: API for managing Users
+  contact:
+    name: Huntercodexs API team
+    email: support@huntercodexs.com
+
+servers:
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: STG
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: QA
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: UAT
+  - url: http://localhost:8080/huntercodexs/api/v1/management
+    description: PROD
+
+paths:
+  /users:
+    post:
+      tags:
+        - Users Management
+      summary: Create a new User
+      operationId: createNewUser
+      description: |
+        ## Responsibilities
+        * Creates a new User entity in the system.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "400", "message": "Username is required."}]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{ "code": "422001", "message": "The user already exists." }]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: |
+            Internal Server Error
+            
+            This endpoint can throw the following errors:
+
+            ```
+            [{ "code": "500001", "message": "Failed to integrate with User Data Sample API." }]
+            ```
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    get:
+      tags:
+        - Users Management
+      summary: List all Users
+      operationId: getAllUsers
+      description: |
+        ## Responsibilities
+        * Retrieves a paginated list of all Users available to the authenticated admin user.
+        * Supports filtering and pagination to optimize performance and usability.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          description: Maximum number of items to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Starting index for pagination
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by User name
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponsePagination'
+        "206":
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponsePagination'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /users/{userId}:
+    get:
+      tags:
+        - Users Management
+      summary: Get details of a User by Id
+      operationId: getUserById
+      description: |
+        ## Responsibilities
+        * Retrieves a unique User by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User Id
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "404001", "message": "User not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    delete:
+      x-rate-limit-enabled: true
+      tags:
+        - Users Management
+      summary: Delete a User by Id
+      operationId: deleteUserById
+      description: |
+        ## Responsibilities
+        * Delete a unique User by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User Id
+      responses:
+        '204':
+          description: User deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "404001", "message": "User not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    patch:
+      tags:
+        - Users Management
+      summary: Update partial data of User by Id
+      operationId: patchUserById
+      description: |
+        ## Responsibilities
+        * Update a partial data of a unique User by Id available to the authenticated admin user.
+
+        ---
+        
+        ## Requirements
+        * To access this endpoint, the client must have one of the following role sets:
+          * `ADMIN` and `USER` and `AUTH-BASIC`
+
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: |
+            Bad Request
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "400", "message": "Bad Request"}]
+            [{"code": "400001", "message": "At least one attribute is required to perform the update."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '404':
+          description: |
+            Not Found
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{"code": "404001", "message": "User not found."}]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '422':
+          description: |
+            Unprocessable Entity
+            
+            This endpoint can throw the following errors:
+            
+            ```
+            [{ "code": "422001", "message": "The name already exists." }]
+            ```
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+        'default':
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+components:
+  schemas:
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          example: Username
+          minLength: 3
+        email:
+          type: string
+          example: user@email.com
+
+    CreateUserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '5a2d6db58b9a2900088237f1'
+
+    UsersResponsePagination:
+      required:
+        - users
+        - pagination
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          x-field-extra-annotation: '@JsonInclude(JsonInclude.Include.NON_NULL)'
+          #x-field-extra-annotation: '@JsonProperty("id")'
+        createdAt:
+          type: string
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Updated User name
+        email:
+          type: string
+          example: Updated User email
+
+    ErrorModel:
+      type: array
+      items:
+        type: object
+        required:
+          - code
+          - message
+        properties:
+          code:
+            type: string
+            example: "code"
+          message:
+            type: string
+            example: "message"
+
+    Pagination:
+      type: object
+      properties:
+        offset:
+          type: number
+        limit:
+          type: number
+        totalCount:
+          type: number
+        totalPages:
+          type: number
+        links:
+          type: array
+          description: Links for next page, previous page, first page and last page
+          items:
+            $ref: '#/components/schemas/PaginationLink'
+
+    PaginationLink:
+      required:
+        - href
+        - rel
+      type: object
+      properties:
+        href:
+          type: string
+          example: 'http://localhost:8080/pagination-sample/v1/resource?limit=1&offset=0'
+        rel:
+          type: string
+          description: Expected values are **Last**, **Previous**, **Next** or **First**
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+```
+
+O exemplo pode tambem ser encontrado no caminho desse repositorio em `src/main/resources/support/openapi`
 
 # Mustache
 
