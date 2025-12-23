@@ -10,19 +10,19 @@ Library to help developers make integration easily
 
 ![integration-banner.png](files/img/integration-banner.png)
 
-- OpenAPI (Swagger)
-- Mustache
-- Codegen (openapi-generator-maven-plugin)
-- Feign
-- Circuit Breaker
-- Rate Limit (API)
-- Rate Limit (Service Bus)
-- MongoDB
-- Redis
-- Kafka
-- Service Bus
-- RabbitMQ
-- SQS
+- [OpenAPI (Swagger)](#openapi)
+- [Mustache](#mustache)
+- [Codegen (openapi-generator-maven-plugin)](#codegen-openapi-generator-maven-plugin)
+- [Feign](#feign)
+- [Circuit Breaker](#circuit-breaker)
+- [Rate Limit (API)](#rate-limit-for-apis)
+- [Rate Limit (Service Bus)](#rate-limit-service-bus)
+- [MongoDB](#mongodb)
+- [Redis](#redis)
+- [Kafka](#kafka)
+- [Service Bus](#service-bus)
+- [RabbitMQ](#rabbitmq)
+- [SQS](#sqs)
 
 A seguir iremos descrever item a item dos recursos que compoe essa biblioteca, sendo que para cada um deles voce podera 
 encontrar alem de uma explicacao detalhada exemplos de uso e implementacoes diversas.
@@ -122,6 +122,15 @@ tolerância a falhas, persistência de mensagens, capacidade de processamento pa
 consumidores. Essas características tornam o Kafka ideal para arquiteturas modernas, como microsserviços e sistemas 
 orientados a eventos, garantindo desempenho, confiabilidade e flexibilidade superiores em cenários de alto tráfego e 
 integração entre serviços.
+
+# Service Bus
+
+O Azure Service Bus é um serviço de mensageria totalmente gerenciado na nuvem da Microsoft, projetado para facilitar 
+a comunicação assíncrona e desacoplada entre aplicações e serviços distribuídos. Ele suporta filas e tópicos 
+(publish/subscribe), garantindo entrega confiável de mensagens, ordenação e escalabilidade. Em projetos 
+Java Spring Boot, a integração com o Service Bus permite construir soluções robustas para processamento de eventos, 
+orquestração de microsserviços e integração entre sistemas locais e em nuvem, utilizando bibliotecas como o 
+Azure SDK para Java.
 
 # RabbitMQ
 
