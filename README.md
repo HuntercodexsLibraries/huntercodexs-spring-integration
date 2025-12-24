@@ -1211,14 +1211,14 @@ dentro do arquivo pom.xml
 ```xml
 <!--FEIGN Sample-->
 <execution>
-    <id>users</id>
+    <id>user</id>
     <goals>
         <goal>generate</goal>
     </goals>
     <configuration>
         <inputSpec>./src/main/resources/feign/openapi/USER-SAMPLE-API.yaml</inputSpec>
-        <modelPackage>com.huntercodexs.integration.users.model</modelPackage>
-        <apiPackage>com.huntercodexs.integration.users.api</apiPackage>
+        <modelPackage>com.huntercodexs.integration.user.model</modelPackage>
+        <apiPackage>com.huntercodexs.integration.user.api</apiPackage>
         <generatorName>spring</generatorName>
         <library>spring-cloud</library>
         <configHelp/>
@@ -1350,13 +1350,90 @@ Repare no trecho de log "This is a CUSTOM retry interceptor integration" onde fo
 - Interceptor
 
 Um dos recursos mais uteis dessa biblioteca chamada huntercodexs-spring-integration e o interceptor, com ele e possivel 
-interceptar uma requisicao antes mesmo de ela sair da aplicacao, efetuando algum alteracao especifica como adicionar 
-uma nova header, ou encriptar algum dado.
+interceptar uma requisicao antes mesmo de ser disparada pela aplicacao, efetuando algum alteracao especifica como 
+adicionar uma nova header, ou encriptar algum dado.
 
+Apenas para ilustrar e clarear um pouco sobre o assunto, vamos criar dois interceptores para controlar requisicoes de 
+uma ficticia User e outra Data, como segue abaixo.
 
+UserInterceptorImpl.java
+```java
+package com.huntercodexs.sample.component.interceptor;
 
-!!!!!!!!!!!!!!!
+import com.huntercodexs.integration.core.interfaces.ClientInterceptorIntegration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+@Component
+public class UserInterceptorImpl implements ClientInterceptorIntegration {
+
+    @Autowired
+    private UserManagerService userManagerService;
+
+    @Override
+    public boolean checkSupport(Object value) {
+        return value.toString().equals("user"); // id => feign pom.xml
+    }
+
+    @Override
+    public String getClientToken() {
+        return userManagerService.getClientToken().orElse("");
+    }
+
+    @Service
+    public static class UserManagerService {
+        public Optional<String> getClientToken() {
+            System.out.println("calling getClientToken from UserManagerService");
+            return Optional.of("Bearer UserManagerTokenFake");
+        }
+    }
+}
+```
+
+DataInterceptorImpl.java
+```java
+package com.huntercodexs.sample.component.interceptor;
+
+import com.huntercodexs.integration.core.interfaces.ClientInterceptorIntegration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Component
+public class DataInterceptorImpl implements ClientInterceptorIntegration {
+
+    @Autowired
+    private DataService dataService;
+
+    @Override
+    public boolean checkSupport(Object value) {
+        return value.toString().equals("data"); // id => feign pom.xml
+    }
+
+    @Override
+    public String getClientToken() {
+        return dataService.getClientToken().orElse("");
+    }
+
+    @Service
+    public static class DataService {
+        public Optional<String> getClientToken() {
+            System.out.println("calling getClientToken from DataService");
+            return Optional.of("Bearer DataTokenFake");
+        }
+    }
+
+}
+```
+
+Observe que em ambos os casos temos uma relacao com a configuracao do arquivo pom.xml com as classes implementadas visto 
+que o id do feign deve ser o mesmo do metodo checkSupport(). No caso dos exemplos, estamos apenas interceptando a 
+requisicao para inserir um token de client antes da requisicao final.
 
 - Logger
 
