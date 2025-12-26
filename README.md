@@ -422,7 +422,7 @@ de geracao de arquivos de integracao FEIGN especificos para isso feign/templates
 Essa configuracao e basica, mas serve para a maioria dos casos, agora vamos falar sobre o arquivo de especificacao de 
 dados e integracacao, o arquivo YAML.
 
-### Arquivo YAML
+![OpenApi](https://img.shields.io/badge/OpenApi-ArquivoYAML-purple)
 
 Este arquivo YAML contém a especificação OpenAPI (Swagger) usada para definir contratos de integração com um 
 serviço/API. Ele deve descrever endpoints, esquemas de requisição/resposta, parâmetros, códigos de status e requisitos 
@@ -1005,7 +1005,7 @@ components:
 
 O exemplo pode tambem ser encontrado no caminho desse repositorio em `src/main/resources/support/openapi`.
 
-### Maven command
+![OpenApi](https://img.shields.io/badge/OpenApi-MavenCommand-blue)
 
 Agora que voce configurou todos os arquivos relacionados ao OPENAPI, basta rodar o comando na sua IDE
 
@@ -1027,7 +1027,7 @@ disponiveis no caminho `target/generated-sources/openapi/gen` conforme ilustrado
 > DICA: Caso a pasta gen nao esteja marcada como "Generated Resources Root", clique com o botao direito sobre ela e 
 > marque ela como tal, pois a IDE IntelliJ ou outra qualquer pode nao encontrar esses arquivos automaticamente.
 
-### Implementacao
+![OpenApi](https://img.shields.io/badge/OpenApi-Implementacao-green)
 
 Agora com todos os arquivos e configuracoes criados, podemos dar inicio a programacao da API, criando os controllers 
 e implementando as interfaces que foram gerados a partir do arquivo YAML, Sendo assim vamos iniciar criando o controller 
@@ -1489,15 +1489,130 @@ Circuit Breaker Aberto (TODO)
 
 ![Feign](https://img.shields.io/badge/Feign-Compilacao-green)
 
-...
+Depois feito todos os ajustes e configuracoes descritos anteriormente nessa documentacao, agora basta rodar o comando 
+mvn para gerar todos os arquivos necessarios de integracao com as APIs externas ou mesmo internas, por exemplo:
+
+```shell
+mvn clean install -DskipTests
+```
+
+Com esse comando sera gerada a seguinte estrutura de diretorios dentro da pasta target do projeto
+
+![feign-targets.png](files/img/feign-targets.png)
+
+Podemos notar que existe a pasta (package) chamado integration.users_data.api e integration.users_data.model, os 
+quais serao utilizados durante o programacao para servir de base para cada integracao feita.
+
+E importante notar que nesse caso sera necessario mais uma configuracao no arquivo de application.properties, configuracao 
+essa que informa a url de integracao da API externa, por exemplo:
+
+```properties
+
+api.usersData.uri=http://localhost:35003/huntercodexs/api/user-data/v1
+```
+
+Observe que o nome da propriedade "usersData" e o mesmo nome dado ao title do arquivo pom.xml e isso e imprescindivel 
+para o correto funcionanemto da integracao
+
+```xml
+<!--FEIGN Sample-->
+<execution>
+    <id>users-data</id>
+    <goals>
+        <goal>generate</goal>
+    </goals>
+    <configuration>
+        <inputSpec>./src/main/resources/feign/openapi/USER-DATA-SAMPLE-API.yaml</inputSpec>
+        <modelPackage>com.huntercodexs.integration.users_data.model</modelPackage>
+        <apiPackage>com.huntercodexs.integration.users_data.api</apiPackage>
+        <generatorName>spring</generatorName>
+        <library>spring-cloud</library>
+        <configHelp/>
+        <configOptions>
+            <useJakartaEe>true</useJakartaEe>
+            <useSpringBoot3>true</useSpringBoot3>
+            <performBeanValidation>true</performBeanValidation>
+            <sourceFolder>gen</sourceFolder>
+            <java21>true</java21>
+            <useTags>true</useTags>
+            <title>usersData</title> <!-- Used for feign bean name and uri property-->
+        </configOptions>
+        <templateDirectory>./src/main/resources/feign/templates</templateDirectory>
+    </configuration>
+</execution>
+```
 
 ![Feign](https://img.shields.io/badge/Feign-Programacao-cyan)
 
-...
+Agora chegamos no ponto onde vamos de fato aplicar toda essa configuracao em nossa aplicacao, escrevendo uma classe 
+para demonstrar como implementar essa funcionalidade. Para isso vamos direto ao ponto, criamos uma classe chamada 
+`UserService` que sera executada pelo `UserController` e que estara fazendo a implementacao da APIClient do Feign 
+gerada na configuracao anterior, e que esse cliente por sua vez fara entao a integracao com a API Externa conforme 
+ilustrado na imagem abaixo
+
+![feign.png](files/img/feign.png)
+
+```java
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/users")
+public class UserController {
+
+    private final UserService userService;
+
+    @GetMapping("/add")
+    public void create(UseRequest useRequest) {
+        userService.add(useRequest);
+    }
+}
+```
+
+```java
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserApiClient userApiClient; //Feign integration
+    
+    public UseRequest add(UseRequest useRequest) {
+      return userApiClient.createUser(useRequest);
+    }
+}
+```
+
+> IMPORTANTE: Isso e uma classe de exemplo, ela nao precisa ser edita ou criada, pois ela sera criada automaticamente 
+> durante o processo de build da aplicacao
+
+```java
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-26T15:22:01.053271491-03:00[America/Sao_Paulo]", comments = "Generator version: 7.16.0")  @Validated
+@Tag(name = "UserDataSample", description = "the UserDataSample API")
+@FeignClient(name="usersData", url="${api.usersData.uri}", configuration = ClientConfigIntegration.class)
+public interface UserApiClient {
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/users",
+            produces = "application/json",
+            consumes = "application/json"
+    )
+    UseRequest createUser(
+            @Parameter(name = "useRequest", description = "User data to be created", required = true) @Valid @RequestBody UseRequest useRequest
+    );
+}
+```
 
 ![Feign](https://img.shields.io/badge/Feign-Execucao-purple)
 
-...
+Supondo que nesse ponto tenhamos a url de integracao usersData com o valor http://localhost:8085/huntercodexs/api/user-data/v1, entao a integracao
+sera executado com o seguinte pacote
+
+```text
+POST http://localhost:8085/huntercodexs/api/user-data/v1/users
+Headers: []
+Body: UseRequest
+```
+
+E assim esta feita a integracao com a API USER-DATA.
 
 # Global Handler Interceptor
 
