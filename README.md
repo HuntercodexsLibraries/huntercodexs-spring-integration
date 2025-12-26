@@ -1153,14 +1153,14 @@ Aqui comeca a principal fonte de integracao da biblioteca huntercodexs-spring-in
 implementar de forma simples e objetiva integracoes entre APIs utilizando REST. Para isso vamos pontuar os seguintes 
 topicos que iremos tratar para uma implementacao satisfatoria do Feign:
 
-### Definicao
+![Feign](https://img.shields.io/badge/Feign-Definicao-orange)
 
 Apos a definicao de contrato da API, que nada mais e do que definir como a API sera servida, qual metodo HTTP 
 sera utilizado e quais objetos de entrada e saida serao processados. Esse arquivo ja foi explicado anteriormente e nao
 necessita mais delongas a cerca de sua estrutura e utilidade, mas tenha em mente que ele sera a peca chave para iniciar 
 os desenvolvimento de toda a aplicacao em questao.
 
-### Configuracao
+![Feign](https://img.shields.io/badge/Feign-Configuracao-blue)
 
 A configuracao e feita atraves dos seguintes arquivos
 
@@ -1267,7 +1267,7 @@ dentro do arquivo pom.xml
 </execution>
 ```
 
-### Recursos
+![Feign](https://img.shields.io/badge/Feign-Recursos-red)
 
 A biblioteca huntercodexs-spring-integration oferece muito mais do que simplesmente integrar APIs e microservicos, ela 
 oferece uma serie de recursos uteis para implementacoes complexas como interceptores, proxy, retentativas, logs dentre 
@@ -1487,11 +1487,17 @@ Circuit Breaker Aberto (TODO)
 2025-12-23 16:43:24.961 [http-nio-8080-exec-2] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - Interceptor applied for target: user, headers: {Authorization=[Bearer UserManagerTokenFake], Content-Length=[53], Content-Type=[application/json]}
 ```
 
-### Compilacao
+![Feign](https://img.shields.io/badge/Feign-Compilacao-green)
 
-### Programacao
+...
 
-### Execucao
+![Feign](https://img.shields.io/badge/Feign-Programacao-cyan)
+
+...
+
+![Feign](https://img.shields.io/badge/Feign-Execucao-purple)
+
+...
 
 # Global Handler Interceptor
 
