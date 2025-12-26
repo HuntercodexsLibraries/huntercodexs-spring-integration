@@ -1,4 +1,4 @@
-package com.huntercodexs.integration.core.interfaces;
+package com.huntercodexs.integration.handler.interfaces;
 
 import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
 

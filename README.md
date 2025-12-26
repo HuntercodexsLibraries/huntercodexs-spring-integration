@@ -212,10 +212,280 @@ estrutura circuit breakers e o proprio feign.
 
 # Global Handler Interceptor
 
-O arquivo GlobalExceptionHandler.java implementa um interceptor global de exceções para a aplicação Spring. Ele
+A biblioteca possui um recurso que implementa um interceptor global de exceções para aplicações Spring Boot. Ele
 centraliza o tratamento de erros lançados durante o processamento das requisições, capturando exceções específicas
 e genéricas, e retornando respostas padronizadas para o cliente. Dessa forma, garante maior controle, padronização
 e clareza nas mensagens de erro, além de facilitar a manutenção e o monitoramento do sistema.
+
+A resposta padrao é definida pela classe `CustomResponseExceptionHandler` a qual possui a seguinte estrutura
+
+```java
+@Setter
+@Getter
+public class CustomResponseExceptionHandler {
+
+    private String message;
+    private LocalDateTime timestamp = LocalDateTime.now();
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String code;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String tracker;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<String> errors;
+
+    public CustomResponseExceptionHandler(String message, String code, String tracker, List<String> errors) {
+        this.message = message;
+        this.tracker = tracker;
+
+        if (Objects.equals(code, "0") || isNull(code) || code.isEmpty()) {
+            this.code = null;
+        } else {
+            this.code = code;
+        }
+
+        this.errors = errors;
+        if (isNull(errors) || errors.isEmpty()) {
+            this.errors = null;
+        }
+    }
+}
+```
+
+Um exemplo de resposta e dado abaixo
+
+```json
+{
+  "message": "Limit of requests exceeded for Integration",
+  "timestamp": "2025-12-26T17:36:09.473261608",
+  "code": "503",
+  "tracker": "30649506-90e2-4a6c-8c48-846a7c095bb8",
+  "errors": [
+    "Integration Retries Exceeded: 3"
+  ]
+}
+```
+
+As excessões tratadas pela biblioteca sao listadas a seguir (esses itens fazem parte do enum GlobalEnumIntegration)
+
+| #  | Item                                                         | Codigo HTTP      | Descricao                                        |
+|----|--------------------------------------------------------------|------------------|--------------------------------------------------|
+| 1  | CUSTOM_EXCEPTION_INTERCEPTOR                                 | 400              | Requisição inválida                              |
+| 2  | METHOD_ARGUMENT_VALIDATION_EXCEPTION_INTERCEPTOR_400         | 400              | Argumento de método inválido                     |
+| 3  | HTTP_MESSAGE_NOT_READABLE_EXCEPTION_INTERCEPTOR_400          | 400              | Mensagem HTTP não legível                        |
+| 4  | MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION_INTERCEPTOR_400  | 400              | Parâmetro de requisição ausente                  |
+| 5  | CONSTRAINT_VIOLATION_EXCEPTION_INTERCEPTOR_400               | 422              | Violação de restrição                            |
+| 6  | HANDLER_METHOD_VALIDATION_EXCEPTION_INTERCEPTOR_400          | 400              | Validação de método handler                      |
+| 7  | HTTP_REQUEST_METHOD_NOT_SUPPORTED_EXCEPTION_INTERCEPTOR_405  | 405              | Método HTTP não suportado                        |
+| 8  | HTTP_MEDIA_TYPE_NOT_SUPPORTED_EXCEPTION_INTERCEPTOR_415      | 415              | Tipo de mídia não suportado                      |
+| 9  | CIRCUIT_BREAKER_CALL_NOT_PERMITTED_EXCEPTION_INTERCEPTOR_503 | 503              | Circuit breaker aberto                           |
+| 10 | REST_CLIENT_EXCEPTION_INTERCEPTOR_502                        | 502              | Erro no cliente REST                             |
+| 11 | DATA_ACCESS_RESOURCE_FAILURE_EXCEPTION_INTERCEPTOR_500       | 500              | Falha de acesso a recurso de dados               |
+| 12 | RATE_LIMIT_EXCEEDED_EXCEPTION_INTERCEPTOR_429                | 429              | Limite de requisições excedido                   |
+| 13 | INTEGRATION_RETRY_EXCEEDED_EXCEPTION_INTERCEPTOR_503         | 503              | Limite de tentativas de integração excedido      |
+| 14 | RUNTIME_EXCEPTION_INTERCEPTOR_500                            | 500              | Exceção em tempo de execução                     |
+| 15 | NULL_POINTER_EXCEPTION_INTERCEPTOR_5XX                       | 500              | NullPointerException                             |
+| 16 | GENERIC_EXCEPTION_INTERCEPTOR_5XX                            | 500              | Exceção genérica                                 |
+
+Sempre que uma exception suportada pela biblioteca for lancada ela sera interceptada pelo Handler Global Exception 
+resultando em uma resposta padronizada conforme mencionado acima. Entretanto voce pode precisar ou querer criar algum 
+tipo de tratamento para determinada excessão, como por exemplo um '404 NotFound'. Nesses casos é possivel fazer a 
+implementação da interface GlobalExceptionInterceptorIntegration em seu codigo para tratar da maneira mais adequada 
+o erro, conforme os exemplo a seguir
+
+- METHOD_ARGUMENT_VALIDATION_EXCEPTION_INTERCEPTOR_400
+
+```java
+package com.huntercodexs.sample.component.exception;
+
+import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
+import com.huntercodexs.integration.handler.interfaces.GlobalExceptionInterceptorIntegration;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+import static com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration.METHOD_ARGUMENT_VALIDATION_EXCEPTION_INTERCEPTOR_400;
+
+@Component
+public class Impl1 implements GlobalExceptionInterceptorIntegration {
+    @Override
+    public boolean supports(GlobalEnumIntegration value) {
+        return value.equals(METHOD_ARGUMENT_VALIDATION_EXCEPTION_INTERCEPTOR_400);
+    }
+
+    @Override
+    public String message() {
+        return "Mensagem";
+    }
+
+    @Override
+    public String trackerId() {
+        return "8329083290";
+    }
+
+    @Override
+    public String code() {
+        return "1";
+    }
+
+    @Override
+    public List<String> errors(Object exception) {
+        return List.of("Erro 1", "Erro 2");
+    }
+}
+```
+
+- HTTP_MESSAGE_NOT_READABLE_EXCEPTION_INTERCEPTOR_400
+
+```java
+package com.huntercodexs.sample.component.exception;
+
+import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
+import com.huntercodexs.integration.handler.interfaces.GlobalExceptionInterceptorIntegration;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+import static com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration.HTTP_MESSAGE_NOT_READABLE_EXCEPTION_INTERCEPTOR_400;
+
+@Component
+public class Impl2 implements GlobalExceptionInterceptorIntegration {
+    @Override
+    public boolean supports(GlobalEnumIntegration value) {
+        return value.equals(HTTP_MESSAGE_NOT_READABLE_EXCEPTION_INTERCEPTOR_400);
+    }
+
+    @Override
+    public String message() {
+        return "Mensagem";
+    }
+
+    @Override
+    public String trackerId() {
+        return "8329083290";
+    }
+
+    @Override
+    public String code() {
+        return "2";
+    }
+
+    @Override
+    public List<String> errors(Object exception) {
+        return List.of("Erro 1", "Erro 2");
+    }
+}
+
+```
+
+- RUNTIME_EXCEPTION_INTERCEPTOR_500
+
+```java
+package com.huntercodexs.sample.component.exception;
+
+import com.huntercodexs.integration.handler.interfaces.GlobalExceptionInterceptorIntegration;
+import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+import static com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration.RUNTIME_EXCEPTION_INTERCEPTOR_500;
+
+@Component
+public class Impl3 implements GlobalExceptionInterceptorIntegration {
+    @Override
+    public boolean supports(GlobalEnumIntegration value) {
+        return value.equals(RUNTIME_EXCEPTION_INTERCEPTOR_500);
+    }
+
+    @Override
+    public String message() {
+        return "Mensagem";
+    }
+
+    @Override
+    public String trackerId() {
+        return "8329083290";
+    }
+
+    @Override
+    public String code() {
+        return "3";
+    }
+
+    @Override
+    public List<String> errors(Object exception) {
+        System.out.println(exception);
+        return List.of("Erro 1", "Erro 2");
+    }
+}
+```
+
+- CIRCUIT_BREAKER_CALL_NOT_PERMITTED_EXCEPTION_INTERCEPTOR_503
+
+```java
+package com.huntercodexs.sample.component.exception;
+
+import com.huntercodexs.integration.handler.interfaces.GlobalExceptionInterceptorIntegration;
+import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+import static com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration.CIRCUIT_BREAKER_CALL_NOT_PERMITTED_EXCEPTION_INTERCEPTOR_503;
+
+@Component
+public class Impl4 implements GlobalExceptionInterceptorIntegration {
+    @Override
+    public boolean supports(GlobalEnumIntegration value) {
+        return value.equals(CIRCUIT_BREAKER_CALL_NOT_PERMITTED_EXCEPTION_INTERCEPTOR_503);
+    }
+
+    @Override
+    public String message() {
+        return "Mensagem";
+    }
+
+    @Override
+    public String trackerId() {
+        return "8329083290";
+    }
+
+    @Override
+    public String code() {
+        return "4";
+    }
+
+    @Override
+    public List<String> errors(Object exception) {
+        return List.of("Erro 1", "Erro 2", "Erro 3");
+    }
+}
+
+```
+
+Todos os exemplos acima apresentam uma solucao para casos onde e necessario, gerar uma mensagem especifica, um tracerId, 
+um codigo, assim como tambem tratar os erros e retorna-los em uma lista de erros que sera apresentado ao usuario com 
+o modelo de resposta apresentado
+
+```json
+{
+  "message": "Mensagem",
+  "timestamp": "2025-12-26T17:36:09.473261608",
+  "code": "4",
+  "tracker": "8329083290",
+  "errors": [
+    "Erro 1",
+    "Erro 2",
+    "Erro 3"
+  ]
+}
+```
+
+O Global Handler Exception esta disponivel e ativo para toda a aplicação, não sendo possivel desabilita-lo, sendo assim 
+é altamente recomendavel que voce implemente tratamento de erros especificos quando assim for necessário.
 
 # OpenAPI
 

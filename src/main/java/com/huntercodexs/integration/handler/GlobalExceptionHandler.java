@@ -1,6 +1,6 @@
 package com.huntercodexs.integration.handler;
 
-import com.huntercodexs.integration.core.interfaces.GlobalExceptionInterceptorIntegration;
+import com.huntercodexs.integration.handler.interfaces.GlobalExceptionInterceptorIntegration;
 import com.huntercodexs.integration.handler.enumerator.GlobalEnumIntegration;
 import com.huntercodexs.integration.handler.exception.IntegrationRetryAttemptsExceededException;
 import com.huntercodexs.integration.handler.exception.RateLimitExceededException;
