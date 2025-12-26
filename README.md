@@ -1,6 +1,11 @@
 # huntercodexs-spring-integration
 Library to help developers make integration easily
 
+![Java](https://img.shields.io/badge/Lang-Java-green)
+![Version](https://img.shields.io/badge/Version-21-blue)
+![Spring](https://img.shields.io/badge/Framework-SpringBoot-orange)
+![Release](https://img.shields.io/badge/Release-1.0.0-red)
+
 > TIP: Use the repository https://github.com/huntercodexs/java-spring-boot-sample-integration to test this library or get 
 > some idea in how to use this library.
 
@@ -1482,7 +1487,7 @@ Circuit Breaker Aberto (TODO)
 2025-12-23 16:43:24.961 [http-nio-8080-exec-2] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - Interceptor applied for target: user, headers: {Authorization=[Bearer UserManagerTokenFake], Content-Length=[53], Content-Type=[application/json]}
 ```
 
-### <span style="color: orange;">Compilacao</span>
+### Compilacao
 
 ### Programacao
 
