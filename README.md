@@ -1168,11 +1168,12 @@ huntercodexs.integration.client.config.retryer.period=3000
 huntercodexs.integration.client.config.retryer.max-period=10000
 huntercodexs.integration.client.config.retryer.max-attempts=3
 huntercodexs.integration.client.config.proxy.enable=false
+huntercodexs.integration.client.config.proxy.profiles=local,dev,default
 huntercodexs.integration.client.config.proxy.host=localhost
 huntercodexs.integration.client.config.proxy.port=8080
 ```
 Cada uma dessas propriedades sera utilizada durante a programacao da aplicacao, em um momento oportuno e adequado tudo 
-isso sera explicada em detalhes
+isso sera explicado em detalhes
 
 2 - pom.xml: Ja nesse arquivo sera necessario (conforme dito anteriormente) as seguintes configuracoes
 
@@ -1282,13 +1283,19 @@ huntercodexs.integration.client.config.proxy.host=myproxy.com
 huntercodexs.integration.client.config.proxy.port=8080
 ```
 
+Por padrao a biblioteca aplica o proxy (quando ativo) nos seguintes profiles:
+
+```text
+"local", "dev", "develop", "development", "default", "stage", "prod", "production"
+```
+
 - Retry
 
 O recurso de retentativa considera a seguinte configuracao
 
 ```properties
-huntercodexs.integration.client.config.retryer.period=3000
-huntercodexs.integration.client.config.retryer.max-period=10000
+huntercodexs.integration.client.config.retryer.period=3000 (ms)
+huntercodexs.integration.client.config.retryer.max-period=10000 (ms)
 huntercodexs.integration.client.config.retryer.max-attempts=3
 ```
 
@@ -1437,8 +1444,8 @@ requisicao para inserir um token de client antes da requisicao final.
 
 - Logger
 
-O log e feito durante a requisicao/integracao de uma API e tambem durante o recebimento da resposta dessa integracao. Caso
-seja necessario desabilitar o log use a seguinte propriedade
+O log e feito durante a requisicao/integracao de uma API e tambem durante o recebimento da resposta dessa integracao. 
+Caso seja necessario desabilitar o log use a seguinte propriedade
 
 ```properties
 huntercodexs.integration.client.config.logging.enabled=true
@@ -1470,12 +1477,12 @@ Retentativas
 2025-12-23 17:24:33.951 [http-nio-8080-exec-1] [INFO ] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.buildErrorResponse - No tracker provided; generated automatically: 238191e2-9f5b-47b0-9d0f-44247023e4d1
 2025-12-23 17:24:33.956 [http-nio-8080-exec-1] [ERROR] [jereelton-acer-nitro] c.h.i.handler.GlobalExceptionHandler.logException - [238191e2-9f5b-47b0-9d0f-44247023e4d1] 503 SERVICE_UNAVAILABLE - Limit of requests exceeded for Integration | errors=[Integration Retries Exceeded: 3]
 ```
-Circuit Breaker Aberto
+Circuit Breaker Aberto (TODO)
 ```text
 2025-12-23 16:43:24.961 [http-nio-8080-exec-2] [INFO ] [jereelton-acer-nitro] c.h.i.c.c.ClientInterceptorConfigIntegration.retrieveClientToken - Interceptor applied for target: user, headers: {Authorization=[Bearer UserManagerTokenFake], Content-Length=[53], Content-Type=[application/json]}
 ```
 
-### Compilacao
+### <span style="color: orange;">Compilacao</span>
 
 ### Programacao
 

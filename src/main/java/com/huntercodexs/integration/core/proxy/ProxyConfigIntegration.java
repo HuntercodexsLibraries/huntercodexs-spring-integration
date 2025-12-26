@@ -10,9 +10,10 @@ import org.springframework.context.annotation.Profile;
 
 import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_LOGGING_APP_CONFIG;
 import static com.huntercodexs.integration.core.constants.CoreIntegrationConstants.CORE_PROXY_APP_CONFIG;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Configuration
-@Profile({"local", "dev", "default"})
+@Profile({"local", "dev", "develop", "development", "default", "stage", "prod", "production"})
 public class ProxyConfigIntegration {
 
     @Generated
@@ -41,6 +42,9 @@ public class ProxyConfigIntegration {
             System.setProperty("http.proxySet", "true");
             if (enableLogging) {
                 log.info("Feign Proxy enabled on {}:{}", this.proxyHost, this.proxyPort);
+            }
+            if (isBlank(proxyHost) || isBlank(proxyPort)) {
+                log.error("There is some error in your Feign Proxy configuration, check host [{}] and port [{}]", this.proxyHost, this.proxyPort);
             }
         } else {
             if (enableLogging) {
