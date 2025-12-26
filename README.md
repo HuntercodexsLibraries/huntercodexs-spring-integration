@@ -16,10 +16,10 @@ Library to help developers make integration easily
 ![integration-banner.png](files/img/integration-banner.png)
 
 - [Mustache](#mustache)
+- [Global Handler Interceptor](#global-handler-interceptor)
 - [OpenAPI (Swagger)](#openapi)
 - [Codegen (openapi-generator-maven-plugin)](#codegen-openapi-generator-maven-plugin)
 - [Feign](#feign)
-- [Global Handler Interceptor](#global-handler-interceptor)
 - [Circuit Breaker](#circuit-breaker)
 - [Rate Limit (API)](#rate-limit-for-apis)
 - [Rate Limit (Service Bus)](#rate-limit-service-bus)
@@ -209,6 +209,13 @@ basta usar os arquivos disponiveis em `src/main/resources/support/openapi/templa
 ressaltando que os templates em openapi/templates sao usados para geracao de contratos da API com seus consumidores e
 os arquivos em feign/templates sao usados para gerar a propria integracao nas aplicacoes consumidores, contendo em sua
 estrutura circuit breakers e o proprio feign.
+
+# Global Handler Interceptor
+
+O arquivo GlobalExceptionHandler.java implementa um interceptor global de exceções para a aplicação Spring. Ele
+centraliza o tratamento de erros lançados durante o processamento das requisições, capturando exceções específicas
+e genéricas, e retornando respostas padronizadas para o cliente. Dessa forma, garante maior controle, padronização
+e clareza nas mensagens de erro, além de facilitar a manutenção e o monitoramento do sistema.
 
 # OpenAPI
 
@@ -1579,7 +1586,7 @@ public class UserService {
 }
 ```
 
-> IMPORTANTE: Isso e uma classe de exemplo, ela nao precisa ser edita ou criada, pois ela sera criada automaticamente 
+> IMPORTANTE: A classe abaixo e apens um exemplo, ela nao precisa ser edita ou criada, pois ela sera criada automaticamente 
 > durante o processo de build da aplicacao
 
 ```java
@@ -1612,13 +1619,6 @@ Body: UseRequest
 ```
 
 E assim esta feita a integracao com a API USER-DATA.
-
-# Global Handler Interceptor
-
-O arquivo GlobalExceptionHandler.java implementa um interceptor global de exceções para a aplicação Spring. Ele 
-centraliza o tratamento de erros lançados durante o processamento das requisições, capturando exceções específicas 
-e genéricas, e retornando respostas padronizadas para o cliente. Dessa forma, garante maior controle, padronização 
-e clareza nas mensagens de erro, além de facilitar a manutenção e o monitoramento do sistema.
 
 # Circuit Breaker
 
