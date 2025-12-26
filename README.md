@@ -1173,7 +1173,6 @@ huntercodexs.integration.client.config.retryer.period=3000
 huntercodexs.integration.client.config.retryer.max-period=10000
 huntercodexs.integration.client.config.retryer.max-attempts=3
 huntercodexs.integration.client.config.proxy.enable=false
-huntercodexs.integration.client.config.proxy.profiles=local,dev,default
 huntercodexs.integration.client.config.proxy.host=localhost
 huntercodexs.integration.client.config.proxy.port=8080
 ```
